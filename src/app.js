@@ -8,6 +8,9 @@
 const { invoke } = window.__TAURI__.core;
 const { open } = window.__TAURI__.dialog;
 
+// ===== App Version =====
+let APP_VERSION = 'v0.1.0'; // Fallback hvis backend feiler
+
 // ===== DOM Elements =====
 const elements = {
     urlBar: document.getElementById('url-bar'),
@@ -684,9 +687,9 @@ function updateFooter(path, wasConverted = false) {
     if (path && path !== '__home__') {
         const filename = path.split(/[\\/]/).pop();
         const conversionIndicator = wasConverted ? ' (konvertert)' : '';
-        elements.footerInfo.textContent = `Bare v0.1.0 — ${filename}${conversionIndicator}`;
+        elements.footerInfo.textContent = `Bare ${APP_VERSION} — ${filename}${conversionIndicator}`;
     } else {
-        elements.footerInfo.textContent = 'Bare v0.1.0';
+        elements.footerInfo.textContent = `Bare ${APP_VERSION}`;
     }
 }
 
@@ -912,6 +915,16 @@ function isInputFocused() {
 
 // ===== Initialization =====
 async function init() {
+    // Hent versjon fra backend
+    try {
+        const version = await invoke('get_app_version');
+        APP_VERSION = 'v' + version;
+        // Oppdater footer med riktig versjon
+        elements.footerInfo.textContent = `Bare ${APP_VERSION}`;
+    } catch (error) {
+        console.error('Kunne ikke hente app-versjon:', error);
+    }
+    
     await loadSettings();
     initEventListeners();
     updateNavigationButtons();

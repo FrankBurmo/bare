@@ -64,7 +64,8 @@ impl Fetcher {
     /// Opprett en Fetcher med egendefinert timeout
     pub fn with_timeout(timeout_seconds: u64) -> Self {
         let mut headers = HeaderMap::new();
-        headers.insert(USER_AGENT, "Bare/0.1.0 (Markdown Browser)".parse().unwrap());
+        let user_agent = format!("Bare/{} (Markdown Browser)", env!("CARGO_PKG_VERSION"));
+        headers.insert(USER_AGENT, user_agent.parse().unwrap());
 
         let client = reqwest::Client::builder()
             .timeout(Duration::from_secs(timeout_seconds))

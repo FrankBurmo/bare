@@ -21,6 +21,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
+            commands::get_app_version,
             commands::render_markdown,
             commands::open_file,
             commands::get_welcome_content,

@@ -27,6 +27,12 @@ static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| {
     Mutex::new(Settings::load(&path).unwrap_or_default())
 });
 
+/// Henter app-versjon fra Cargo.toml
+#[tauri::command]
+pub fn get_app_version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
+}
+
 /// Resultat fra markdown-rendering
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RenderedPage {
@@ -508,11 +514,13 @@ fn main() {
 
 ---
 
-*Bare v0.1.0 — Laget med ❤️ for et enklere internett*
+*Bare v{} — Laget med ❤️ for et enklere internett*
 "#;
 
-    let html = markdown::render(welcome_md);
-    let title = markdown::extract_title(welcome_md);
+    let welcome_md = welcome_md.replace("{}", env!("CARGO_PKG_VERSION"));
+
+    let html = markdown::render(&welcome_md);
+    let title = markdown::extract_title(&welcome_md);
 
     RenderedPage {
         html,
