@@ -138,7 +138,7 @@ async function updateSetting(key, value) {
     try {
         const params = {};
         params[key] = value;
-        state.settings = await invoke('update_settings', params);
+        state.settings = await invoke('update_settings', { params });
         applySettings();
     } catch (error) {
         showStatus(`Kunne ikke oppdatere innstilling: ${error}`, true);
