@@ -12,9 +12,10 @@ yarn-error.log*
 # Tauri
 /src-tauri/target/
 /src-tauri/WixTools/
-/src-tauri/icons/*.ico
-/src-tauri/icons/*.icns
-/src-tauri/icons/*.png
+# Keep generated icons in git for faster CI builds
+# /src-tauri/icons/*.ico
+# /src-tauri/icons/*.icns
+# /src-tauri/icons/*.png
 
 # IDE
 .vscode/*
