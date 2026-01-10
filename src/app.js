@@ -502,6 +502,13 @@ async function loadPath(path, addHistory = true) {
         return;
     }
     
+    // Sjekk om dette er en URL eller lokal fil
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        // Dette er en URL - bruk loadUrl
+        await loadUrl(path, addHistory);
+        return;
+    }
+    
     showLoading();
     elements.urlBar.value = path;
     
