@@ -16,20 +16,6 @@ pub struct RenderedPage {
     pub title: Option<String>,
 }
 
-/// Feil som kan oppstå
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BareError {
-    pub message: String,
-}
-
-impl From<std::io::Error> for BareError {
-    fn from(err: std::io::Error) -> Self {
-        BareError {
-            message: err.to_string(),
-        }
-    }
-}
-
 /// Rendrer markdown-tekst til HTML
 ///
 /// # Arguments

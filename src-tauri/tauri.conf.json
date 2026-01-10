@@ -4,9 +4,6 @@
   "version": "0.1.0",
   "identifier": "io.bare.browser",
   "build": {
-    "beforeDevCommand": "",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "",
     "frontendDist": "../src"
   },
   "app": {
@@ -36,10 +33,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "plugins": {
-    "opener": {
-      "openUrl": {}
-    }
   }
 }
