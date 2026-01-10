@@ -1,0 +1,20 @@
+name: Expire caches
+on:
+  schedule:
+    # Run every Monday at 00:00
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+    # Allows for manual workflow runs
+permissions:
+  actions: write
+  pull-requests: read
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Delete unused caches
+        uses: FrankBurmo/cache-cleanup-action@v1.0.0
+        with:
+          # Optional: Change number of days before main branch caches are deleted (default: 7)
+          main-branch-retention-days: '14'
