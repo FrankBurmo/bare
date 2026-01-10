@@ -2,9 +2,11 @@
 //!
 //! Hovedmodul som starter Tauri-applikasjonen og registrerer commands.
 
+mod bookmarks;
 mod commands;
 mod fetcher;
 mod markdown;
+mod settings;
 
 use log::info;
 
@@ -23,6 +25,17 @@ pub fn run() {
             commands::get_welcome_content,
             commands::fetch_url,
             commands::resolve_url,
+            // Bokmerker
+            commands::get_bookmarks,
+            commands::add_bookmark,
+            commands::remove_bookmark,
+            commands::is_bookmarked,
+            // Innstillinger
+            commands::get_settings,
+            commands::update_settings,
+            commands::zoom_in,
+            commands::zoom_out,
+            commands::zoom_reset,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

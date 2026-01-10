@@ -15,11 +15,37 @@ const elements = {
     statusBar: document.getElementById('status-bar'),
     statusMessage: document.getElementById('status-message'),
     footerInfo: document.getElementById('footer-info'),
+    zoomLevel: document.getElementById('zoom-level'),
     btnBack: document.getElementById('btn-back'),
     btnForward: document.getElementById('btn-forward'),
     btnHome: document.getElementById('btn-home'),
     btnOpen: document.getElementById('btn-open'),
     btnTheme: document.getElementById('btn-theme'),
+    btnBookmark: document.getElementById('btn-bookmark'),
+    btnBookmarks: document.getElementById('btn-bookmarks'),
+    btnZoomIn: document.getElementById('btn-zoom-in'),
+    btnZoomOut: document.getElementById('btn-zoom-out'),
+    btnSettings: document.getElementById('btn-settings'),
+    // Søk
+    searchBar: document.getElementById('search-bar'),
+    searchInput: document.getElementById('search-input'),
+    searchCount: document.getElementById('search-count'),
+    btnSearchPrev: document.getElementById('btn-search-prev'),
+    btnSearchNext: document.getElementById('btn-search-next'),
+    btnSearchClose: document.getElementById('btn-search-close'),
+    // Paneler
+    bookmarksPanel: document.getElementById('bookmarks-panel'),
+    bookmarksList: document.getElementById('bookmarks-list'),
+    btnCloseBookmarks: document.getElementById('btn-close-bookmarks'),
+    settingsPanel: document.getElementById('settings-panel'),
+    btnCloseSettings: document.getElementById('btn-close-settings'),
+    // Innstillinger
+    settingTheme: document.getElementById('setting-theme'),
+    settingFontFamily: document.getElementById('setting-font-family'),
+    settingFontSize: document.getElementById('setting-font-size'),
+    settingFontSizeValue: document.getElementById('setting-font-size-value'),
+    settingContentWidth: document.getElementById('setting-content-width'),
+    settingContentWidthValue: document.getElementById('setting-content-width-value'),
 };
 
 // ===== State =====
@@ -27,29 +53,334 @@ const state = {
     history: [],
     historyIndex: -1,
     currentPath: null,
-    currentUrl: null, // URL for den gjeldende siden (for relativ URL-oppløsning)
-    theme: localStorage.getItem('bare-theme') || 'light',
+    currentUrl: null,
+    currentTitle: null,
+    settings: null,
+    // Søk
+    searchMatches: [],
+    currentMatchIndex: -1,
+    originalContent: '',
 };
 
-// ===== Theme Management =====
-function initTheme() {
-    // Sjekk system preferanse hvis ingen lagret preferanse
-    if (!localStorage.getItem('bare-theme')) {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        state.theme = prefersDark ? 'dark' : 'light';
+// ===== Settings Management =====
+async function loadSettings() {
+    try {
+        state.settings = await invoke('get_settings');
+        applySettings();
+    } catch (error) {
+        console.error('Kunne ikke laste innstillinger:', error);
+        state.settings = {
+            theme: 'light',
+            font_size: 100,
+            zoom: 100,
+            font_family: 'system',
+            content_width: 800,
+        };
     }
-    applyTheme();
 }
 
-function applyTheme() {
-    document.documentElement.setAttribute('data-theme', state.theme);
-    elements.btnTheme.textContent = state.theme === 'dark' ? '☀️' : '🌙';
+function applySettings() {
+    if (!state.settings) return;
+    
+    // Tema
+    let effectiveTheme = state.settings.theme;
+    if (effectiveTheme === 'system') {
+        effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', effectiveTheme);
+    elements.btnTheme.textContent = effectiveTheme === 'dark' ? '☀️' : '🌙';
+    
+    // Skriftstørrelse
+    document.documentElement.style.setProperty('--base-font-size', `${state.settings.font_size}%`);
+    document.body.style.fontSize = `${state.settings.font_size}%`;
+    
+    // Zoom
+    elements.content.style.transform = `scale(${state.settings.zoom / 100})`;
+    elements.content.style.transformOrigin = 'top center';
+    elements.zoomLevel.textContent = `${state.settings.zoom}%`;
+    
+    // Skrifttype
+    document.body.className = `font-${state.settings.font_family}`;
+    
+    // Innholdsbredde
+    document.documentElement.style.setProperty('--content-max-width', `${state.settings.content_width}px`);
+    
+    // Oppdater innstillingspanel
+    if (elements.settingTheme) {
+        elements.settingTheme.value = state.settings.theme;
+    }
+    if (elements.settingFontFamily) {
+        elements.settingFontFamily.value = state.settings.font_family;
+    }
+    if (elements.settingFontSize) {
+        elements.settingFontSize.value = state.settings.font_size;
+        elements.settingFontSizeValue.textContent = `${state.settings.font_size}%`;
+    }
+    if (elements.settingContentWidth) {
+        elements.settingContentWidth.value = state.settings.content_width;
+        elements.settingContentWidthValue.textContent = `${state.settings.content_width}px`;
+    }
 }
 
-function toggleTheme() {
-    state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('bare-theme', state.theme);
-    applyTheme();
+async function updateSetting(key, value) {
+    try {
+        const params = {};
+        params[key] = value;
+        state.settings = await invoke('update_settings', params);
+        applySettings();
+    } catch (error) {
+        showStatus(`Kunne ikke oppdatere innstilling: ${error}`, true);
+    }
+}
+
+async function toggleTheme() {
+    const themes = ['light', 'dark', 'system'];
+    const currentIndex = themes.indexOf(state.settings.theme);
+    const nextTheme = themes[(currentIndex + 1) % themes.length];
+    await updateSetting('theme', nextTheme);
+}
+
+async function zoomIn() {
+    try {
+        state.settings = await invoke('zoom_in');
+        applySettings();
+    } catch (error) {
+        showStatus(`Kunne ikke zoome inn: ${error}`, true);
+    }
+}
+
+async function zoomOut() {
+    try {
+        state.settings = await invoke('zoom_out');
+        applySettings();
+    } catch (error) {
+        showStatus(`Kunne ikke zoome ut: ${error}`, true);
+    }
+}
+
+async function zoomReset() {
+    try {
+        state.settings = await invoke('zoom_reset');
+        applySettings();
+    } catch (error) {
+        showStatus(`Kunne ikke tilbakestille zoom: ${error}`, true);
+    }
+}
+
+// ===== Bookmark Management =====
+async function loadBookmarks() {
+    try {
+        const bookmarks = await invoke('get_bookmarks');
+        renderBookmarksList(bookmarks);
+    } catch (error) {
+        console.error('Kunne ikke laste bokmerker:', error);
+    }
+}
+
+function renderBookmarksList(bookmarks) {
+    if (bookmarks.length === 0) {
+        elements.bookmarksList.innerHTML = '<p class="empty-message">Ingen bokmerker ennå</p>';
+        return;
+    }
+    
+    elements.bookmarksList.innerHTML = bookmarks.map(b => `
+        <div class="bookmark-item" data-url="${escapeHtml(b.url)}" data-id="${b.id}">
+            <div class="bookmark-info">
+                <div class="bookmark-title">${escapeHtml(b.title)}</div>
+                <div class="bookmark-url">${escapeHtml(b.url)}</div>
+            </div>
+            <button class="bookmark-delete" data-id="${b.id}" title="Slett">✕</button>
+        </div>
+    `).join('');
+}
+
+async function toggleBookmark() {
+    const url = state.currentUrl || state.currentPath;
+    if (!url || url === '__home__') {
+        showStatus('Kan ikke bokmerke denne siden', true);
+        return;
+    }
+    
+    try {
+        const isBookmarked = await invoke('is_bookmarked', { url });
+        
+        if (isBookmarked) {
+            // Finn og fjern bokmerket
+            const bookmarks = await invoke('get_bookmarks');
+            const bookmark = bookmarks.find(b => b.url === url);
+            if (bookmark) {
+                await invoke('remove_bookmark', { id: bookmark.id });
+                elements.btnBookmark.textContent = '☆';
+                elements.btnBookmark.classList.remove('bookmarked');
+                showStatus('Bokmerke fjernet');
+            }
+        } else {
+            const title = state.currentTitle || url;
+            await invoke('add_bookmark', { title, url });
+            elements.btnBookmark.textContent = '★';
+            elements.btnBookmark.classList.add('bookmarked');
+            showStatus('Bokmerke lagt til');
+        }
+        
+        await loadBookmarks();
+    } catch (error) {
+        showStatus(`Kunne ikke oppdatere bokmerke: ${error}`, true);
+    }
+}
+
+async function updateBookmarkButton() {
+    const url = state.currentUrl || state.currentPath;
+    if (!url || url === '__home__') {
+        elements.btnBookmark.textContent = '☆';
+        elements.btnBookmark.classList.remove('bookmarked');
+        return;
+    }
+    
+    try {
+        const isBookmarked = await invoke('is_bookmarked', { url });
+        elements.btnBookmark.textContent = isBookmarked ? '★' : '☆';
+        elements.btnBookmark.classList.toggle('bookmarked', isBookmarked);
+    } catch (error) {
+        console.error('Kunne ikke sjekke bokmerke-status:', error);
+    }
+}
+
+function toggleBookmarksPanel() {
+    const isVisible = !elements.bookmarksPanel.classList.contains('hidden');
+    elements.bookmarksPanel.classList.toggle('hidden', isVisible);
+    elements.settingsPanel.classList.add('hidden');
+    
+    if (!isVisible) {
+        loadBookmarks();
+    }
+}
+
+function toggleSettingsPanel() {
+    const isVisible = !elements.settingsPanel.classList.contains('hidden');
+    elements.settingsPanel.classList.toggle('hidden', isVisible);
+    elements.bookmarksPanel.classList.add('hidden');
+}
+
+// ===== Search Functionality =====
+function openSearch() {
+    elements.searchBar.classList.remove('hidden');
+    elements.searchInput.focus();
+    elements.searchInput.select();
+}
+
+function closeSearch() {
+    elements.searchBar.classList.add('hidden');
+    clearSearchHighlights();
+    state.searchMatches = [];
+    state.currentMatchIndex = -1;
+    elements.searchCount.textContent = '';
+}
+
+function clearSearchHighlights() {
+    const highlights = elements.content.querySelectorAll('.search-highlight');
+    highlights.forEach(el => {
+        const parent = el.parentNode;
+        parent.replaceChild(document.createTextNode(el.textContent), el);
+        parent.normalize();
+    });
+}
+
+function performSearch() {
+    const query = elements.searchInput.value.trim().toLowerCase();
+    
+    clearSearchHighlights();
+    state.searchMatches = [];
+    state.currentMatchIndex = -1;
+    
+    if (!query) {
+        elements.searchCount.textContent = '';
+        return;
+    }
+    
+    const markdownBody = elements.content.querySelector('.markdown-body');
+    if (!markdownBody) return;
+    
+    const walker = document.createTreeWalker(
+        markdownBody,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+    
+    const textNodes = [];
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+    
+    textNodes.forEach(node => {
+        const text = node.textContent;
+        const lowerText = text.toLowerCase();
+        let startIndex = 0;
+        let index;
+        
+        while ((index = lowerText.indexOf(query, startIndex)) !== -1) {
+            const range = document.createRange();
+            range.setStart(node, index);
+            range.setEnd(node, index + query.length);
+            
+            const highlight = document.createElement('span');
+            highlight.className = 'search-highlight';
+            
+            try {
+                range.surroundContents(highlight);
+                state.searchMatches.push(highlight);
+                
+                // Oppdater node-referansen for videre søk
+                node = highlight.nextSibling;
+                if (!node) break;
+                startIndex = 0;
+            } catch (e) {
+                startIndex = index + 1;
+            }
+        }
+    });
+    
+    if (state.searchMatches.length > 0) {
+        state.currentMatchIndex = 0;
+        highlightCurrentMatch();
+    }
+    
+    updateSearchCount();
+}
+
+function highlightCurrentMatch() {
+    state.searchMatches.forEach((el, i) => {
+        el.classList.toggle('current', i === state.currentMatchIndex);
+    });
+    
+    if (state.searchMatches[state.currentMatchIndex]) {
+        state.searchMatches[state.currentMatchIndex].scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
+    }
+}
+
+function updateSearchCount() {
+    if (state.searchMatches.length === 0) {
+        elements.searchCount.textContent = 'Ingen treff';
+    } else {
+        elements.searchCount.textContent = `${state.currentMatchIndex + 1} av ${state.searchMatches.length}`;
+    }
+}
+
+function searchNext() {
+    if (state.searchMatches.length === 0) return;
+    state.currentMatchIndex = (state.currentMatchIndex + 1) % state.searchMatches.length;
+    highlightCurrentMatch();
+    updateSearchCount();
+}
+
+function searchPrev() {
+    if (state.searchMatches.length === 0) return;
+    state.currentMatchIndex = (state.currentMatchIndex - 1 + state.searchMatches.length) % state.searchMatches.length;
+    highlightCurrentMatch();
+    updateSearchCount();
 }
 
 // ===== Status Bar =====
@@ -60,7 +391,6 @@ function showStatus(message, isError = false) {
         elements.statusBar.classList.add('error');
     }
     
-    // Auto-hide etter 3 sekunder
     setTimeout(() => {
         elements.statusBar.classList.add('hidden');
     }, 3000);
@@ -73,13 +403,15 @@ function hideStatus() {
 // ===== Content Rendering =====
 function renderContent(html, title) {
     elements.content.innerHTML = `<div class="markdown-body">${html}</div>`;
+    state.currentTitle = title;
     
-    // Oppdater tittel
     if (title) {
         document.title = `${title} - Bare`;
     } else {
         document.title = 'Bare';
     }
+    
+    updateBookmarkButton();
 }
 
 function showError(message) {
@@ -104,7 +436,6 @@ function updateNavigationButtons() {
 }
 
 function addToHistory(path) {
-    // Fjern fremtidig historikk hvis vi navigerer fra midten
     if (state.historyIndex < state.history.length - 1) {
         state.history = state.history.slice(0, state.historyIndex + 1);
     }
@@ -113,7 +444,6 @@ function addToHistory(path) {
     state.historyIndex = state.history.length - 1;
     state.currentPath = path;
     
-    // Begrens historikk til 50 elementer
     if (state.history.length > 50) {
         state.history.shift();
         state.historyIndex--;
@@ -145,6 +475,7 @@ async function goHome() {
         renderContent(result.html, result.title);
         elements.urlBar.value = '';
         state.currentUrl = null;
+        state.currentPath = '__home__';
         addToHistory('__home__');
     } catch (error) {
         showError(`Kunne ikke laste startsiden: ${error}`);
@@ -188,7 +519,6 @@ async function loadUrl(url, addHistory = true) {
         state.currentPath = null;
         state.currentUrl = result.url || url;
         
-        // Oppdater URL-bar med endelig URL (etter redirects)
         if (result.url) {
             elements.urlBar.value = result.url;
         }
@@ -206,20 +536,17 @@ async function loadUrl(url, addHistory = true) {
 
 // ===== Link Resolution =====
 async function resolveAndNavigate(href) {
-    // Sjekk om det er en absolutt URL
     if (href.startsWith('http://') || href.startsWith('https://')) {
         await loadUrl(href);
         return;
     }
     
-    // Sjekk om det er en lokal fil-referanse
     if (href.startsWith('file://')) {
         const path = href.replace('file://', '');
         await loadPath(path);
         return;
     }
     
-    // Relativ URL - må ha en base-URL
     if (state.currentUrl) {
         try {
             const resolvedUrl = await invoke('resolve_url', {
@@ -227,7 +554,6 @@ async function resolveAndNavigate(href) {
                 relativeUrl: href
             });
             
-            // Sjekk om det er en fil eller HTTP URL
             if (resolvedUrl.startsWith('file://')) {
                 const path = resolvedUrl.replace('file://', '');
                 await loadPath(path);
@@ -238,7 +564,6 @@ async function resolveAndNavigate(href) {
             showError(`Kunne ikke løse URL: ${error}`);
         }
     } else if (state.currentPath) {
-        // Relativ sti basert på lokal fil
         const basePath = state.currentPath.substring(0, state.currentPath.lastIndexOf(/[\\/]/) + 1);
         const newPath = basePath + href;
         await loadPath(newPath);
@@ -274,20 +599,17 @@ async function handleUrlSubmit() {
         return;
     }
     
-    // Sjekk om det er en HTTP/HTTPS URL
     if (input.startsWith('http://') || input.startsWith('https://')) {
         await loadUrl(input);
         return;
     }
     
-    // Sjekk om det er en lokal fil
     if (input.startsWith('/') || input.match(/^[a-zA-Z]:\\/)) {
         await loadPath(input);
     } else if (input.startsWith('file://')) {
         const path = input.replace('file://', '');
         await loadPath(path);
     } else {
-        // Prøv å behandle som URL (legg til https://)
         const urlWithScheme = 'https://' + input;
         await loadUrl(urlWithScheme);
     }
@@ -326,12 +648,122 @@ function initEventListeners() {
     elements.btnOpen.addEventListener('click', openFileDialog);
     elements.btnTheme.addEventListener('click', toggleTheme);
     
+    // Bokmerker
+    elements.btnBookmark.addEventListener('click', toggleBookmark);
+    elements.btnBookmarks.addEventListener('click', toggleBookmarksPanel);
+    elements.btnCloseBookmarks.addEventListener('click', () => elements.bookmarksPanel.classList.add('hidden'));
+    
+    // Bokmerke-liste klikk
+    elements.bookmarksList.addEventListener('click', async (e) => {
+        const deleteBtn = e.target.closest('.bookmark-delete');
+        if (deleteBtn) {
+            e.stopPropagation();
+            const id = deleteBtn.dataset.id;
+            try {
+                await invoke('remove_bookmark', { id });
+                await loadBookmarks();
+                await updateBookmarkButton();
+                showStatus('Bokmerke slettet');
+            } catch (error) {
+                showStatus(`Kunne ikke slette bokmerke: ${error}`, true);
+            }
+            return;
+        }
+        
+        const item = e.target.closest('.bookmark-item');
+        if (item) {
+            const url = item.dataset.url;
+            elements.bookmarksPanel.classList.add('hidden');
+            
+            if (url.startsWith('file://')) {
+                await loadPath(url.replace('file://', ''));
+            } else if (url.startsWith('http://') || url.startsWith('https://')) {
+                await loadUrl(url);
+            } else {
+                await loadPath(url);
+            }
+        }
+    });
+    
+    // Zoom
+    elements.btnZoomIn.addEventListener('click', zoomIn);
+    elements.btnZoomOut.addEventListener('click', zoomOut);
+    
+    // Innstillinger
+    elements.btnSettings.addEventListener('click', toggleSettingsPanel);
+    elements.btnCloseSettings.addEventListener('click', () => elements.settingsPanel.classList.add('hidden'));
+    
+    elements.settingTheme.addEventListener('change', (e) => updateSetting('theme', e.target.value));
+    elements.settingFontFamily.addEventListener('change', (e) => updateSetting('font_family', e.target.value));
+    elements.settingFontSize.addEventListener('input', (e) => {
+        elements.settingFontSizeValue.textContent = `${e.target.value}%`;
+    });
+    elements.settingFontSize.addEventListener('change', (e) => updateSetting('font_size', parseInt(e.target.value)));
+    elements.settingContentWidth.addEventListener('input', (e) => {
+        elements.settingContentWidthValue.textContent = `${e.target.value}px`;
+    });
+    elements.settingContentWidth.addEventListener('change', (e) => updateSetting('content_width', parseInt(e.target.value)));
+    
+    // Søk
+    elements.searchInput.addEventListener('input', performSearch);
+    elements.searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            if (e.shiftKey) {
+                searchPrev();
+            } else {
+                searchNext();
+            }
+        }
+        if (e.key === 'Escape') {
+            closeSearch();
+        }
+    });
+    elements.btnSearchNext.addEventListener('click', searchNext);
+    elements.btnSearchPrev.addEventListener('click', searchPrev);
+    elements.btnSearchClose.addEventListener('click', closeSearch);
+    
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         // Ctrl+O: Åpne fil
         if (e.ctrlKey && e.key === 'o') {
             e.preventDefault();
             openFileDialog();
+        }
+        
+        // Ctrl+F: Søk
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            openSearch();
+        }
+        
+        // Ctrl+D: Bokmerke
+        if (e.ctrlKey && e.key === 'd') {
+            e.preventDefault();
+            toggleBookmark();
+        }
+        
+        // Ctrl+B: Vis bokmerker
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            toggleBookmarksPanel();
+        }
+        
+        // Ctrl++: Zoom inn
+        if (e.ctrlKey && (e.key === '+' || e.key === '=')) {
+            e.preventDefault();
+            zoomIn();
+        }
+        
+        // Ctrl+-: Zoom ut
+        if (e.ctrlKey && e.key === '-') {
+            e.preventDefault();
+            zoomOut();
+        }
+        
+        // Ctrl+0: Tilbakestill zoom
+        if (e.ctrlKey && e.key === '0') {
+            e.preventDefault();
+            zoomReset();
         }
         
         // Alt+Left: Tilbake
@@ -353,9 +785,38 @@ function initEventListeners() {
             elements.urlBar.select();
         }
         
-        // Escape: Fjern fokus fra URL-bar
+        // g: Gå hjem (kun når ikke i input)
+        if (e.key === 'g' && !isInputFocused()) {
+            e.preventDefault();
+            goHome();
+        }
+        
+        // j: Scroll ned
+        if (e.key === 'j' && !isInputFocused()) {
+            elements.content.scrollBy({ top: 100, behavior: 'smooth' });
+        }
+        
+        // k: Scroll opp
+        if (e.key === 'k' && !isInputFocused()) {
+            elements.content.scrollBy({ top: -100, behavior: 'smooth' });
+        }
+        
+        // G: Scroll til bunnen
+        if (e.key === 'G' && !isInputFocused()) {
+            elements.content.scrollTo({ top: elements.content.scrollHeight, behavior: 'smooth' });
+        }
+        
+        // gg: Scroll til toppen (vi bruker bare Home-tasten her)
+        if (e.key === 'Home' && !isInputFocused()) {
+            elements.content.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // Escape: Lukk paneler og søk
         if (e.key === 'Escape') {
             elements.urlBar.blur();
+            elements.bookmarksPanel.classList.add('hidden');
+            elements.settingsPanel.classList.add('hidden');
+            closeSearch();
         }
     });
     
@@ -365,27 +826,26 @@ function initEventListeners() {
         if (link) {
             const href = link.getAttribute('href');
             
-            // Interne anker-lenker
             if (href.startsWith('#')) {
-                return; // La nettleseren håndtere dette
+                return;
             }
             
-            // Forhindre standard navigasjon
             e.preventDefault();
-            
-            // Naviger til lenken
             await resolveAndNavigate(href);
         }
     });
 }
 
+function isInputFocused() {
+    const active = document.activeElement;
+    return active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+}
+
 // ===== Initialization =====
 async function init() {
-    initTheme();
+    await loadSettings();
     initEventListeners();
     updateNavigationButtons();
-    
-    // Last velkomstside
     await goHome();
 }
 

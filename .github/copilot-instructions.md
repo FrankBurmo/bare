@@ -193,8 +193,11 @@ cargo tauri build
 
 **Når du legger til ny funksjonalitet:**
 - Skriv tester som kjører i CI
+- Alle tester kjører uten feil
 - Sørg for at `cargo clippy` passerer uten warnings
 - Formater kode med `cargo fmt`
+- cargo build --release bygger uten feilmeldinger
+
 
 ## Filstruktur
 

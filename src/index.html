@@ -34,8 +34,23 @@
             </div>
             
             <div class="toolbar-right">
+                <button id="btn-bookmark" class="toolbar-btn" title="Bokmerke denne siden (Ctrl+D)">
+                    ☆
+                </button>
+                <button id="btn-bookmarks" class="toolbar-btn" title="Vis bokmerker (Ctrl+B)">
+                    📚
+                </button>
                 <button id="btn-open" class="toolbar-btn" title="Åpne fil (Ctrl+O)">
                     📂
+                </button>
+                <button id="btn-zoom-out" class="toolbar-btn" title="Zoom ut (Ctrl+-)">
+                    −
+                </button>
+                <button id="btn-zoom-in" class="toolbar-btn" title="Zoom inn (Ctrl++)">
+                    +
+                </button>
+                <button id="btn-settings" class="toolbar-btn" title="Innstillinger">
+                    ⚙️
                 </button>
                 <button id="btn-theme" class="toolbar-btn" title="Bytt tema">
                     🌓
@@ -43,9 +58,74 @@
             </div>
         </header>
         
+        <!-- Søkefelt -->
+        <div id="search-bar" class="search-bar hidden">
+            <input 
+                type="text" 
+                id="search-input" 
+                class="search-input" 
+                placeholder="Søk i siden..."
+                spellcheck="false"
+            >
+            <span id="search-count" class="search-count"></span>
+            <button id="btn-search-prev" class="search-btn" title="Forrige treff">↑</button>
+            <button id="btn-search-next" class="search-btn" title="Neste treff">↓</button>
+            <button id="btn-search-close" class="search-btn" title="Lukk (Esc)">✕</button>
+        </div>
+        
         <!-- Status bar -->
         <div id="status-bar" class="status-bar hidden">
             <span id="status-message"></span>
+        </div>
+        
+        <!-- Bokmerke-panel -->
+        <div id="bookmarks-panel" class="side-panel hidden">
+            <div class="panel-header">
+                <h3>Bokmerker</h3>
+                <button id="btn-close-bookmarks" class="panel-close-btn">✕</button>
+            </div>
+            <div id="bookmarks-list" class="panel-content">
+                <p class="empty-message">Ingen bokmerker ennå</p>
+            </div>
+        </div>
+        
+        <!-- Innstillinger-panel -->
+        <div id="settings-panel" class="side-panel hidden">
+            <div class="panel-header">
+                <h3>Innstillinger</h3>
+                <button id="btn-close-settings" class="panel-close-btn">✕</button>
+            </div>
+            <div class="panel-content">
+                <div class="setting-group">
+                    <label for="setting-theme">Tema</label>
+                    <select id="setting-theme" class="setting-select">
+                        <option value="light">Lys</option>
+                        <option value="dark">Mørk</option>
+                        <option value="system">System</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="setting-font-family">Skrifttype</label>
+                    <select id="setting-font-family" class="setting-select">
+                        <option value="system">System</option>
+                        <option value="serif">Serif</option>
+                        <option value="sans-serif">Sans-serif</option>
+                        <option value="mono">Monospace</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="setting-font-size">Skriftstørrelse</label>
+                    <input type="range" id="setting-font-size" class="setting-range" 
+                           min="70" max="150" value="100" step="10">
+                    <span id="setting-font-size-value">100%</span>
+                </div>
+                <div class="setting-group">
+                    <label for="setting-content-width">Innholdsbredde</label>
+                    <input type="range" id="setting-content-width" class="setting-range" 
+                           min="400" max="1200" value="800" step="50">
+                    <span id="setting-content-width-value">800px</span>
+                </div>
+            </div>
         </div>
         
         <!-- Hovedinnhold -->
@@ -58,6 +138,7 @@
         <!-- Footer -->
         <footer class="footer">
             <span id="footer-info">Bare v0.1.0</span>
+            <span id="zoom-level" class="zoom-level">100%</span>
         </footer>
     </div>
     

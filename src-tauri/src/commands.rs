@@ -2,15 +2,29 @@
 //!
 //! IPC-kommandoer som kan kalles fra frontend.
 
+use crate::bookmarks::{self, Bookmark, BookmarkStore};
 use crate::fetcher::{self, Fetcher};
 use crate::markdown;
+use crate::settings::{self, FontFamily, Settings, Theme};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use std::sync::LazyLock;
+use std::sync::{LazyLock, Mutex};
 
 /// Global HTTP-klient (gjenbrukes for alle forespørsler)
 static FETCHER: LazyLock<Fetcher> = LazyLock::new(Fetcher::new);
+
+/// Global bokmerke-lagring
+static BOOKMARKS: LazyLock<Mutex<BookmarkStore>> = LazyLock::new(|| {
+    let path = bookmarks::get_bookmarks_path();
+    Mutex::new(BookmarkStore::load(&path).unwrap_or_default())
+});
+
+/// Global innstillingslagring
+static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| {
+    let path = settings::get_settings_path();
+    Mutex::new(Settings::load(&path).unwrap_or_default())
+});
 
 /// Resultat fra markdown-rendering
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -128,6 +142,204 @@ pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
 #[tauri::command]
 pub fn resolve_url(base_url: String, relative_url: String) -> Result<String, String> {
     fetcher::resolve_url(&base_url, &relative_url).map_err(|e| e.to_string())
+}
+
+// ===== Bokmerke-commands =====
+
+/// Bokmerke-info for frontend
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BookmarkInfo {
+    pub id: String,
+    pub title: String,
+    pub url: String,
+    pub created_at: u64,
+}
+
+impl From<&Bookmark> for BookmarkInfo {
+    fn from(b: &Bookmark) -> Self {
+        Self {
+            id: b.id.clone(),
+            title: b.title.clone(),
+            url: b.url.clone(),
+            created_at: b.created_at,
+        }
+    }
+}
+
+/// Hent alle bokmerker
+#[tauri::command]
+pub fn get_bookmarks() -> Vec<BookmarkInfo> {
+    let store = BOOKMARKS.lock().unwrap();
+    store.list().iter().map(BookmarkInfo::from).collect()
+}
+
+/// Legg til et nytt bokmerke
+#[tauri::command]
+pub fn add_bookmark(title: String, url: String) -> Result<BookmarkInfo, String> {
+    let mut store = BOOKMARKS.lock().unwrap();
+
+    let bookmark = Bookmark {
+        id: bookmarks::generate_id(),
+        title,
+        url,
+        created_at: bookmarks::current_timestamp(),
+    };
+
+    store.add(bookmark.clone()).map_err(|e| e.to_string())?;
+
+    // Lagre til fil
+    let path = bookmarks::get_bookmarks_path();
+    store.save(&path).map_err(|e| e.to_string())?;
+
+    Ok(BookmarkInfo::from(&bookmark))
+}
+
+/// Fjern et bokmerke
+#[tauri::command]
+pub fn remove_bookmark(id: String) -> Result<(), String> {
+    let mut store = BOOKMARKS.lock().unwrap();
+    store.remove(&id).map_err(|e| e.to_string())?;
+
+    // Lagre til fil
+    let path = bookmarks::get_bookmarks_path();
+    store.save(&path).map_err(|e| e.to_string())
+}
+
+/// Sjekk om en URL er bokmerket
+#[tauri::command]
+pub fn is_bookmarked(url: String) -> bool {
+    let store = BOOKMARKS.lock().unwrap();
+    store.is_bookmarked(&url)
+}
+
+// ===== Innstillinger-commands =====
+
+/// Innstillinger for frontend
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SettingsInfo {
+    pub theme: String,
+    pub font_size: u32,
+    pub zoom: u32,
+    pub font_family: String,
+    pub content_width: u32,
+    pub show_line_numbers: bool,
+}
+
+impl From<&Settings> for SettingsInfo {
+    fn from(s: &Settings) -> Self {
+        Self {
+            theme: match s.theme {
+                Theme::Light => "light".to_string(),
+                Theme::Dark => "dark".to_string(),
+                Theme::System => "system".to_string(),
+            },
+            font_size: s.font_size,
+            zoom: s.zoom,
+            font_family: match s.font_family {
+                FontFamily::System => "system".to_string(),
+                FontFamily::Serif => "serif".to_string(),
+                FontFamily::SansSerif => "sans-serif".to_string(),
+                FontFamily::Mono => "mono".to_string(),
+            },
+            content_width: s.content_width,
+            show_line_numbers: s.show_line_numbers,
+        }
+    }
+}
+
+/// Hent gjeldende innstillinger
+#[tauri::command]
+pub fn get_settings() -> SettingsInfo {
+    let settings = SETTINGS.lock().unwrap();
+    SettingsInfo::from(&*settings)
+}
+
+/// Oppdater innstillinger
+#[tauri::command]
+pub fn update_settings(
+    theme: Option<String>,
+    font_size: Option<u32>,
+    zoom: Option<u32>,
+    font_family: Option<String>,
+    content_width: Option<u32>,
+    show_line_numbers: Option<bool>,
+) -> Result<SettingsInfo, String> {
+    let mut settings = SETTINGS.lock().unwrap();
+
+    if let Some(t) = theme {
+        settings.theme = match t.as_str() {
+            "dark" => Theme::Dark,
+            "system" => Theme::System,
+            _ => Theme::Light,
+        };
+    }
+
+    if let Some(size) = font_size {
+        settings.font_size = size.clamp(70, 150);
+    }
+
+    if let Some(z) = zoom {
+        settings.zoom = z.clamp(50, 200);
+    }
+
+    if let Some(ff) = font_family {
+        settings.font_family = match ff.as_str() {
+            "serif" => FontFamily::Serif,
+            "sans-serif" => FontFamily::SansSerif,
+            "mono" => FontFamily::Mono,
+            _ => FontFamily::System,
+        };
+    }
+
+    if let Some(width) = content_width {
+        settings.content_width = width.clamp(400, 1200);
+    }
+
+    if let Some(ln) = show_line_numbers {
+        settings.show_line_numbers = ln;
+    }
+
+    // Lagre til fil
+    let path = settings::get_settings_path();
+    settings.save(&path).map_err(|e| e.to_string())?;
+
+    Ok(SettingsInfo::from(&*settings))
+}
+
+/// Zoom inn
+#[tauri::command]
+pub fn zoom_in() -> Result<SettingsInfo, String> {
+    let mut settings = SETTINGS.lock().unwrap();
+    settings.zoom_in();
+
+    let path = settings::get_settings_path();
+    settings.save(&path).map_err(|e| e.to_string())?;
+
+    Ok(SettingsInfo::from(&*settings))
+}
+
+/// Zoom ut
+#[tauri::command]
+pub fn zoom_out() -> Result<SettingsInfo, String> {
+    let mut settings = SETTINGS.lock().unwrap();
+    settings.zoom_out();
+
+    let path = settings::get_settings_path();
+    settings.save(&path).map_err(|e| e.to_string())?;
+
+    Ok(SettingsInfo::from(&*settings))
+}
+
+/// Tilbakestill zoom
+#[tauri::command]
+pub fn zoom_reset() -> Result<SettingsInfo, String> {
+    let mut settings = SETTINGS.lock().unwrap();
+    settings.zoom_reset();
+
+    let path = settings::get_settings_path();
+    settings.save(&path).map_err(|e| e.to_string())?;
+
+    Ok(SettingsInfo::from(&*settings))
 }
 
 /// Returnerer velkomst-innhold for når appen starter

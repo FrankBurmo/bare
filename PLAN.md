@@ -198,16 +198,16 @@ bare/
 - App kan vise innhold fra vanlige nettsider
 - Bruker kan velge modus
 
-### Fase 4: Brukeropplevelse (2-3 uker)
+### Fase 4: Brukeropplevelse (2-3 uker) ✅ FULLFØRT
 
 **Mål:** Gjør Bare behagelig å bruke daglig
 
-- [ ] Themes (lys/mørk modus)
-- [ ] Bokmerker med JSON-lagring
-- [ ] Søk i side (Ctrl+F)
-- [ ] Keyboard shortcuts (Vim-inspirert?)
-- [ ] Zoom inn/ut
-- [ ] Skrift-valg
+- [x] Themes (lys/mørk modus)
+- [x] Bokmerker med JSON-lagring
+- [x] Søk i side (Ctrl+F)
+- [x] Keyboard shortcuts (Vim-inspirert?)
+- [x] Zoom inn/ut
+- [x] Skrift-valg
 
 **Deliverables:**
 - Polert brukeropplevelse
