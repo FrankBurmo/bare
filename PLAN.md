@@ -169,16 +169,16 @@ bare/
 - Grunnleggende brukergrensesnitt
 - Automatisert bygg og test-pipeline
 
-### Fase 2: Nettverksstøtte (2-3 uker)
+### Fase 2: Nettverksstøtte (2-3 uker) ✅ FULLFØRT
 
 **Mål:** Hent markdown fra internett
 
-- [ ] HTTP/HTTPS-klient med reqwest
-- [ ] Håndter Content-Type headers
-- [ ] Parse og gjør lenker klikkbare
-- [ ] Relative URL-oppløsning
-- [ ] Back/forward navigasjonshistorikk
-- [ ] Feilhåndtering (404, timeout, etc.)
+- [x] HTTP/HTTPS-klient med reqwest
+- [x] Håndter Content-Type headers
+- [x] Parse og gjør lenker klikkbare
+- [x] Relative URL-oppløsning
+- [x] Back/forward navigasjonshistorikk
+- [x] Feilhåndtering (404, timeout, etc.)
 
 **Deliverables:**
 - App kan navigere til markdown-URLer

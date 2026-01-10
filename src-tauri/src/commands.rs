@@ -2,10 +2,15 @@
 //!
 //! IPC-kommandoer som kan kalles fra frontend.
 
+use crate::fetcher::{self, Fetcher};
 use crate::markdown;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use std::sync::LazyLock;
+
+/// Global HTTP-klient (gjenbrukes for alle forespørsler)
+static FETCHER: LazyLock<Fetcher> = LazyLock::new(Fetcher::new);
 
 /// Resultat fra markdown-rendering
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,6 +19,12 @@ pub struct RenderedPage {
     pub html: String,
     /// Tittel ekstrahert fra markdown (hvis funnet)
     pub title: Option<String>,
+    /// URL-en som ble brukt (etter eventuelle redirects)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    /// Om innholdet ble hentet fra nettverket
+    #[serde(default)]
+    pub is_remote: bool,
 }
 
 /// Rendrer markdown-tekst til HTML
@@ -28,7 +39,12 @@ pub fn render_markdown(content: String) -> RenderedPage {
     let html = markdown::render(&content);
     let title = markdown::extract_title(&content);
 
-    RenderedPage { html, title }
+    RenderedPage {
+        html,
+        title,
+        url: None,
+        is_remote: false,
+    }
 }
 
 /// Åpner og leser en lokal markdown-fil
@@ -62,7 +78,56 @@ pub fn open_file(path: String) -> Result<RenderedPage, String> {
     let html = markdown::render(&content);
     let title = markdown::extract_title(&content);
 
-    Ok(RenderedPage { html, title })
+    Ok(RenderedPage {
+        html,
+        title,
+        url: Some(format!("file://{}", path.display())),
+        is_remote: false,
+    })
+}
+
+/// Henter og rendrer markdown fra en URL
+///
+/// # Arguments
+/// * `url` - URL til markdown-filen som skal hentes
+///
+/// # Returns
+/// RenderedPage med HTML og tittel, eller feilmelding
+#[tauri::command]
+pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
+    let result = FETCHER.fetch(&url).await.map_err(|e| e.to_string())?;
+
+    if !result.is_markdown {
+        // For nå, returner en feilmelding for ikke-markdown innhold
+        // I Fase 3 vil vi konvertere HTML til markdown
+        return Err(format!(
+            "Innholdet er ikke markdown (Content-Type: {:?}). HTML-konvertering kommer i en fremtidig versjon.",
+            result.content_type
+        ));
+    }
+
+    let html = markdown::render(&result.content);
+    let title = markdown::extract_title(&result.content);
+
+    Ok(RenderedPage {
+        html,
+        title,
+        url: Some(result.final_url),
+        is_remote: true,
+    })
+}
+
+/// Løser en relativ URL mot en base-URL
+///
+/// # Arguments
+/// * `base_url` - Nåværende side sin URL
+/// * `relative_url` - Relativ URL som skal løses
+///
+/// # Returns
+/// Absolutt URL
+#[tauri::command]
+pub fn resolve_url(base_url: String, relative_url: String) -> Result<String, String> {
+    fetcher::resolve_url(&base_url, &relative_url).map_err(|e| e.to_string())
 }
 
 /// Returnerer velkomst-innhold for når appen starter
@@ -136,7 +201,12 @@ fn main() {
     let html = markdown::render(welcome_md);
     let title = markdown::extract_title(welcome_md);
 
-    RenderedPage { html, title }
+    RenderedPage {
+        html,
+        title,
+        url: None,
+        is_remote: false,
+    }
 }
 
 #[cfg(test)]
@@ -148,6 +218,7 @@ mod tests {
         let result = render_markdown("# Test".to_string());
         assert!(result.html.contains("<h1>"));
         assert_eq!(result.title, Some("Test".to_string()));
+        assert!(!result.is_remote);
     }
 
     #[test]
@@ -155,5 +226,15 @@ mod tests {
         let result = get_welcome_content();
         assert!(result.html.contains("Velkommen til Bare"));
         assert!(result.title.is_some());
+        assert!(!result.is_remote);
+    }
+
+    #[test]
+    fn test_resolve_url_command() {
+        let result = resolve_url(
+            "https://example.com/docs/readme.md".to_string(),
+            "other.md".to_string(),
+        );
+        assert_eq!(result.unwrap(), "https://example.com/docs/other.md");
     }
 }

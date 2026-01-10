@@ -3,6 +3,7 @@
 //! Hovedmodul som starter Tauri-applikasjonen og registrerer commands.
 
 mod commands;
+mod fetcher;
 mod markdown;
 
 use log::info;
@@ -20,6 +21,8 @@ pub fn run() {
             commands::render_markdown,
             commands::open_file,
             commands::get_welcome_content,
+            commands::fetch_url,
+            commands::resolve_url,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -27,6 +27,7 @@ const state = {
     history: [],
     historyIndex: -1,
     currentPath: null,
+    currentUrl: null, // URL for den gjeldende siden (for relativ URL-oppløsning)
     theme: localStorage.getItem('bare-theme') || 'light',
 };
 
@@ -143,6 +144,7 @@ async function goHome() {
         const result = await invoke('get_welcome_content');
         renderContent(result.html, result.title);
         elements.urlBar.value = '';
+        state.currentUrl = null;
         addToHistory('__home__');
     } catch (error) {
         showError(`Kunne ikke laste startsiden: ${error}`);
@@ -163,6 +165,7 @@ async function loadPath(path, addHistory = true) {
         const result = await invoke('open_file', { path });
         renderContent(result.html, result.title);
         state.currentPath = path;
+        state.currentUrl = result.url || null;
         
         if (addHistory) {
             addToHistory(path);
@@ -171,6 +174,76 @@ async function loadPath(path, addHistory = true) {
         updateFooter(path);
     } catch (error) {
         showError(error);
+    }
+}
+
+// ===== URL Loading =====
+async function loadUrl(url, addHistory = true) {
+    showLoading();
+    elements.urlBar.value = url;
+    
+    try {
+        const result = await invoke('fetch_url', { url });
+        renderContent(result.html, result.title);
+        state.currentPath = null;
+        state.currentUrl = result.url || url;
+        
+        // Oppdater URL-bar med endelig URL (etter redirects)
+        if (result.url) {
+            elements.urlBar.value = result.url;
+        }
+        
+        if (addHistory) {
+            addToHistory(result.url || url);
+        }
+        
+        updateFooter(result.url || url);
+        showStatus('Innhold lastet fra nettverket', false);
+    } catch (error) {
+        showError(error);
+    }
+}
+
+// ===== Link Resolution =====
+async function resolveAndNavigate(href) {
+    // Sjekk om det er en absolutt URL
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+        await loadUrl(href);
+        return;
+    }
+    
+    // Sjekk om det er en lokal fil-referanse
+    if (href.startsWith('file://')) {
+        const path = href.replace('file://', '');
+        await loadPath(path);
+        return;
+    }
+    
+    // Relativ URL - må ha en base-URL
+    if (state.currentUrl) {
+        try {
+            const resolvedUrl = await invoke('resolve_url', {
+                baseUrl: state.currentUrl,
+                relativeUrl: href
+            });
+            
+            // Sjekk om det er en fil eller HTTP URL
+            if (resolvedUrl.startsWith('file://')) {
+                const path = resolvedUrl.replace('file://', '');
+                await loadPath(path);
+            } else {
+                await loadUrl(resolvedUrl);
+            }
+        } catch (error) {
+            showError(`Kunne ikke løse URL: ${error}`);
+        }
+    } else if (state.currentPath) {
+        // Relativ sti basert på lokal fil
+        const basePath = state.currentPath.substring(0, state.currentPath.lastIndexOf(/[\\/]/) + 1);
+        const newPath = basePath + href;
+        await loadPath(newPath);
+    } else {
+        showError('Kan ikke navigere til relativ lenke uten en base-URL');
     }
 }
 
@@ -201,6 +274,12 @@ async function handleUrlSubmit() {
         return;
     }
     
+    // Sjekk om det er en HTTP/HTTPS URL
+    if (input.startsWith('http://') || input.startsWith('https://')) {
+        await loadUrl(input);
+        return;
+    }
+    
     // Sjekk om det er en lokal fil
     if (input.startsWith('/') || input.match(/^[a-zA-Z]:\\/)) {
         await loadPath(input);
@@ -208,8 +287,9 @@ async function handleUrlSubmit() {
         const path = input.replace('file://', '');
         await loadPath(path);
     } else {
-        // For nå, vis en melding om at URL-støtte kommer
-        showStatus('URL-støtte kommer i neste versjon. Bruk "Åpne fil" for lokale filer.', true);
+        // Prøv å behandle som URL (legg til https://)
+        const urlWithScheme = 'https://' + input;
+        await loadUrl(urlWithScheme);
     }
 }
 
@@ -280,7 +360,7 @@ function initEventListeners() {
     });
     
     // Handle links in content
-    elements.content.addEventListener('click', (e) => {
+    elements.content.addEventListener('click', async (e) => {
         const link = e.target.closest('a');
         if (link) {
             const href = link.getAttribute('href');
@@ -293,8 +373,8 @@ function initEventListeners() {
             // Forhindre standard navigasjon
             e.preventDefault();
             
-            // For nå, vis melding om at URL-støtte kommer
-            showStatus('Ekstern lenke-støtte kommer i neste versjon.', false);
+            // Naviger til lenken
+            await resolveAndNavigate(href);
         }
     });
 }
