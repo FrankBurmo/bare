@@ -129,6 +129,73 @@ fn sanitize_html(html: &str) -> String {
 }
 ```
 
+### Bildehåndtering
+
+**Nåværende implementasjon (Fase 1):**
+- Bilder vises inline som standard
+- Ingen spesiell håndtering - bruker standard HTML `<img>` tags
+
+**Fremtidig arkitektur (planlagt):**
+```rust
+/// Brukerpreferanse for bildehåndtering
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ImageMode {
+    /// Vis bilder inline (standard)
+    Show,
+    /// Skjul alle bilder
+    Hide,
+    /// Vis placeholder med alt-tekst, klikk for å laste
+    Placeholder,
+}
+
+/// Konfigurasjon for bildevisning
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ImageSettings {
+    /// Global innstilling
+    pub global_mode: ImageMode,
+    /// Per-side overrides (URL -> modus)
+    pub site_overrides: HashMap<String, ImageMode>,
+}
+```
+
+**UI-plan for brukervalg:**
+- Toolbar-knapp for å toggle bildmodus på gjeldende side
+- Innstillinger-panel for global preferanse
+- Lagres i `~/.config/bare/settings.json` (eller tilsvarende per OS)
+
+## CI/CD
+
+### GitHub Actions
+
+Prosjektet bruker GitHub Actions for automatisert bygg og testing.
+
+**Workflows:**
+
+| Fil | Trigger | Beskrivelse |
+|-----|---------|-------------|
+| `.github/workflows/ci.yml` | Push/PR til main | Tester og linting |
+| `.github/workflows/build.yml` | Release tags | Bygg for alle plattformer |
+
+**CI sjekker:**
+```bash
+# Formatering
+cargo fmt --check
+
+# Linting
+cargo clippy -- -D warnings
+
+# Tester
+cargo test
+
+# Bygg-verifisering
+cargo tauri build
+```
+
+**Når du legger til ny funksjonalitet:**
+- Skriv tester som kjører i CI
+- Sørg for at `cargo clippy` passerer uten warnings
+- Formater kode med `cargo fmt`
+
 ## Filstruktur
 
 ```

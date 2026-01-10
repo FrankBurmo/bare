@@ -153,19 +153,21 @@ bare/
 
 ## Utviklingsfaser
 
-### Fase 1: Proof of Concept (2-3 uker)
+### Fase 1: Proof of Concept (2-3 uker) ✅ FULLFØRT
 
 **Mål:** Vis at konseptet fungerer
 
-- [ ] Sett opp Tauri 2.0-prosjekt med Rust backend
-- [ ] Implementer lokal `.md`-fil visning
-- [ ] Grunnleggende URL-bar input
-- [ ] Enkel markdown-rendering med pulldown-cmark
-- [ ] Minimal CSS for lesbar visning
+- [x] Sett opp Tauri 2.0-prosjekt med Rust backend
+- [x] Implementer lokal `.md`-fil visning
+- [x] Grunnleggende URL-bar input
+- [x] Enkel markdown-rendering med pulldown-cmark
+- [x] Minimal CSS for lesbar visning
+- [x] GitHub Actions for CI/CD (bygg og tester)
 
 **Deliverables:**
 - Kjørbar app som kan åpne lokale markdown-filer
 - Grunnleggende brukergrensesnitt
+- Automatisert bygg og test-pipeline
 
 ### Fase 2: Nettverksstøtte (2-3 uker)
 
@@ -311,7 +313,7 @@ Bruker → Bare app → bare.io/proxy?url=... → Internett
 | Utfordring | Løsning |
 |------------|---------|
 | **Relative lenker** | Parse base URL og resolve relative paths |
-| **Bilder** | Tre moduser: Vis inline / Vis som lenke / Kun alt-tekst |
+| **Bilder** | Standard: Vis inline. Fremtidig: Brukervalg per side eller globalt |
 | **Tabeller** | pulldown-cmark støtter GFM tables |
 | **Kode-blokker** | Syntax highlighting med syntect (Rust) |
 | **Encoding** | Detekter og konverter til UTF-8 |
@@ -388,14 +390,17 @@ Bruker → Bare app → bare.io/proxy?url=... → Internett
 
 Disse spørsmålene bør avklares før/under utvikling:
 
-### 1. Bildehåndtering
+### 1. Bildehåndtering ✅ BESLUTTET
 > Skal bilder vises inline, som lenker, eller kun som alt-tekst?
 
-**Alternativer:**
-- A) Alltid vis bilder (bedre UX, mer data)
-- B) Vis som klikkbare lenker (kompromiss)
-- C) Kun alt-tekst (maksimalt personvern)
-- D) Brukeren velger per side eller globalt
+**Beslutning:** 
+- **Fase 1:** Vis bilder inline som standard (enklest implementasjon)
+- **Fremtidig:** Brukervalg per side eller globalt (planlegges i arkitekturen)
+
+**Implementasjonsplan for brukervalg:**
+- Global innstilling i preferences: `images: "show" | "hide" | "placeholder"`
+- Per-side override via toolbar-knapp
+- Lagres i lokal konfigurasjon (JSON)
 
 ### 2. Konverteringsmodus
 > Skal Bare automatisk konvertere HTML, eller kun vise native .md?
@@ -430,6 +435,30 @@ Disse spørsmålene bør avklares før/under utvikling:
 - Apache 2.0 (permissiv med patentbeskyttelse)
 - GPL v3 (copyleft)
 - AGPL v3 (sterk copyleft)
+
+---
+
+## CI/CD
+
+### GitHub Actions
+
+Prosjektet bruker GitHub Actions for automatisert bygg og testing:
+
+| Workflow | Trigger | Beskrivelse |
+|----------|---------|-------------|
+| `ci.yml` | Push/PR til main | Kjører tester og linting |
+| `build.yml` | Release tags | Bygger binærfiler for alle plattformer |
+
+**CI Pipeline inkluderer:**
+- `cargo fmt --check` - Kodeformatering
+- `cargo clippy` - Linting
+- `cargo test` - Unit tests
+- `cargo tauri build` - Bygg-verifisering
+
+**Støttede plattformer:**
+- Windows (x64)
+- macOS (x64, ARM64)
+- Linux (x64)
 
 ---
 

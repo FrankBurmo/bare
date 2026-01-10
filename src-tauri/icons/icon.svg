@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background -->
+  <rect width="128" height="128" rx="24" fill="#1a1a1a"/>
+  
+  <!-- Markdown symbol (stylized) -->
+  <g fill="#ffffff">
+    <!-- B for Bare -->
+    <path d="M32 32h24c8 0 14 2 18 6s6 9 6 15c0 5-1 9-4 12-2 3-6 5-10 6v1c5 1 9 3 12 6s4 8 4 14c0 7-2 12-7 16s-11 6-19 6H32V32zm16 14v18h6c4 0 7-1 9-3s3-5 3-9c0-4-1-6-3-8s-5-3-9-3h-6zm0 32v20h8c5 0 8-1 10-4s4-6 4-10-1-8-4-10-5-3-10-3h-8z"/>
+  </g>
+  
+  <!-- Accent dot -->
+  <circle cx="100" cy="100" r="12" fill="#4da6ff"/>
+</svg>

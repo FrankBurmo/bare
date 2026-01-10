@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bare</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Verktøylinje -->
+        <header class="toolbar">
+            <div class="toolbar-left">
+                <button id="btn-back" class="toolbar-btn" disabled title="Tilbake (Alt+←)">
+                    ←
+                </button>
+                <button id="btn-forward" class="toolbar-btn" disabled title="Fremover (Alt+→)">
+                    →
+                </button>
+                <button id="btn-home" class="toolbar-btn" title="Hjem">
+                    🏠
+                </button>
+            </div>
+            
+            <div class="toolbar-center">
+                <input 
+                    type="text" 
+                    id="url-bar" 
+                    class="url-bar" 
+                    placeholder="Skriv inn URL til .md-fil eller åpne lokal fil..."
+                    spellcheck="false"
+                    autocomplete="off"
+                >
+            </div>
+            
+            <div class="toolbar-right">
+                <button id="btn-open" class="toolbar-btn" title="Åpne fil (Ctrl+O)">
+                    📂
+                </button>
+                <button id="btn-theme" class="toolbar-btn" title="Bytt tema">
+                    🌓
+                </button>
+            </div>
+        </header>
+        
+        <!-- Status bar -->
+        <div id="status-bar" class="status-bar hidden">
+            <span id="status-message"></span>
+        </div>
+        
+        <!-- Hovedinnhold -->
+        <main id="content" class="content">
+            <div class="loading">
+                <p>Laster...</p>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <span id="footer-info">Bare v0.1.0</span>
+        </footer>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
