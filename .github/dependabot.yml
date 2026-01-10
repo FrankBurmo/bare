@@ -29,6 +29,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
+    groups:
+      all:
+        patterns:
+          - "*"
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
