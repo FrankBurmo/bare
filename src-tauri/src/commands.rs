@@ -155,12 +155,13 @@ pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
         ConversionMode::ConvertAll => {
             // Konverter HTML til markdown
             let conversion_result = converter::html_to_markdown(&result.content);
-            
+
             // Render markdown til HTML for visning
             let html = markdown::render(&conversion_result.markdown);
-            
+
             // Bruk tittel fra konvertering eller markdown
-            let title = conversion_result.title
+            let title = conversion_result
+                .title
                 .or_else(|| markdown::extract_title(&conversion_result.markdown));
 
             Ok(RenderedPage {
@@ -187,12 +188,13 @@ pub async fn convert_url(url: String) -> Result<RenderedPage, String> {
 
     // Konverter HTML til markdown
     let conversion_result = converter::html_to_markdown(&result.content);
-    
+
     // Render markdown til HTML for visning
     let html = markdown::render(&conversion_result.markdown);
-    
+
     // Bruk tittel fra konvertering eller markdown
-    let title = conversion_result.title
+    let title = conversion_result
+        .title
         .or_else(|| markdown::extract_title(&conversion_result.markdown));
 
     Ok(RenderedPage {
@@ -335,21 +337,25 @@ pub fn get_settings() -> SettingsInfo {
     SettingsInfo::from(&*settings)
 }
 
+/// Parametere for oppdatering av innstillinger
+#[derive(serde::Deserialize)]
+pub struct UpdateSettingsParams {
+    pub theme: Option<String>,
+    pub font_size: Option<u32>,
+    pub zoom: Option<u32>,
+    pub font_family: Option<String>,
+    pub content_width: Option<u32>,
+    pub show_line_numbers: Option<bool>,
+    pub conversion_mode: Option<String>,
+    pub readability_enabled: Option<bool>,
+}
+
 /// Oppdater innstillinger
 #[tauri::command]
-pub fn update_settings(
-    theme: Option<String>,
-    font_size: Option<u32>,
-    zoom: Option<u32>,
-    font_family: Option<String>,
-    content_width: Option<u32>,
-    show_line_numbers: Option<bool>,
-    conversion_mode: Option<String>,
-    readability_enabled: Option<bool>,
-) -> Result<SettingsInfo, String> {
+pub fn update_settings(params: UpdateSettingsParams) -> Result<SettingsInfo, String> {
     let mut settings = SETTINGS.lock().unwrap();
 
-    if let Some(t) = theme {
+    if let Some(t) = params.theme {
         settings.theme = match t.as_str() {
             "dark" => Theme::Dark,
             "system" => Theme::System,
@@ -357,15 +363,15 @@ pub fn update_settings(
         };
     }
 
-    if let Some(size) = font_size {
+    if let Some(size) = params.font_size {
         settings.font_size = size.clamp(70, 150);
     }
 
-    if let Some(z) = zoom {
+    if let Some(z) = params.zoom {
         settings.zoom = z.clamp(50, 200);
     }
 
-    if let Some(ff) = font_family {
+    if let Some(ff) = params.font_family {
         settings.font_family = match ff.as_str() {
             "serif" => FontFamily::Serif,
             "sans-serif" => FontFamily::SansSerif,
@@ -374,15 +380,15 @@ pub fn update_settings(
         };
     }
 
-    if let Some(width) = content_width {
+    if let Some(width) = params.content_width {
         settings.content_width = width.clamp(400, 1200);
     }
 
-    if let Some(ln) = show_line_numbers {
+    if let Some(ln) = params.show_line_numbers {
         settings.show_line_numbers = ln;
     }
 
-    if let Some(cm) = conversion_mode {
+    if let Some(cm) = params.conversion_mode {
         settings.conversion_mode = match cm.as_str() {
             "markdown-only" => ConversionMode::MarkdownOnly,
             "ask-everytime" => ConversionMode::AskEverytime,
@@ -390,7 +396,7 @@ pub fn update_settings(
         };
     }
 
-    if let Some(re) = readability_enabled {
+    if let Some(re) = params.readability_enabled {
         settings.readability_enabled = re;
     }
 

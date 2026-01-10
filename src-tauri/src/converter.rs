@@ -88,15 +88,14 @@ pub fn html_to_markdown(html: &str) -> ConversionResult {
 pub fn decode_html(bytes: &[u8], content_type: Option<&str>) -> Result<String, ConversionError> {
     // Prøv å finne encoding fra Content-Type header
     let charset = content_type.and_then(|ct| {
-        ct.split(';')
-            .find_map(|part| {
-                let part = part.trim();
-                if part.to_lowercase().starts_with("charset=") {
-                    Some(part[8..].trim_matches('"').trim())
-                } else {
-                    None
-                }
-            })
+        ct.split(';').find_map(|part| {
+            let part = part.trim();
+            if part.to_lowercase().starts_with("charset=") {
+                Some(part[8..].trim_matches('"').trim())
+            } else {
+                None
+            }
+        })
     });
 
     // Prøv å finne encoding fra meta-tag i HTML
@@ -131,9 +130,7 @@ fn detect_charset_from_html(bytes: &[u8]) -> Option<String> {
     // Søk etter <meta charset="...">
     if let Some(start) = preview.to_lowercase().find("charset=") {
         let rest = &preview[start + 8..];
-        let end = rest
-            .find(|c: char| c == '"' || c == '\'' || c == ' ' || c == '>' || c == ';')
-            .unwrap_or(rest.len());
+        let end = rest.find(['"', '\'', ' ', '>', ';']).unwrap_or(rest.len());
         let charset = rest[..end].trim_matches(|c| c == '"' || c == '\'');
         if !charset.is_empty() {
             return Some(charset.to_string());
@@ -148,11 +145,64 @@ fn sanitize_html(html: &str) -> String {
     // Definer hvilke tags vi vil beholde
     let mut allowed_tags: HashSet<&str> = HashSet::new();
     for tag in &[
-        "html", "head", "body", "main", "article", "section", "aside", "header", "footer", "nav",
-        "div", "span", "p", "br", "hr", "h1", "h2", "h3", "h4", "h5", "h6", "ul", "ol", "li", "dl",
-        "dt", "dd", "table", "thead", "tbody", "tfoot", "tr", "th", "td", "a", "img", "figure",
-        "figcaption", "blockquote", "pre", "code", "em", "strong", "b", "i", "u", "s", "del",
-        "ins", "sub", "sup", "small", "mark", "abbr", "time", "address", "details", "summary",
+        "html",
+        "head",
+        "body",
+        "main",
+        "article",
+        "section",
+        "aside",
+        "header",
+        "footer",
+        "nav",
+        "div",
+        "span",
+        "p",
+        "br",
+        "hr",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "ul",
+        "ol",
+        "li",
+        "dl",
+        "dt",
+        "dd",
+        "table",
+        "thead",
+        "tbody",
+        "tfoot",
+        "tr",
+        "th",
+        "td",
+        "a",
+        "img",
+        "figure",
+        "figcaption",
+        "blockquote",
+        "pre",
+        "code",
+        "em",
+        "strong",
+        "b",
+        "i",
+        "u",
+        "s",
+        "del",
+        "ins",
+        "sub",
+        "sup",
+        "small",
+        "mark",
+        "abbr",
+        "time",
+        "address",
+        "details",
+        "summary",
     ] {
         allowed_tags.insert(tag);
     }
@@ -197,10 +247,7 @@ fn extract_main_content(html: &str) -> (String, bool) {
                         let extracted = &html[content_start..end_pos];
                         if extracted.len() > 100 {
                             // Sørg for at vi har faktisk innhold
-                            debug!(
-                                "Ekstraherte hovedinnhold med markør: {}",
-                                start_marker
-                            );
+                            debug!("Ekstraherte hovedinnhold med markør: {}", start_marker);
                             return (extracted.to_string(), true);
                         }
                     }
@@ -321,10 +368,10 @@ fn decode_html_entities(text: &str) -> String {
 }
 
 /// Fiks brutte lenker som html2md genererer
-/// 
+///
 /// html2md konverterer komplekse `<a>`-tagger (med bilder, overskrifter, etc.) til
 /// multi-linje markdown-lenker som ikke er gyldig markdown-syntaks:
-/// 
+///
 /// ```text
 /// [
 /// ![bilde](url)
@@ -332,7 +379,7 @@ fn decode_html_entities(text: &str) -> String {
 /// Beskrivelse
 /// ](/lenke)
 /// ```
-/// 
+///
 /// Denne funksjonen finner og fikser disse brutte lenkene.
 fn fix_broken_links(markdown: &str) -> String {
     let mut result = String::new();
@@ -340,7 +387,7 @@ fn fix_broken_links(markdown: &str) -> String {
     let mut in_broken_link = false;
     let mut link_content = String::new();
     let mut bracket_depth = 0;
-    
+
     while let Some(c) = chars.next() {
         if !in_broken_link {
             // Sjekk om dette er starten på en brutt lenke
@@ -361,7 +408,7 @@ fn fix_broken_links(markdown: &str) -> String {
                         break;
                     }
                 }
-                
+
                 // Hvis '[' etterfølges av whitespace og newline, er dette sannsynligvis en brutt lenke
                 if lookahead.contains('\n') || lookahead.contains('\r') {
                     in_broken_link = true;
@@ -395,8 +442,8 @@ fn fix_broken_links(markdown: &str) -> String {
                         chars.next(); // Konsumer '('
                         let mut url = String::new();
                         let mut paren_depth = 1;
-                        
-                        while let Some(url_char) = chars.next() {
+
+                        for url_char in chars.by_ref() {
                             if url_char == '(' {
                                 paren_depth += 1;
                                 url.push(url_char);
@@ -410,7 +457,7 @@ fn fix_broken_links(markdown: &str) -> String {
                                 url.push(url_char);
                             }
                         }
-                        
+
                         // Konverter den brutte lenken til fungerende markdown
                         let fixed = convert_broken_link_to_markdown(&link_content, &url);
                         result.push_str(&fixed);
@@ -429,13 +476,13 @@ fn fix_broken_links(markdown: &str) -> String {
             }
         }
     }
-    
+
     // Hvis vi fortsatt er i en brutt lenke når vi når slutten, output den som tekst
     if in_broken_link {
         result.push('[');
         result.push_str(&link_content);
     }
-    
+
     result
 }
 
@@ -443,18 +490,18 @@ fn fix_broken_links(markdown: &str) -> String {
 fn convert_broken_link_to_markdown(content: &str, url: &str) -> String {
     let mut result = String::new();
     let lines: Vec<&str> = content.lines().collect();
-    
+
     // Finn bilder, overskrifter og tekst
     let mut images: Vec<String> = Vec::new();
     let mut headings: Vec<String> = Vec::new();
     let mut texts: Vec<String> = Vec::new();
-    
+
     for line in lines {
         let trimmed = line.trim();
         if trimmed.is_empty() {
             continue;
         }
-        
+
         if trimmed.starts_with("![") {
             // Bilde - ekstraher og legg til
             images.push(trimmed.to_string());
@@ -466,24 +513,24 @@ fn convert_broken_link_to_markdown(content: &str, url: &str) -> String {
             texts.push(trimmed.to_string());
         }
     }
-    
+
     // Bygg resultatet
     // Først bildene (som lenker)
     for img in &images {
         // Gjør bildet til en lenke
         result.push_str(&format!("[{}]({})\n\n", img, url));
     }
-    
+
     // Så overskriftene (som lenker)
     for heading in &headings {
         result.push_str(&format!("### [{}]({})\n\n", heading, url));
     }
-    
+
     // Så teksten
     for text in &texts {
         result.push_str(&format!("{}\n\n", text));
     }
-    
+
     result
 }
 

@@ -176,7 +176,7 @@ Prosjektet bruker GitHub Actions for automatisert bygg og testing.
 | `.github/workflows/ci.yml` | Push/PR til main | Tester og linting |
 | `.github/workflows/build.yml` | Release tags | Bygg for alle plattformer |
 
-**CI sjekker:**
+**Dette MÅ du sjekke hver gang du endrer koden, fiks eventuelle feil:**
 ```bash
 # Formatering
 cargo fmt --check
