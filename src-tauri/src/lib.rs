@@ -4,6 +4,7 @@
 
 mod bookmarks;
 mod commands;
+mod converter;
 mod fetcher;
 mod markdown;
 mod settings;
@@ -24,6 +25,7 @@ pub fn run() {
             commands::open_file,
             commands::get_welcome_content,
             commands::fetch_url,
+            commands::convert_url,
             commands::resolve_url,
             // Bokmerker
             commands::get_bookmarks,

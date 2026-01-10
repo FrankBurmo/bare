@@ -184,15 +184,15 @@ bare/
 - App kan navigere til markdown-URLer
 - Lenker i dokumenter fungerer
 
-### Fase 3: HTML-konvertering (2-3 uker)
+### Fase 3: HTML-konvertering (2-3 uker) ✅ FULLFØRT
 
 **Mål:** Gjør Bare praktisk for vanlige nettsider
 
-- [ ] Integrer html2md for HTML→Markdown konvertering
-- [ ] Readability-modus for å ekstrahere hovedinnhold
-- [ ] Fallback når `.md`-fil ikke finnes
-- [ ] Håndter ulike encodings (UTF-8, etc.)
-- [ ] Konfigurerbar: "Kun .md" vs "Konverter alt"
+- [x] Integrer html2md for HTML→Markdown konvertering
+- [x] Readability-modus for å ekstrahere hovedinnhold
+- [x] Fallback når `.md`-fil ikke finnes
+- [x] Håndter ulike encodings (UTF-8, etc.)
+- [x] Konfigurerbar: "Kun .md" vs "Konverter alt"
 
 **Deliverables:**
 - App kan vise innhold fra vanlige nettsider

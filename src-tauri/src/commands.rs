@@ -3,9 +3,10 @@
 //! IPC-kommandoer som kan kalles fra frontend.
 
 use crate::bookmarks::{self, Bookmark, BookmarkStore};
+use crate::converter;
 use crate::fetcher::{self, Fetcher};
 use crate::markdown;
-use crate::settings::{self, FontFamily, Settings, Theme};
+use crate::settings::{self, ConversionMode, FontFamily, Settings, Theme};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
@@ -39,6 +40,9 @@ pub struct RenderedPage {
     /// Om innholdet ble hentet fra nettverket
     #[serde(default)]
     pub is_remote: bool,
+    /// Om innholdet ble konvertert fra HTML
+    #[serde(default)]
+    pub was_converted: bool,
 }
 
 /// Rendrer markdown-tekst til HTML
@@ -58,6 +62,7 @@ pub fn render_markdown(content: String) -> RenderedPage {
         title,
         url: None,
         is_remote: false,
+        was_converted: false,
     }
 }
 
@@ -97,6 +102,7 @@ pub fn open_file(path: String) -> Result<RenderedPage, String> {
         title,
         url: Some(format!("file://{}", path.display())),
         is_remote: false,
+        was_converted: false,
     })
 }
 
@@ -111,23 +117,90 @@ pub fn open_file(path: String) -> Result<RenderedPage, String> {
 pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
     let result = FETCHER.fetch(&url).await.map_err(|e| e.to_string())?;
 
-    if !result.is_markdown {
-        // For nå, returner en feilmelding for ikke-markdown innhold
-        // I Fase 3 vil vi konvertere HTML til markdown
-        return Err(format!(
-            "Innholdet er ikke markdown (Content-Type: {:?}). HTML-konvertering kommer i en fremtidig versjon.",
-            result.content_type
-        ));
+    // Hent konverteringsinnstillinger
+    let settings = SETTINGS.lock().unwrap();
+    let conversion_mode = settings.conversion_mode.clone();
+    let _readability_enabled = settings.readability_enabled;
+    drop(settings);
+
+    if result.is_markdown {
+        // Native markdown - render direkte
+        let html = markdown::render(&result.content);
+        let title = markdown::extract_title(&result.content);
+
+        return Ok(RenderedPage {
+            html,
+            title,
+            url: Some(result.final_url),
+            is_remote: true,
+            was_converted: false,
+        });
     }
 
-    let html = markdown::render(&result.content);
-    let title = markdown::extract_title(&result.content);
+    // Ikke-markdown innhold - sjekk konverteringsmodus
+    match conversion_mode {
+        ConversionMode::MarkdownOnly => {
+            Err(format!(
+                "Innholdet er ikke markdown (Content-Type: {:?}). Konvertering er deaktivert i innstillingene.",
+                result.content_type
+            ))
+        }
+        ConversionMode::AskEverytime => {
+            // Returner en spesiell respons som ber frontend spørre brukeren
+            Err(format!(
+                "CONVERSION_PROMPT:Innholdet er HTML. Vil du konvertere det til markdown?:{}",
+                result.final_url
+            ))
+        }
+        ConversionMode::ConvertAll => {
+            // Konverter HTML til markdown
+            let conversion_result = converter::html_to_markdown(&result.content);
+            
+            // Render markdown til HTML for visning
+            let html = markdown::render(&conversion_result.markdown);
+            
+            // Bruk tittel fra konvertering eller markdown
+            let title = conversion_result.title
+                .or_else(|| markdown::extract_title(&conversion_result.markdown));
+
+            Ok(RenderedPage {
+                html,
+                title,
+                url: Some(result.final_url),
+                is_remote: true,
+                was_converted: true,
+            })
+        }
+    }
+}
+
+/// Konverter HTML til markdown manuelt (for "Spør hver gang"-modus)
+///
+/// # Arguments
+/// * `url` - URL til siden som skal konverteres
+///
+/// # Returns
+/// RenderedPage med konvertert innhold
+#[tauri::command]
+pub async fn convert_url(url: String) -> Result<RenderedPage, String> {
+    let result = FETCHER.fetch(&url).await.map_err(|e| e.to_string())?;
+
+    // Konverter HTML til markdown
+    let conversion_result = converter::html_to_markdown(&result.content);
+    
+    // Render markdown til HTML for visning
+    let html = markdown::render(&conversion_result.markdown);
+    
+    // Bruk tittel fra konvertering eller markdown
+    let title = conversion_result.title
+        .or_else(|| markdown::extract_title(&conversion_result.markdown));
 
     Ok(RenderedPage {
         html,
         title,
         url: Some(result.final_url),
         is_remote: true,
+        was_converted: true,
     })
 }
 
@@ -223,6 +296,8 @@ pub struct SettingsInfo {
     pub font_family: String,
     pub content_width: u32,
     pub show_line_numbers: bool,
+    pub conversion_mode: String,
+    pub readability_enabled: bool,
 }
 
 impl From<&Settings> for SettingsInfo {
@@ -243,6 +318,12 @@ impl From<&Settings> for SettingsInfo {
             },
             content_width: s.content_width,
             show_line_numbers: s.show_line_numbers,
+            conversion_mode: match s.conversion_mode {
+                ConversionMode::MarkdownOnly => "markdown-only".to_string(),
+                ConversionMode::ConvertAll => "convert-all".to_string(),
+                ConversionMode::AskEverytime => "ask-everytime".to_string(),
+            },
+            readability_enabled: s.readability_enabled,
         }
     }
 }
@@ -263,6 +344,8 @@ pub fn update_settings(
     font_family: Option<String>,
     content_width: Option<u32>,
     show_line_numbers: Option<bool>,
+    conversion_mode: Option<String>,
+    readability_enabled: Option<bool>,
 ) -> Result<SettingsInfo, String> {
     let mut settings = SETTINGS.lock().unwrap();
 
@@ -297,6 +380,18 @@ pub fn update_settings(
 
     if let Some(ln) = show_line_numbers {
         settings.show_line_numbers = ln;
+    }
+
+    if let Some(cm) = conversion_mode {
+        settings.conversion_mode = match cm.as_str() {
+            "markdown-only" => ConversionMode::MarkdownOnly,
+            "ask-everytime" => ConversionMode::AskEverytime,
+            _ => ConversionMode::ConvertAll,
+        };
+    }
+
+    if let Some(re) = readability_enabled {
+        settings.readability_enabled = re;
     }
 
     // Lagre til fil
@@ -418,6 +513,7 @@ fn main() {
         title,
         url: None,
         is_remote: false,
+        was_converted: false,
     }
 }
 

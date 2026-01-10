@@ -46,6 +46,8 @@ const elements = {
     settingFontSizeValue: document.getElementById('setting-font-size-value'),
     settingContentWidth: document.getElementById('setting-content-width'),
     settingContentWidthValue: document.getElementById('setting-content-width-value'),
+    settingConversionMode: document.getElementById('setting-conversion-mode'),
+    settingReadability: document.getElementById('setting-readability'),
 };
 
 // ===== State =====
@@ -75,6 +77,8 @@ async function loadSettings() {
             zoom: 100,
             font_family: 'system',
             content_width: 800,
+            conversion_mode: 'convert-all',
+            readability_enabled: true,
         };
     }
 }
@@ -119,6 +123,14 @@ function applySettings() {
     if (elements.settingContentWidth) {
         elements.settingContentWidth.value = state.settings.content_width;
         elements.settingContentWidthValue.textContent = `${state.settings.content_width}px`;
+    }
+    
+    // Konverteringsinnstillinger
+    if (elements.settingConversionMode) {
+        elements.settingConversionMode.value = state.settings.conversion_mode;
+    }
+    if (elements.settingReadability) {
+        elements.settingReadability.checked = state.settings.readability_enabled;
     }
 }
 
@@ -401,8 +413,9 @@ function hideStatus() {
 }
 
 // ===== Content Rendering =====
-function renderContent(html, title) {
-    elements.content.innerHTML = `<div class="markdown-body">${html}</div>`;
+function renderContent(html, title, wasConverted = false) {
+    const convertedBadge = wasConverted ? '<span class="converted-badge" title="Konvertert fra HTML">📄→📝</span>' : '';
+    elements.content.innerHTML = `<div class="markdown-body">${convertedBadge}${html}</div>`;
     state.currentTitle = title;
     
     if (title) {
@@ -515,7 +528,7 @@ async function loadUrl(url, addHistory = true) {
     
     try {
         const result = await invoke('fetch_url', { url });
-        renderContent(result.html, result.title);
+        renderContent(result.html, result.title, result.was_converted);
         state.currentPath = null;
         state.currentUrl = result.url || url;
         
@@ -527,8 +540,52 @@ async function loadUrl(url, addHistory = true) {
             addToHistory(result.url || url);
         }
         
-        updateFooter(result.url || url);
-        showStatus('Innhold lastet fra nettverket', false);
+        updateFooter(result.url || url, result.was_converted);
+        
+        if (result.was_converted) {
+            showStatus('HTML konvertert til markdown', false);
+        } else {
+            showStatus('Markdown lastet fra nettverket', false);
+        }
+    } catch (error) {
+        // Sjekk om dette er en konverteringsprompt
+        if (typeof error === 'string' && error.startsWith('CONVERSION_PROMPT:')) {
+            const parts = error.split(':');
+            const message = parts[1];
+            const promptUrl = parts[2];
+            
+            if (confirm(message)) {
+                await convertAndLoad(promptUrl, addHistory);
+            } else {
+                showError('Konvertering avbrutt av brukeren');
+            }
+        } else {
+            showError(error);
+        }
+    }
+}
+
+// ===== Konvertering =====
+async function convertAndLoad(url, addHistory = true) {
+    showLoading();
+    elements.urlBar.value = url;
+    
+    try {
+        const result = await invoke('convert_url', { url });
+        renderContent(result.html, result.title, true);
+        state.currentPath = null;
+        state.currentUrl = result.url || url;
+        
+        if (result.url) {
+            elements.urlBar.value = result.url;
+        }
+        
+        if (addHistory) {
+            addToHistory(result.url || url);
+        }
+        
+        updateFooter(result.url || url, true);
+        showStatus('HTML konvertert til markdown', false);
     } catch (error) {
         showError(error);
     }
@@ -616,10 +673,11 @@ async function handleUrlSubmit() {
 }
 
 // ===== Footer =====
-function updateFooter(path) {
+function updateFooter(path, wasConverted = false) {
     if (path && path !== '__home__') {
         const filename = path.split(/[\\/]/).pop();
-        elements.footerInfo.textContent = `Bare v0.1.0 — ${filename}`;
+        const conversionIndicator = wasConverted ? ' (konvertert)' : '';
+        elements.footerInfo.textContent = `Bare v0.1.0 — ${filename}${conversionIndicator}`;
     } else {
         elements.footerInfo.textContent = 'Bare v0.1.0';
     }
@@ -703,6 +761,10 @@ function initEventListeners() {
         elements.settingContentWidthValue.textContent = `${e.target.value}px`;
     });
     elements.settingContentWidth.addEventListener('change', (e) => updateSetting('content_width', parseInt(e.target.value)));
+    
+    // Konverteringsinnstillinger
+    elements.settingConversionMode.addEventListener('change', (e) => updateSetting('conversion_mode', e.target.value));
+    elements.settingReadability.addEventListener('change', (e) => updateSetting('readability_enabled', e.target.checked));
     
     // Søk
     elements.searchInput.addEventListener('input', performSearch);

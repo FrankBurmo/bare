@@ -125,6 +125,23 @@
                            min="400" max="1200" value="800" step="50">
                     <span id="setting-content-width-value">800px</span>
                 </div>
+                
+                <!-- HTML-konvertering innstillinger -->
+                <h4 class="setting-section-title">HTML-konvertering</h4>
+                <div class="setting-group">
+                    <label for="setting-conversion-mode">Konverteringsmodus</label>
+                    <select id="setting-conversion-mode" class="setting-select">
+                        <option value="convert-all">Konverter alt</option>
+                        <option value="markdown-only">Kun markdown</option>
+                        <option value="ask-everytime">Spør hver gang</option>
+                    </select>
+                </div>
+                <div class="setting-group setting-checkbox-group">
+                    <label for="setting-readability">
+                        <input type="checkbox" id="setting-readability" checked>
+                        Readability-modus (ekstraher hovedinnhold)
+                    </label>
+                </div>
             </div>
         </div>
         

@@ -38,6 +38,19 @@ pub enum FontFamily {
     Mono,
 }
 
+/// Konverteringsmodus for nettsider
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "kebab-case")]
+pub enum ConversionMode {
+    /// Kun vis native markdown-filer (.md)
+    MarkdownOnly,
+    /// Konverter HTML til markdown automatisk
+    #[default]
+    ConvertAll,
+    /// Spør brukeren for hver side
+    AskEverytime,
+}
+
 /// Brukerinnstillinger
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
@@ -64,6 +77,14 @@ pub struct Settings {
     /// Vis linjenumre i kodeblokker
     #[serde(default)]
     pub show_line_numbers: bool,
+
+    /// Konverteringsmodus for HTML-sider
+    #[serde(default)]
+    pub conversion_mode: ConversionMode,
+
+    /// Aktiver readability-modus for å ekstrahere hovedinnhold
+    #[serde(default = "default_readability")]
+    pub readability_enabled: bool,
 }
 
 fn default_font_size() -> u32 {
@@ -78,6 +99,10 @@ fn default_content_width() -> u32 {
     800
 }
 
+fn default_readability() -> bool {
+    true
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -87,6 +112,8 @@ impl Default for Settings {
             font_family: FontFamily::default(),
             content_width: default_content_width(),
             show_line_numbers: false,
+            conversion_mode: ConversionMode::default(),
+            readability_enabled: default_readability(),
         }
     }
 }
