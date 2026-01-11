@@ -36,17 +36,20 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Cache cargo
+        id: cargo-cache
         uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry/index
             ~/.cargo/registry/cache
             ~/.cargo/git/db
+            ~/.cargo/bin/cargo-tauri*
+            ~/.cargo/bin/cargo-binstall*
             src-tauri/target
-          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('src-tauri/Cargo.lock', 'src-tauri/Cargo.toml') }}
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-tauri-2.0-${{ hashFiles('src-tauri/Cargo.lock', 'src-tauri/Cargo.toml') }}
           restore-keys: |
+            ${{ runner.os }}-${{ matrix.target }}-cargo-tauri-2.0-
             ${{ runner.os }}-${{ matrix.target }}-cargo-
-            ${{ runner.os }}-cargo-
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -54,8 +57,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - name: Install cargo-binstall
+        if: steps.cargo-cache.outputs.cache-hit != 'true'
+        uses: cargo-bins/cargo-binstall@main
+
       - name: Install Tauri CLI
-        run: cargo install tauri-cli --version "^2.0" --locked
+        if: steps.cargo-cache.outputs.cache-hit != 'true'
+        run: cargo binstall tauri-cli --version "^2.0" --no-confirm --locked
 
       - name: Build Tauri app
         working-directory: src-tauri
