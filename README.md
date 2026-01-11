@@ -11,6 +11,8 @@ Den ignorerer tradisjonelle nettsider og renderer kun `.md`-filer direkte fra HT
 - **Personvern:** Ingen støtte for scripts betyr null sporing.
 - **Fokus:** Innholdet presenteres konsistent uavhengig av kilden.
 
+![Netscape_inspirert_B_animasjon_med_jord](https://github.com/user-attachments/assets/29ca95b2-d09b-4ba4-8293-752f4df8624c)
+
 ## Status
 
 🚧 **Under utvikling** - Dette prosjektet er i tidlig fase. Se [PLAN.md](PLAN.md) for detaljert utviklingsplan.
