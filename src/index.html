@@ -159,6 +159,28 @@
         </footer>
     </div>
     
-    <script src="app.js"></script>
+    <!-- 
+        JavaScript-moduler lastes i avhengighetsrekkefølge:
+        1. constants.js - Konstanter (ingen avhengigheter)
+        2. state.js - State management (bruker konstanter)
+        3. dom.js - DOM-elementer og utilities
+        4. ui.js - UI-funksjoner (bruker state, dom, constants)
+        5. settings.js - Innstillinger (bruker state, ui)
+        6. bookmarks.js - Bokmerker (bruker state, ui)
+        7. search.js - Søk (bruker state, dom)
+        8. navigation.js - Navigasjon (bruker alt over)
+        9. events.js - Event handlers (bruker alt over)
+        10. main.js - Entry point (orkestrerer alt)
+    -->
+    <script src="js/constants.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/dom.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/bookmarks.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
