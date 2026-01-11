@@ -132,18 +132,29 @@ bare/
 ├── src-tauri/
 │   ├── src/
 │   │   ├── main.rs           # Applikasjons-entrypoint
+│   │   ├── lib.rs            # Library root
 │   │   ├── commands.rs       # Tauri commands (IPC)
 │   │   ├── markdown.rs       # pulldown-cmark rendering
 │   │   ├── fetcher.rs        # HTTP requests
 │   │   ├── converter.rs      # HTML → MD konvertering
-│   │   ├── history.rs        # Navigasjonshistorikk
+│   │   ├── settings.rs       # Brukerinnstillinger
 │   │   └── bookmarks.rs      # Bokmerker (JSON-lagring)
 │   ├── Cargo.toml
 │   └── tauri.conf.json
 ├── src/
 │   ├── index.html            # Minimal UI shell
 │   ├── styles.css            # Markdown styling (lys/mørk)
-│   └── app.js                # Minimal frontend-logikk
+│   └── js/                   # Modularisert frontend-logikk
+│       ├── constants.js      # Konstanter og magic values
+│       ├── state.js          # State management
+│       ├── dom.js            # DOM-elementer og utilities
+│       ├── ui.js             # UI-funksjoner og panelhåndtering
+│       ├── settings.js       # Innstillingshåndtering
+│       ├── bookmarks.js      # Bokmerkehåndtering
+│       ├── search.js         # Søkefunksjonalitet
+│       ├── navigation.js     # Navigasjon og historikk
+│       ├── events.js         # Event listeners
+│       └── main.js           # Entry point
 ├── README.md
 ├── PLAN.md
 └── LICENSE
@@ -205,13 +216,17 @@ bare/
 - [x] Themes (lys/mørk modus)
 - [x] Bokmerker med JSON-lagring
 - [x] Søk i side (Ctrl+F)
-- [x] Keyboard shortcuts (Vim-inspirert?)
+- [x] Keyboard shortcuts (Vim-inspirert)
 - [x] Zoom inn/ut
 - [x] Skrift-valg
+- [x] 3-prikks meny med mindre brukte funksjoner
+- [x] Om-dialog med versjonsinformasjon
 
 **Deliverables:**
-- Polert brukeropplevelse
+- Polert brukeropplevelse med moderne UI-mønstre
 - Personlige preferanser lagres
+- Keyboard-first navigation
+- Modularisert JavaScript-arkitektur
 
 ### Fase 5: Avanserte funksjoner (valgfritt)
 

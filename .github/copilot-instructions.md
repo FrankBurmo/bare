@@ -206,18 +206,29 @@ bare/
 ├── src-tauri/
 │   ├── src/
 │   │   ├── main.rs           # Tauri entrypoint
+│   │   ├── lib.rs            # Library root
 │   │   ├── commands.rs       # Tauri IPC commands
 │   │   ├── markdown.rs       # Markdown rendering
 │   │   ├── fetcher.rs        # HTTP client logic
 │   │   ├── converter.rs      # HTML→MD conversion
-│   │   ├── history.rs        # Navigation history
+│   │   ├── settings.rs       # Settings management
 │   │   └── bookmarks.rs      # Bookmarks management
 │   ├── Cargo.toml
 │   └── tauri.conf.json
 ├── src/
 │   ├── index.html            # Main UI
 │   ├── styles.css            # Minimal styling
-│   └── app.js                # Frontend logic
+│   └── js/                   # Modularisert frontend
+│       ├── constants.js      # Konstanter og konfigurasjoner
+│       ├── state.js          # State management (history, bookmarks, settings)
+│       ├── dom.js            # DOM-elementer og utilities
+│       ├── ui.js             # UI-funksjoner (status, panels, dialogs)
+│       ├── settings.js       # Innstillingshåndtering
+│       ├── bookmarks.js      # Bokmerkehåndtering
+│       ├── search.js         # Søkefunksjonalitet
+│       ├── navigation.js     # Navigasjon og URL-håndtering
+│       ├── events.js         # Event listeners og shortcuts
+│       └── main.js           # Entry point og initialisering
 ├── .github/
 │   └── copilot-instructions.md
 ├── README.md
@@ -281,33 +292,80 @@ I `tauri.conf.json`:
 
 ### Prinsipper
 - Vanilla JavaScript, ingen frameworks
+- Modularisert arkitektur med klare avhengigheter
 - Minimal CSS, fokus på typografi og lesbarhet
 - Keyboard-first navigation
 - Responsive design
 
+### JavaScript-arkitektur
+
+**Moduler lastes i avhengighetsrekkefølge:**
+1. `constants.js` - Konstanter (ingen avhengigheter)
+2. `state.js` - State management (bruker konstanter)
+3. `dom.js` - DOM-elementer og utilities
+4. `ui.js` - UI-funksjoner (bruker state, dom, constants)
+5. `settings.js` - Innstillinger (bruker state, ui)
+6. `bookmarks.js` - Bokmerker (bruker state, ui)
+7. `search.js` - Søk (bruker state, dom)
+8. `navigation.js` - Navigasjon (bruker alt over)
+9. `events.js` - Event handlers (bruker alt over)
+10. `main.js` - Entry point (orkestrerer alt)
+
+**Designprinsipper:**
+- Ingen globale klasser, kun funksjoner og globale variabler
+- Klare navnekonvensjoner (f.eks. `elements.btnMenu`, `toggleDropdownMenu()`)
+- Separasjon av concerns (UI, state, navigation, events)
+
 ### UI-komponenter
 
-**URL Bar:**
-```javascript
-class URLBar {
-    constructor() {
-        this.input = document.getElementById('url-input');
-        this.input.addEventListener('keypress', this.handleKeyPress.bind(this));
-    }
-    
-    handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            const url = this.input.value;
-            loadPage(url);
-        }
-    }
-}
-```
+**Toolbar:**
+- URL-bar med Enter-to-submit
+- Navigasjonsknapper (back, forward, home)
+- Bokmerkeknapper (add, view list)
+- Åpne fil-knapp
+- Innstillinger-knapp
+- **3-prikks meny** med mindre brukte funksjoner:
+  - Zoom-kontroller (−/+)
+  - Bytt tema
+  - Om-dialog
+
+**Side-paneler:**
+- Bokmerker-panel (høyre side)
+- Innstillinger-panel (høyre side)
+- Kan kun ha ett panel åpent om gangen
+
+**Modaler:**
+- Om-dialog med versjonsinformasjon og app-beskrivelse
+- Overlay med klikk-utenfor-for-å-lukke
+
+**Søkebar:**
+- Toggle med Ctrl+F
+- Inline highlight av søkeresultater
+- Navigasjon mellom treff
 
 **Markdown Viewport:**
 - Ingen custom scrollbars (bruk native)
 - Systemfonter for optimal lesbarhet
 - Lys/mørk modus basert på system-preferanser
+
+### Keyboard Shortcuts
+
+| Shortcut | Handling |
+|----------|----------|
+| `Ctrl+O` | Åpne fil |
+| `Ctrl+F` | Søk i side |
+| `Ctrl+D` | Toggle bokmerke |
+| `Ctrl+B` | Vis bokmerker |
+| `Ctrl++` | Zoom inn |
+| `Ctrl+-` | Zoom ut |
+| `Ctrl+0` | Tilbakestill zoom |
+| `Ctrl+L` | Fokuser URL-bar |
+| `Alt+←` | Tilbake |
+| `Alt+→` | Fremover |
+| `Escape` | Lukk paneler/dialogs/søk |
+| `g` | Gå hjem (ikke i input) |
+| `j/k` | Scroll ned/opp (Vim-stil) |
+| `G` | Scroll til bunnen |
 
 ## Testing
 

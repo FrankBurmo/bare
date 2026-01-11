@@ -15,7 +15,15 @@ Den ignorerer tradisjonelle nettsider og renderer kun `.md`-filer direkte fra HT
 
 ## Status
 
-🚧 **Under utvikling** - Dette prosjektet er i tidlig fase. Se [PLAN.md](PLAN.md) for detaljert utviklingsplan.
+✅ **Versjon 0.1.1** - Kjernefunksjonaliteten er implementert! Applikasjonen er fullt funksjonell for daglig bruk.
+
+**Fullførte faser:**
+- ✅ Fase 1: Proof of Concept
+- ✅ Fase 2: Nettverksstøtte  
+- ✅ Fase 3: HTML-konvertering
+- ✅ Fase 4: Brukeropplevelse
+
+Se [PLAN.md](PLAN.md) for detaljert utviklingsplan og fremtidige utvidelser.
 
 ## Teknologi
 
@@ -29,20 +37,26 @@ Bare er bygget med:
 
 ## Funksjoner
 
-### Nåværende (planlagt)
+### Implementerte funksjoner
 - ✅ Visning av `.md`-filer fra HTTP/HTTPS
-- ✅ Lokale markdown-filer
-- ✅ Back/forward navigasjon
-- ✅ Bokmerker
-- ✅ Lys/mørk modus
-- ✅ Keyboard shortcuts
+- ✅ Lokale markdown-filer (Ctrl+O)
+- ✅ HTML-til-Markdown konvertering med Readability-modus
+- ✅ Back/forward navigasjon med historikk
+- ✅ Bokmerker med persistent lagring
+- ✅ Lys/mørk modus med system-sync
+- ✅ Søk i side (Ctrl+F)
+- ✅ Zoom inn/ut (Ctrl+/Ctrl-)
+- ✅ Keyboard shortcuts (Vim-inspirert)
+- ✅ Konfigurerbare innstillinger (skrift, tema, zoom, innholdsbredde)
+- ✅ 3-prikks meny med mindre brukte funksjoner
+- ✅ Om-dialog med versjonsinformasjon
 
 ### Fremtidige muligheter
-- ⚠️ HTML-til-Markdown konvertering for vanlige nettsider
 - ⚠️ Gemini-protokoll støtte (gemini://)
 - ⚠️ Gopher-protokoll støtte (gopher://)
 - ⚠️ PDF-eksport
-- ⚠️ Custom themes
+- ⚠️ Tab-støtte
+- ⚠️ Custom themes/plugins
 
 ## Sikkerhet og Personvern
 
