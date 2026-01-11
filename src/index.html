@@ -43,18 +43,34 @@
                 <button id="btn-open" class="toolbar-btn" title="Åpne fil (Ctrl+O)">
                     📂
                 </button>
-                <button id="btn-zoom-out" class="toolbar-btn" title="Zoom ut (Ctrl+-)">
-                    −
-                </button>
-                <button id="btn-zoom-in" class="toolbar-btn" title="Zoom inn (Ctrl++)">
-                    +
-                </button>
                 <button id="btn-settings" class="toolbar-btn" title="Innstillinger">
                     ⚙️
                 </button>
-                <button id="btn-theme" class="toolbar-btn" title="Bytt tema">
-                    🌓
-                </button>
+                <div class="menu-container">
+                    <button id="btn-menu" class="toolbar-btn" title="Meny">
+                        ⋮
+                    </button>
+                    <div id="dropdown-menu" class="dropdown-menu hidden">
+                        <div class="menu-section">
+                            <span class="menu-label">Zoom</span>
+                            <div class="menu-zoom-controls">
+                                <button id="btn-zoom-out" class="menu-zoom-btn" title="Zoom ut (Ctrl+-)">−</button>
+                                <span id="menu-zoom-level" class="menu-zoom-level">100%</span>
+                                <button id="btn-zoom-in" class="menu-zoom-btn" title="Zoom inn (Ctrl++)">+</button>
+                            </div>
+                        </div>
+                        <div class="menu-divider"></div>
+                        <button id="btn-theme" class="menu-item" title="Bytt tema">
+                            <span class="menu-icon">🌓</span>
+                            <span>Bytt tema</span>
+                        </button>
+                        <div class="menu-divider"></div>
+                        <button id="btn-about" class="menu-item" title="Om Bare">
+                            <span class="menu-icon">ℹ️</span>
+                            <span>Om Bare</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
         
@@ -151,6 +167,34 @@
                 <p>Laster...</p>
             </div>
         </main>
+        
+        <!-- Om-dialog -->
+        <div id="about-overlay" class="modal-overlay hidden">
+            <div class="modal-dialog about-dialog">
+                <div class="modal-header">
+                    <h2>Om Bare</h2>
+                    <button id="btn-close-about" class="modal-close-btn">✕</button>
+                </div>
+                <div class="modal-content">
+                    <div class="about-logo">📄</div>
+                    <h3>Bare</h3>
+                    <p class="about-version" id="about-version">v0.1.0</p>
+                    <p class="about-description">
+                        En eksperimentell markdown-nettleser med fokus på personvern, hastighet og rent innhold.
+                    </p>
+                    <div class="about-features">
+                        <p>✨ Ren markdown-visning</p>
+                        <p>🔒 Ingen sporing eller cookies</p>
+                        <p>⚡ Rask og lettvektig</p>
+                        <p>🌙 Lys og mørk modus</p>
+                    </div>
+                    <p class="about-copyright">
+                        © 2025 Bare Contributors<br>
+                        Lisensiert under MIT-lisensen
+                    </p>
+                </div>
+            </div>
+        </div>
         
         <!-- Footer -->
         <footer class="footer">

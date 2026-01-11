@@ -19,6 +19,17 @@ const elements = {
     btnZoomOut: document.getElementById('btn-zoom-out'),
     btnSettings: document.getElementById('btn-settings'),
     
+    // Dropdown meny (3-prikks)
+    btnMenu: document.getElementById('btn-menu'),
+    dropdownMenu: document.getElementById('dropdown-menu'),
+    menuZoomLevel: document.getElementById('menu-zoom-level'),
+    btnAbout: document.getElementById('btn-about'),
+    
+    // Om-dialog
+    aboutOverlay: document.getElementById('about-overlay'),
+    aboutVersion: document.getElementById('about-version'),
+    btnCloseAbout: document.getElementById('btn-close-about'),
+    
     // Hovedinnhold
     content: document.getElementById('content'),
     

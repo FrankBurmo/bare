@@ -31,11 +31,36 @@ function initToolbarEvents() {
     elements.btnForward.addEventListener('click', goForward);
     elements.btnHome.addEventListener('click', goHome);
     elements.btnOpen.addEventListener('click', openFileDialog);
-    elements.btnTheme.addEventListener('click', toggleTheme);
+    elements.btnTheme.addEventListener('click', () => {
+        toggleTheme();
+        closeDropdownMenu();
+    });
     
     // Zoom
     elements.btnZoomIn.addEventListener('click', zoomIn);
     elements.btnZoomOut.addEventListener('click', zoomOut);
+    
+    // Dropdown meny (3-prikks)
+    elements.btnMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdownMenu();
+    });
+    
+    // Om-dialog
+    elements.btnAbout.addEventListener('click', showAboutDialog);
+    elements.btnCloseAbout.addEventListener('click', closeAboutDialog);
+    elements.aboutOverlay.addEventListener('click', (e) => {
+        if (e.target === elements.aboutOverlay) {
+            closeAboutDialog();
+        }
+    });
+    
+    // Lukk dropdown når man klikker utenfor
+    document.addEventListener('click', (e) => {
+        if (!elements.dropdownMenu.contains(e.target) && !elements.btnMenu.contains(e.target)) {
+            closeDropdownMenu();
+        }
+    });
 }
 
 // ===== Bookmark Events =====
@@ -223,11 +248,13 @@ function initKeyboardShortcuts() {
             }
         }
         
-        // Escape: Lukk paneler og søk
+        // Escape: Lukk paneler, søk, meny og dialoger
         if (e.key === 'Escape') {
             elements.urlBar.blur();
             closeAllPanels();
             closeSearch();
+            closeDropdownMenu();
+            closeAboutDialog();
         }
     });
 }

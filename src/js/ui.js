@@ -104,11 +104,12 @@ function updateFooter(path, wasConverted = false) {
 }
 
 /**
- * Oppdaterer zoom-nivå visning i footer
+ * Oppdaterer zoom-nivå visning i footer og meny
  * @param {number} zoomLevel - Zoom-prosent
  */
 function updateZoomDisplay(zoomLevel) {
     elements.zoomLevel.textContent = `${zoomLevel}%`;
+    updateMenuZoomLevel(zoomLevel);
 }
 
 // ===== Navigation Buttons =====
@@ -174,5 +175,52 @@ function closeSettingsPanel() {
  * @param {string} theme - Aktivt tema ('light' eller 'dark')
  */
 function updateThemeButton(theme) {
-    elements.btnTheme.textContent = theme === 'dark' ? '☀️' : '🌙';
+    const icon = theme === 'dark' ? '☀️' : '🌙';
+    elements.btnTheme.innerHTML = `<span class="menu-icon">${icon}</span><span>Bytt tema</span>`;
+}
+
+// ===== Dropdown Menu =====
+
+/**
+ * Toggler dropdown-menyen
+ */
+function toggleDropdownMenu() {
+    const isVisible = !elements.dropdownMenu.classList.contains('hidden');
+    elements.dropdownMenu.classList.toggle('hidden', isVisible);
+}
+
+/**
+ * Lukker dropdown-menyen
+ */
+function closeDropdownMenu() {
+    elements.dropdownMenu.classList.add('hidden');
+}
+
+/**
+ * Oppdaterer zoom-nivå i menyen
+ * @param {number} zoomLevel - Zoom-prosent
+ */
+function updateMenuZoomLevel(zoomLevel) {
+    if (elements.menuZoomLevel) {
+        elements.menuZoomLevel.textContent = `${zoomLevel}%`;
+    }
+}
+
+// ===== Om-dialog =====
+
+/**
+ * Viser Om-dialogen
+ */
+function showAboutDialog() {
+    // Oppdater versjonsnummer
+    elements.aboutVersion.textContent = getAppVersion();
+    elements.aboutOverlay.classList.remove('hidden');
+    closeDropdownMenu();
+}
+
+/**
+ * Lukker Om-dialogen
+ */
+function closeAboutDialog() {
+    elements.aboutOverlay.classList.add('hidden');
 }
