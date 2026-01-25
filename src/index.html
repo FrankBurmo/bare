@@ -8,66 +8,74 @@
 </head>
 <body>
     <div id="app">
-        <!-- Verktøylinje -->
+        <!-- Verktøylinje (Retro Design) -->
         <header class="toolbar">
-            <div class="toolbar-left">
-                <button id="btn-back" class="toolbar-btn" disabled title="Tilbake (Alt+←)">
-                    ←
+            <div class="toolbar-section toolbar-left">
+                <button id="btn-back" class="toolbar-btn nav-btn" disabled title="Tilbake (Alt+←)">
+                    ◄
                 </button>
-                <button id="btn-forward" class="toolbar-btn" disabled title="Fremover (Alt+→)">
-                    →
+                <button id="btn-forward" class="toolbar-btn nav-btn" disabled title="Fremover (Alt+→)">
+                    ►
                 </button>
-                <button id="btn-home" class="toolbar-btn" title="Hjem">
-                    🏠
+                <button id="btn-home" class="toolbar-btn" title="Hjem (G)">
+                    ⌂
                 </button>
+                <button id="btn-reload" class="toolbar-btn" title="Last på nytt (F5)">
+                    ↻
+                </button>
+                <div class="toolbar-separator"></div>
             </div>
             
             <div class="toolbar-center">
-                <input 
-                    type="text" 
-                    id="url-bar" 
-                    class="url-bar" 
-                    placeholder="Skriv inn URL til .md-fil eller åpne lokal fil..."
-                    spellcheck="false"
-                    autocomplete="off"
-                >
+                <div class="url-bar-wrapper">
+                    <span class="url-bar-icon">→</span>
+                    <input 
+                        type="text" 
+                        id="url-bar" 
+                        class="url-bar" 
+                        placeholder="Skriv inn URL til .md-fil..."
+                        spellcheck="false"
+                        autocomplete="off"
+                    >
+                </div>
             </div>
             
-            <div class="toolbar-right">
+            <div class="toolbar-section toolbar-right">
+                <div class="toolbar-separator"></div>
                 <button id="btn-bookmark" class="toolbar-btn" title="Bokmerke denne siden (Ctrl+D)">
                     ☆
                 </button>
                 <button id="btn-bookmarks" class="toolbar-btn" title="Vis bokmerker (Ctrl+B)">
-                    📚
+                    ☰
                 </button>
                 <button id="btn-open" class="toolbar-btn" title="Åpne fil (Ctrl+O)">
-                    📂
+                    📁
                 </button>
                 <button id="btn-settings" class="toolbar-btn" title="Innstillinger">
-                    ⚙️
+                    ⚙
                 </button>
                 <div class="menu-container">
                     <button id="btn-menu" class="toolbar-btn" title="Meny">
-                        ⋮
+                        ≡
                     </button>
                     <div id="dropdown-menu" class="dropdown-menu hidden">
                         <div class="menu-section">
-                            <span class="menu-label">Zoom</span>
+                            <span class="menu-label">Visning</span>
                             <div class="menu-zoom-controls">
-                                <button id="btn-zoom-out" class="menu-zoom-btn" title="Zoom ut (Ctrl+-)">−</button>
+                                <button id="btn-zoom-out" class="menu-zoom-btn" title="Zoom ut (Ctrl+-)">[−]</button>
                                 <span id="menu-zoom-level" class="menu-zoom-level">100%</span>
-                                <button id="btn-zoom-in" class="menu-zoom-btn" title="Zoom inn (Ctrl++)">+</button>
+                                <button id="btn-zoom-in" class="menu-zoom-btn" title="Zoom inn (Ctrl++)">[ + ]</button>
                             </div>
                         </div>
                         <div class="menu-divider"></div>
                         <button id="btn-theme" class="menu-item" title="Bytt tema">
-                            <span class="menu-icon">🌓</span>
+                            <span class="menu-icon">◑</span>
                             <span>Bytt tema</span>
                         </button>
                         <div class="menu-divider"></div>
                         <button id="btn-about" class="menu-item" title="Om Bare">
-                            <span class="menu-icon">ℹ️</span>
-                            <span>Om Bare</span>
+                            <span class="menu-icon">?</span>
+                            <span>Om Bare...</span>
                         </button>
                     </div>
                 </div>
@@ -168,38 +176,45 @@
             </div>
         </main>
         
-        <!-- Om-dialog -->
+        <!-- Om-dialog (Retro Window Style) -->
         <div id="about-overlay" class="modal-overlay hidden">
             <div class="modal-dialog about-dialog">
                 <div class="modal-header">
                     <h2>Om Bare</h2>
-                    <button id="btn-close-about" class="modal-close-btn">✕</button>
+                    <button id="btn-close-about" class="modal-close-btn">×</button>
                 </div>
                 <div class="modal-content">
-                    <div class="about-logo">📄</div>
+                    <div class="about-logo">[‡]</div>
                     <h3>Bare</h3>
-                    <p class="about-version" id="about-version">v0.1.0</p>
+                    <p class="about-version" id="about-version">Version 0.1.0</p>
                     <p class="about-description">
                         En eksperimentell markdown-nettleser med fokus på personvern, hastighet og rent innhold.
                     </p>
                     <div class="about-features">
-                        <p>✨ Ren markdown-visning</p>
-                        <p>🔒 Ingen sporing eller cookies</p>
-                        <p>⚡ Rask og lettvektig</p>
-                        <p>🌙 Lys og mørk modus</p>
+                        <p>► Ren markdown-visning</p>
+                        <p>► Ingen sporing eller cookies</p>
+                        <p>► Rask og lettvektig</p>
+                        <p>► Lys og mørk modus</p>
                     </div>
                     <p class="about-copyright">
-                        © 2025 Bare Contributors<br>
+                        © 2025-2026 Bare Contributors<br>
                         Lisensiert under MIT-lisensen
                     </p>
                 </div>
             </div>
         </div>
         
-        <!-- Footer -->
+        <!-- Footer / Status Bar (Retro) -->
         <footer class="footer">
-            <span id="footer-info">Bare</span>
-            <span id="zoom-level" class="zoom-level">100%</span>
+            <div class="footer-section">
+                <span id="footer-info">Bare v0.1</span>
+            </div>
+            <div class="footer-section">
+                <span id="footer-status">Klar</span>
+            </div>
+            <div class="footer-section">
+                <span id="zoom-level" class="zoom-level">100%</span>
+            </div>
         </footer>
     </div>
     

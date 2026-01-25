@@ -30,6 +30,7 @@ function initToolbarEvents() {
     elements.btnBack.addEventListener('click', goBack);
     elements.btnForward.addEventListener('click', goForward);
     elements.btnHome.addEventListener('click', goHome);
+    elements.btnReload.addEventListener('click', reloadPage);
     elements.btnOpen.addEventListener('click', openFileDialog);
     elements.btnTheme.addEventListener('click', () => {
         toggleTheme();
@@ -158,6 +159,18 @@ function initSearchEvents() {
 
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
+        // F5: Last siden på nytt
+        if (e.key === 'F5') {
+            e.preventDefault();
+            reloadPage();
+        }
+        
+        // Ctrl+R: Last siden på nytt
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            reloadPage();
+        }
+        
         // Ctrl+O: Åpne fil
         if (e.ctrlKey && e.key === 'o') {
             e.preventDefault();

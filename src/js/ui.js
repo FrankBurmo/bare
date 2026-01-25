@@ -104,6 +104,16 @@ function updateFooter(path, wasConverted = false) {
 }
 
 /**
+ * Oppdaterer status-tekst i footer
+ * @param {string} status - Statustekst
+ */
+function updateFooterStatus(status) {
+    if (elements.footerStatus) {
+        elements.footerStatus.textContent = status;
+    }
+}
+
+/**
  * Oppdaterer zoom-nivå visning i footer og meny
  * @param {number} zoomLevel - Zoom-prosent
  */
