@@ -14,6 +14,7 @@ const { open } = window.__TAURI__.dialog;
  */
 async function goHome() {
     showLoading();
+    updateFooterStatus('Laster startside...');
     try {
         const result = await invokeNav('get_welcome_content');
         renderContent(result.html, result.title);
@@ -24,8 +25,34 @@ async function goHome() {
         updateNavigationButtons();
         updateFooter(HOME_PATH);
         updateBookmarkButton();
+        updateFooterStatus('Klar');
     } catch (error) {
         showError(`Kunne ikke laste startsiden: ${error}`);
+        updateFooterStatus('Feil');
+    }
+}
+
+// ===== Reload =====
+
+/**
+ * Laster gjeldende side på nytt
+ */
+async function reloadPage() {
+    const currentPath = getCurrentPath();
+    if (!currentPath || currentPath === HOME_PATH) {
+        await goHome();
+        return;
+    }
+    
+    // Legg til loading-animasjon på reload-knappen
+    elements.btnReload.classList.add('loading');
+    updateFooterStatus('Laster på nytt...');
+    
+    try {
+        await loadPath(currentPath, false);
+        updateFooterStatus('Klar');
+    } finally {
+        elements.btnReload.classList.remove('loading');
     }
 }
 

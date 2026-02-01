@@ -11,6 +11,7 @@ const elements = {
     btnBack: document.getElementById('btn-back'),
     btnForward: document.getElementById('btn-forward'),
     btnHome: document.getElementById('btn-home'),
+    btnReload: document.getElementById('btn-reload'),
     btnOpen: document.getElementById('btn-open'),
     btnTheme: document.getElementById('btn-theme'),
     btnBookmark: document.getElementById('btn-bookmark'),
@@ -37,6 +38,7 @@ const elements = {
     statusBar: document.getElementById('status-bar'),
     statusMessage: document.getElementById('status-message'),
     footerInfo: document.getElementById('footer-info'),
+    footerStatus: document.getElementById('footer-status'),
     zoomLevel: document.getElementById('zoom-level'),
     
     // Søk

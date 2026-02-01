@@ -1,27 +1,41 @@
-/* Bare Browser - Minimalistisk CSS */
+/* Bare Browser - Retro Terminal CSS */
 
 /* ===== CSS Variables ===== */
 :root {
-    /* Lys modus (standard) */
+    /* Lys modus (standard) - Retro palette */
     --bg-primary: #ffffff;
-    --bg-secondary: #f5f5f5;
-    --bg-toolbar: #fafafa;
+    --bg-secondary: #f0f0f0;
+    --bg-toolbar: linear-gradient(180deg, #e8e8e8 0%, #d4d4d4 100%);
+    --bg-toolbar-flat: #dfdfdf;
     --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --text-muted: #999999;
-    --border-color: #e0e0e0;
-    --accent-color: #0066cc;
-    --accent-hover: #0052a3;
+    --text-secondary: #555555;
+    --text-muted: #888888;
+    --border-color: #a0a0a0;
+    --accent-color: #000080;
+    --accent-hover: #0000b0;
     --code-bg: #f4f4f4;
-    --blockquote-border: #ddd;
-    --link-color: #0066cc;
+    --blockquote-border: #bbb;
+    --link-color: #0000ee;
     --link-visited: #551a8b;
     
+    /* Retro button colors (beveled effect) */
+    --btn-face: #dfdfdf;
+    --btn-highlight: #ffffff;
+    --btn-shadow: #808080;
+    --btn-dark-shadow: #404040;
+    --btn-active-bg: #c0c0c0;
+    
+    /* URL bar retro colors */
+    --url-bg: #ffffff;
+    --url-border-outer: #808080;
+    --url-border-inner: #404040;
+    
     /* Størrelser */
-    --toolbar-height: 48px;
-    --footer-height: 24px;
+    --toolbar-height: 52px;
+    --footer-height: 22px;
     --content-max-width: 800px;
-    --border-radius: 4px;
+    --border-radius: 0px;
+    --border-radius-sm: 2px;
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 16px;
@@ -29,21 +43,34 @@
     --spacing-xl: 32px;
 }
 
-/* Mørk modus */
+/* Mørk modus - Terminal Green / Amber theme */
 [data-theme="dark"] {
-    --bg-primary: #1a1a1a;
-    --bg-secondary: #2a2a2a;
-    --bg-toolbar: #252525;
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-toolbar: linear-gradient(180deg, #2a2a2a 0%, #1f1f1f 100%);
+    --bg-toolbar-flat: #252525;
     --text-primary: #e0e0e0;
     --text-secondary: #a0a0a0;
-    --text-muted: #666666;
+    --text-muted: #606060;
     --border-color: #404040;
-    --accent-color: #4da6ff;
-    --accent-hover: #66b3ff;
-    --code-bg: #2d2d2d;
-    --blockquote-border: #444;
-    --link-color: #6db3f2;
-    --link-visited: #b794f6;
+    --accent-color: #00ff88;
+    --accent-hover: #00cc6a;
+    --code-bg: #1a1a1a;
+    --blockquote-border: #333;
+    --link-color: #00cc88;
+    --link-visited: #9988ff;
+    
+    /* Retro button colors (dark mode) */
+    --btn-face: #3a3a3a;
+    --btn-highlight: #505050;
+    --btn-shadow: #202020;
+    --btn-dark-shadow: #0a0a0a;
+    --btn-active-bg: #2a2a2a;
+    
+    /* URL bar retro colors (dark) */
+    --url-bg: #1a1a1a;
+    --url-border-outer: #505050;
+    --url-border-inner: #303030;
 }
 
 /* ===== Reset & Base ===== */
@@ -74,87 +101,190 @@ body {
     width: 100vw;
 }
 
-/* ===== Toolbar ===== */
+/* ===== Toolbar (Retro Style) ===== */
 .toolbar {
     display: flex;
     align-items: center;
     height: var(--toolbar-height);
-    padding: 0 var(--spacing-sm);
-    background-color: var(--bg-toolbar);
-    border-bottom: 1px solid var(--border-color);
-    gap: var(--spacing-sm);
+    padding: 4px var(--spacing-sm);
+    background: var(--bg-toolbar);
+    border-bottom: 2px solid var(--btn-shadow);
+    gap: var(--spacing-xs);
     flex-shrink: 0;
+    /* Subtle top highlight for 3D effect */
+    box-shadow: inset 0 1px 0 var(--btn-highlight);
 }
 
 .toolbar-left,
 .toolbar-right {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: 2px;
 }
 
 .toolbar-center {
     flex: 1;
     display: flex;
     justify-content: center;
+    padding: 0 var(--spacing-sm);
 }
 
+/* Retro beveled button style */
 .toolbar-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-primary);
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    background-color: var(--btn-face);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.15s, border-color 0.15s;
+    font-size: 13px;
+    font-family: "Segoe UI Symbol", "Arial", sans-serif;
+    border: none;
+    /* Classic Windows 95/98 beveled border effect */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0;
+    transition: none;
+    /* Crisp pixel rendering */
+    image-rendering: pixelated;
 }
 
 .toolbar-btn:hover:not(:disabled) {
-    background-color: var(--bg-secondary);
-    border-color: var(--accent-color);
+    background-color: var(--btn-face);
+    /* Subtle hover indicator */
+    filter: brightness(1.05);
+}
+
+.toolbar-btn:active:not(:disabled) {
+    background-color: var(--btn-active-bg);
+    /* Pressed/sunken effect */
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--btn-dark-shadow),
+        inset -2px -2px 0 #f0f0f0;
+    padding: 1px 0 0 1px;
 }
 
 .toolbar-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.5;
     cursor: not-allowed;
+    color: var(--btn-shadow);
+    /* Disabled text shadow for embossed effect */
+    text-shadow: 1px 1px 0 var(--btn-highlight);
 }
 
+/* Toolbar section grouping */
+.toolbar-section {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Retro toolbar separator (vertical groove) */
+.toolbar-separator {
+    width: 2px;
+    height: 28px;
+    margin: 0 4px;
+    background: linear-gradient(90deg, 
+        var(--btn-shadow) 0%, 
+        var(--btn-shadow) 50%, 
+        var(--btn-highlight) 50%, 
+        var(--btn-highlight) 100%
+    );
+}
+
+/* Navigation buttons special styling */
+.toolbar-btn.nav-btn {
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Bookmarked star styling */
+.toolbar-btn.bookmarked {
+    color: #d4af00;
+    text-shadow: 0 0 1px #b8960a;
+}
+
+/* Reload button animation on loading */
+.toolbar-btn.loading {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* URL bar - Retro sunken text field */
 .url-bar {
     width: 100%;
     max-width: 600px;
-    height: 36px;
-    padding: 0 var(--spacing-md);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-primary);
+    height: 28px;
+    padding: 2px var(--spacing-sm);
+    border: none;
+    background-color: var(--url-bg);
     color: var(--text-primary);
-    font-size: 14px;
-    font-family: inherit;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    font-size: 13px;
+    /* Monospace for that terminal/address bar feel */
+    font-family: "Consolas", "Monaco", "Lucida Console", "Liberation Mono", monospace;
+    letter-spacing: -0.2px;
+    /* Sunken field effect (Windows 95/98 style) */
+    box-shadow: 
+        inset 1px 1px 0 var(--url-border-inner),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--url-border-outer),
+        inset -2px -2px 0 #f8f8f8;
 }
 
 .url-bar:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    outline: 2px solid var(--accent-color);
+    outline-offset: 0;
 }
 
 .url-bar::placeholder {
     color: var(--text-muted);
+    font-style: italic;
 }
 
-/* ===== Status Bar ===== */
+/* URL bar wrapper for icon decoration */
+.url-bar-wrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 600px;
+    position: relative;
+}
+
+.url-bar-wrapper .url-bar {
+    max-width: none;
+    padding-left: 28px;
+}
+
+.url-bar-icon {
+    position: absolute;
+    left: 6px;
+    font-size: 14px;
+    color: var(--text-muted);
+    pointer-events: none;
+    font-family: monospace;
+}
+
+/* ===== Status Bar (Retro) ===== */
 .status-bar {
-    padding: var(--spacing-xs) var(--spacing-md);
+    padding: 2px var(--spacing-sm);
     background-color: var(--accent-color);
     color: white;
-    font-size: 13px;
+    font-size: 11px;
+    font-family: "Tahoma", sans-serif;
     text-align: center;
+    /* Slight inset for depth */
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 .status-bar.hidden {
@@ -406,92 +536,126 @@ body {
     outline-offset: 2px;
 }
 
-/* ===== Search Bar ===== */
+/* ===== Search Bar (Retro Style) ===== */
 .search-bar {
     display: flex;
     align-items: center;
-    padding: var(--spacing-xs) var(--spacing-md);
-    background-color: var(--bg-toolbar);
-    border-bottom: 1px solid var(--border-color);
+    padding: 4px var(--spacing-sm);
+    background: var(--bg-toolbar-flat);
+    border-bottom: 2px solid var(--btn-shadow);
     gap: var(--spacing-sm);
+    box-shadow: inset 0 1px 0 var(--btn-highlight);
 }
 
 .search-bar.hidden {
     display: none;
 }
 
+.search-bar-label {
+    font-size: 11px;
+    font-family: "Tahoma", sans-serif;
+    color: var(--text-secondary);
+    margin-right: var(--spacing-xs);
+}
+
 .search-input {
     flex: 1;
-    max-width: 300px;
-    height: 28px;
-    padding: 0 var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-primary);
+    max-width: 250px;
+    height: 22px;
+    padding: 2px var(--spacing-sm);
+    border: none;
+    background-color: var(--url-bg);
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 12px;
+    font-family: "Consolas", monospace;
+    /* Sunken field */
+    box-shadow: 
+        inset 1px 1px 0 var(--url-border-inner),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--url-border-outer);
 }
 
 .search-input:focus {
-    outline: none;
-    border-color: var(--accent-color);
+    outline: 2px solid var(--accent-color);
+    outline-offset: 0;
 }
 
 .search-count {
-    font-size: 12px;
+    font-size: 11px;
+    font-family: "Consolas", monospace;
     color: var(--text-muted);
-    min-width: 60px;
+    min-width: 50px;
 }
 
 .search-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-primary);
+    width: 22px;
+    height: 22px;
+    border: none;
+    background-color: var(--btn-face);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
+    /* Beveled button */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0;
 }
 
 .search-btn:hover {
-    background-color: var(--bg-secondary);
+    filter: brightness(1.05);
+}
+
+.search-btn:active {
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--btn-dark-shadow);
 }
 
 /* ===== Search Highlighting ===== */
 .search-highlight {
-    background-color: #ffeb3b;
+    background-color: #ffff00;
     color: #000;
-    border-radius: 2px;
-    padding: 0 2px;
+    padding: 0 1px;
+    outline: 1px solid #000;
 }
 
 .search-highlight.current {
-    background-color: #ff9800;
+    background-color: #ff6600;
+    color: #fff;
 }
 
 [data-theme="dark"] .search-highlight {
-    background-color: #ffc107;
+    background-color: #00ff88;
     color: #000;
 }
 
 [data-theme="dark"] .search-highlight.current {
-    background-color: #ff5722;
+    background-color: #ff3300;
+    color: #fff;
 }
 
-/* ===== Side Panels ===== */
+/* ===== Side Panels (Retro Window Style) ===== */
 .side-panel {
     position: fixed;
     top: var(--toolbar-height);
     right: 0;
-    width: 320px;
+    width: 280px;
     height: calc(100vh - var(--toolbar-height) - var(--footer-height));
-    background-color: var(--bg-primary);
-    border-left: 1px solid var(--border-color);
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--btn-face);
+    border: none;
+    /* Window border effect */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0,
+        -4px 0 8px rgba(0, 0, 0, 0.15);
     z-index: 100;
     display: flex;
     flex-direction: column;
@@ -506,54 +670,85 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-toolbar);
+    padding: 2px 4px;
+    /* Windows title bar gradient */
+    background: linear-gradient(90deg, var(--accent-color) 0%, #1084d0 100%);
+    color: white;
+    font-weight: bold;
+}
+
+[data-theme="dark"] .panel-header {
+    background: linear-gradient(90deg, #004466 0%, #006688 100%);
 }
 
 .panel-header h3 {
     margin: 0;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: "Tahoma", sans-serif;
+    text-shadow: none;
+    padding-left: 2px;
 }
 
 .panel-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 16px;
     border: none;
-    border-radius: var(--border-radius);
-    background: transparent;
-    color: var(--text-secondary);
+    background-color: var(--btn-face);
+    color: var(--text-primary);
     cursor: pointer;
-    font-size: 14px;
+    font-size: 10px;
+    font-weight: bold;
+    /* Small beveled button */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight);
 }
 
 .panel-close-btn:hover {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
+    background-color: var(--btn-active-bg);
+}
+
+.panel-close-btn:active {
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
 }
 
 .panel-content {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-sm);
+    padding: 4px;
+    background: var(--bg-primary);
+    margin: 4px;
+    /* Sunken content area */
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--btn-dark-shadow);
 }
 
-/* ===== Bookmark List ===== */
+/* ===== Bookmark List (Retro) ===== */
 .bookmark-item {
     display: flex;
     align-items: center;
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius);
+    padding: 3px 4px;
     cursor: pointer;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
+    border: 1px solid transparent;
 }
 
 .bookmark-item:hover {
-    background-color: var(--bg-secondary);
+    background-color: var(--accent-color);
+    color: white;
+    border: 1px dotted white;
+}
+
+.bookmark-item:hover .bookmark-url {
+    color: rgba(255,255,255,0.8);
 }
 
 .bookmark-info {
@@ -562,7 +757,7 @@ body {
 }
 
 .bookmark-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
@@ -581,14 +776,16 @@ body {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border: none;
-    border-radius: var(--border-radius);
-    background: transparent;
-    color: var(--text-muted);
+    background-color: var(--btn-face);
+    color: var(--text-primary);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight);
 }
 
 .bookmark-item:hover .bookmark-delete {
@@ -603,38 +800,40 @@ body {
 .empty-message {
     text-align: center;
     color: var(--text-muted);
-    padding: var(--spacing-lg);
-    font-size: 13px;
+    padding: var(--spacing-md);
+    font-size: 11px;
+    font-family: "Tahoma", sans-serif;
 }
 
-/* ===== Settings Panel ===== */
+/* ===== Settings Panel (Retro) ===== */
 .setting-group {
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
 }
 
 .setting-group label {
     display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xs);
+    font-size: 11px;
+    font-family: "Tahoma", sans-serif;
+    color: var(--text-primary);
+    margin-bottom: 2px;
 }
 
 .setting-section-title {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: bold;
+    font-family: "Tahoma", sans-serif;
+    color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: var(--spacing-lg) 0 var(--spacing-md) 0;
-    padding-top: var(--spacing-md);
+    letter-spacing: 0.3px;
+    margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+    padding-top: var(--spacing-sm);
     border-top: 1px solid var(--border-color);
 }
 
 .setting-checkbox-group label {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
     cursor: pointer;
 }
 
@@ -646,63 +845,98 @@ body {
 
 .setting-select {
     width: 100%;
-    height: 32px;
-    padding: 0 var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-primary);
+    height: 24px;
+    padding: 2px var(--spacing-sm);
+    border: none;
+    background-color: var(--url-bg);
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 11px;
+    font-family: "Tahoma", sans-serif;
     cursor: pointer;
+    /* Sunken select */
+    box-shadow: 
+        inset 1px 1px 0 var(--url-border-inner),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--url-border-outer);
 }
 
 .setting-select:focus {
-    outline: none;
-    border-color: var(--accent-color);
+    outline: 2px solid var(--accent-color);
+    outline-offset: 0;
 }
 
 .setting-range {
-    width: calc(100% - 50px);
-    height: 4px;
-    border-radius: 2px;
-    background-color: var(--border-color);
+    width: calc(100% - 45px);
+    height: 18px;
+    background: transparent;
     cursor: pointer;
     -webkit-appearance: none;
+}
+
+.setting-range::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--bg-secondary);
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
 }
 
 .setting-range::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--accent-color);
+    width: 11px;
+    height: 20px;
+    margin-top: -8px;
+    background-color: var(--btn-face);
     cursor: pointer;
+    /* Retro slider thumb */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0;
 }
 
 .setting-group span {
     display: inline-block;
-    width: 45px;
+    width: 40px;
     text-align: right;
-    font-size: 12px;
-    color: var(--text-muted);
+    font-size: 11px;
+    font-family: "Consolas", monospace;
+    color: var(--text-secondary);
 }
 
-/* ===== Zoom Level in Footer ===== */
+/* ===== Footer / Status Bar (Retro) ===== */
 .footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: var(--footer-height);
-    padding: 0 var(--spacing-md);
-    background-color: var(--bg-toolbar);
-    border-top: 1px solid var(--border-color);
-    font-size: 12px;
-    color: var(--text-muted);
+    padding: 0 var(--spacing-sm);
+    background: var(--bg-toolbar-flat);
+    border-top: 1px solid var(--btn-highlight);
+    font-size: 11px;
+    font-family: "Segoe UI", "Tahoma", "Arial", sans-serif;
+    color: var(--text-secondary);
     flex-shrink: 0;
+    /* Sunken status bar sections */
+    box-shadow: inset 0 1px 0 var(--btn-shadow);
+}
+
+.footer-section {
+    display: flex;
+    align-items: center;
+    padding: 1px 6px;
+    /* Sunken field effect for status sections */
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
+    background: var(--bg-primary);
+    min-width: 60px;
 }
 
 .zoom-level {
     font-size: 11px;
+    font-family: "Consolas", monospace;
 }
 
 /* ===== Font Family Classes ===== */
@@ -743,23 +977,28 @@ body {
     background-color: var(--bg-secondary);
 }
 
-/* ===== Dropdown Menu (3-prikks meny) ===== */
+/* ===== Dropdown Menu (Retro Style) ===== */
 .menu-container {
     position: relative;
 }
 
 .dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 2px);
     right: 0;
-    margin-top: var(--spacing-xs);
-    min-width: 200px;
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    background-color: var(--btn-face);
+    border: none;
+    /* Raised window border effect */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0,
+        2px 2px 4px rgba(0,0,0,0.2);
     z-index: 1000;
     overflow: hidden;
+    padding: 2px;
 }
 
 .dropdown-menu.hidden {
@@ -767,94 +1006,125 @@ body {
 }
 
 .menu-section {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--spacing-sm);
+    background: var(--bg-primary);
+    margin: 2px;
+    /* Sunken section */
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
 }
 
 .menu-label {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: var(--spacing-xs);
+    font-family: "Tahoma", "Arial", sans-serif;
 }
 
 .menu-zoom-controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
 }
 
 .menu-zoom-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    background-color: var(--bg-secondary);
+    min-width: 32px;
+    height: 22px;
+    padding: 0 4px;
+    border: none;
+    background-color: var(--btn-face);
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background-color 0.15s, border-color 0.15s;
+    font-size: 11px;
+    font-family: "Consolas", monospace;
+    /* Beveled button */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0;
 }
 
 .menu-zoom-btn:hover {
-    background-color: var(--bg-toolbar);
-    border-color: var(--accent-color);
+    filter: brightness(1.05);
+}
+
+.menu-zoom-btn:active {
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight),
+        inset 2px 2px 0 var(--btn-dark-shadow);
 }
 
 .menu-zoom-level {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--text-primary);
-    min-width: 45px;
+    min-width: 40px;
     text-align: center;
+    font-family: "Consolas", monospace;
 }
 
 .menu-divider {
-    height: 1px;
-    background-color: var(--border-color);
-    margin: var(--spacing-xs) 0;
+    height: 2px;
+    margin: 2px;
+    background: linear-gradient(180deg, 
+        var(--btn-shadow) 0%, 
+        var(--btn-shadow) 50%, 
+        var(--btn-highlight) 50%, 
+        var(--btn-highlight) 100%
+    );
 }
 
 .menu-item {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 4px var(--spacing-sm);
+    margin: 1px 2px;
     border: none;
     background: none;
     color: var(--text-primary);
-    font-size: 13px;
+    font-size: 12px;
+    font-family: "Tahoma", "Segoe UI", sans-serif;
     cursor: pointer;
     text-align: left;
     gap: var(--spacing-sm);
-    transition: background-color 0.15s;
 }
 
 .menu-item:hover {
-    background-color: var(--bg-secondary);
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.menu-item:hover .menu-icon {
+    color: white;
 }
 
 .menu-icon {
-    font-size: 14px;
-    width: 20px;
+    font-size: 12px;
+    width: 16px;
     text-align: center;
+    font-family: "Consolas", monospace;
 }
 
-/* ===== Om-dialog (About Modal) ===== */
+/* ===== Om-dialog (About Modal - Retro Window) ===== */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -866,94 +1136,128 @@ body {
 }
 
 .modal-dialog {
-    background-color: var(--bg-primary);
-    border-radius: 8px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    max-width: 400px;
+    background-color: var(--btn-face);
+    max-width: 360px;
     width: 90%;
     overflow: hidden;
+    /* Window border effect */
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight),
+        inset -2px -2px 0 var(--btn-dark-shadow),
+        inset 2px 2px 0 #f0f0f0,
+        4px 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-toolbar);
+    padding: 2px 4px;
+    /* Windows title bar */
+    background: linear-gradient(90deg, var(--accent-color) 0%, #1084d0 100%);
+    color: white;
+}
+
+[data-theme="dark"] .modal-header {
+    background: linear-gradient(90deg, #004466 0%, #006688 100%);
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: "Tahoma", sans-serif;
+    padding-left: 2px;
 }
 
 .modal-close-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 18px;
+    height: 16px;
     border: none;
-    border-radius: var(--border-radius);
-    background: transparent;
-    color: var(--text-secondary);
+    background-color: var(--btn-face);
+    color: var(--text-primary);
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.15s;
+    font-size: 10px;
+    font-weight: bold;
+    box-shadow: 
+        inset -1px -1px 0 var(--btn-shadow),
+        inset 1px 1px 0 var(--btn-highlight);
 }
 
 .modal-close-btn:hover {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
+    background-color: var(--btn-active-bg);
+}
+
+.modal-close-btn:active {
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
 }
 
 .modal-content {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
     text-align: center;
+    background: var(--bg-primary);
+    margin: 4px;
+    /* Sunken content area */
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
 }
 
 .about-dialog .about-logo {
-    font-size: 48px;
-    margin-bottom: var(--spacing-md);
+    font-size: 32px;
+    margin-bottom: var(--spacing-sm);
+    /* Retro ASCII art style */
+    font-family: monospace;
 }
 
 .about-dialog h3 {
     margin: 0 0 var(--spacing-xs) 0;
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Tahoma", sans-serif;
 }
 
 .about-version {
-    font-size: 14px;
+    font-size: 11px;
+    font-family: "Consolas", monospace;
     color: var(--text-muted);
-    margin: 0 0 var(--spacing-lg) 0;
+    margin: 0 0 var(--spacing-md) 0;
 }
 
 .about-description {
-    font-size: 14px;
+    font-size: 12px;
+    font-family: "Tahoma", sans-serif;
     color: var(--text-secondary);
-    margin: 0 0 var(--spacing-lg) 0;
+    margin: 0 0 var(--spacing-md) 0;
     line-height: 1.5;
 }
 
 .about-features {
     background-color: var(--bg-secondary);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
     text-align: left;
+    /* Sunken field */
+    box-shadow: 
+        inset 1px 1px 0 var(--btn-shadow),
+        inset -1px -1px 0 var(--btn-highlight);
 }
 
 .about-features p {
-    margin: var(--spacing-xs) 0;
-    font-size: 13px;
+    margin: 2px 0;
+    font-size: 11px;
+    font-family: "Tahoma", sans-serif;
     color: var(--text-primary);
 }
 
 .about-copyright {
-    font-size: 12px;
+    font-size: 10px;
     color: var(--text-muted);
     margin: 0;
     line-height: 1.6;
