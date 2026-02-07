@@ -63,15 +63,36 @@ impl Fetcher {
 
     /// Opprett en Fetcher med egendefinert timeout
     pub fn with_timeout(timeout_seconds: u64) -> Self {
-        let mut headers = HeaderMap::new();
+        // Prøv først å bygge klient med custom user agent
         let user_agent = format!("Bare/{} (Markdown Browser)", env!("CARGO_PKG_VERSION"));
-        headers.insert(USER_AGENT, user_agent.parse().unwrap());
-
-        let client = reqwest::Client::builder()
-            .timeout(Duration::from_secs(timeout_seconds))
-            .default_headers(headers)
-            .build()
-            .expect("Failed to create HTTP client");
+        
+        let client = if let Ok(value) = user_agent.parse() {
+            let mut headers = HeaderMap::new();
+            headers.insert(USER_AGENT, value);
+            
+            reqwest::Client::builder()
+                .timeout(Duration::from_secs(timeout_seconds))
+                .default_headers(headers)
+                .build()
+                .ok()
+        } else {
+            None
+        };
+        
+        // Fallback: bygg minimal klient uten headers
+        let client = client.or_else(|| {
+            warn!("Kunne ikke opprette HTTP-klient med headers. Prøver uten.");
+            reqwest::Client::builder()
+                .timeout(Duration::from_secs(timeout_seconds))
+                .build()
+                .ok()
+        });
+        
+        // Siste fallback: helt minimal klient uten timeout
+        let client = client.unwrap_or_else(|| {
+            warn!("Kunne ikke opprette HTTP-klient med timeout. Bruker default.");
+            reqwest::Client::new()
+        });
 
         Self {
             client,

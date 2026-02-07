@@ -14,6 +14,12 @@ use log::info;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     env_logger::init();
+
+    // Installer rustls crypto-provider (ring) før noe annet bruker TLS
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .expect("Kunne ikke installere rustls crypto provider");
+
     info!("Starting Bare browser");
 
     tauri::Builder::default()
