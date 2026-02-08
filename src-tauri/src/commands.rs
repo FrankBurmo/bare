@@ -367,6 +367,7 @@ pub struct SettingsInfo {
     pub show_line_numbers: bool,
     pub conversion_mode: String,
     pub readability_enabled: bool,
+    pub onboarding_completed: bool,
 }
 
 impl From<&Settings> for SettingsInfo {
@@ -393,6 +394,7 @@ impl From<&Settings> for SettingsInfo {
                 ConversionMode::AskEverytime => "ask-everytime".to_string(),
             },
             readability_enabled: s.readability_enabled,
+            onboarding_completed: s.onboarding_completed,
         }
     }
 }
@@ -415,6 +417,7 @@ pub struct UpdateSettingsParams {
     pub show_line_numbers: Option<bool>,
     pub conversion_mode: Option<String>,
     pub readability_enabled: Option<bool>,
+    pub onboarding_completed: Option<bool>,
 }
 
 /// Oppdater innstillinger
@@ -465,6 +468,10 @@ pub fn update_settings(params: UpdateSettingsParams) -> Result<SettingsInfo, Str
 
     if let Some(re) = params.readability_enabled {
         settings.readability_enabled = re;
+    }
+
+    if let Some(oc) = params.onboarding_completed {
+        settings.onboarding_completed = oc;
     }
 
     // Lagre til fil

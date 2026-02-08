@@ -85,6 +85,10 @@ pub struct Settings {
     /// Aktiver readability-modus for å ekstrahere hovedinnhold
     #[serde(default = "default_readability")]
     pub readability_enabled: bool,
+
+    /// Om brukeren har fullført onboarding
+    #[serde(default)]
+    pub onboarding_completed: bool,
 }
 
 fn default_font_size() -> u32 {
@@ -114,6 +118,7 @@ impl Default for Settings {
             show_line_numbers: false,
             conversion_mode: ConversionMode::default(),
             readability_enabled: default_readability(),
+            onboarding_completed: false,
         }
     }
 }

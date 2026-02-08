@@ -158,9 +158,21 @@ async function loadUrl(url, addHistory = true) {
         stopFooterLoading();
         // Sjekk om dette er en konverteringsprompt
         if (typeof error === 'string' && error.startsWith(CONVERSION_PROMPT_PREFIX)) {
-            const parts = error.split(':');
-            const message = parts[1];
-            const promptUrl = parts[2];
+            // Bruk indexOf for å unngå splitting av URL-er som inneholder ':'
+            const withoutPrefix = error.substring(CONVERSION_PROMPT_PREFIX.length);
+            const lastColon = withoutPrefix.lastIndexOf(':http');
+            let message, promptUrl;
+            if (lastColon !== -1) {
+                message = withoutPrefix.substring(0, lastColon);
+                promptUrl = withoutPrefix.substring(lastColon + 1);
+            } else {
+                // Fallback: bruk opprinnelig URL
+                message = withoutPrefix;
+                promptUrl = url;
+            }
+            
+            // Gjenopprett URL i adressefeltet mens brukeren velger
+            elements.urlBar.value = url;
             
             if (confirm(message)) {
                 await convertAndLoad(promptUrl, addHistory);

@@ -31,6 +31,10 @@ const elements = {
     aboutVersion: document.getElementById('about-version'),
     btnCloseAbout: document.getElementById('btn-close-about'),
     
+    // Onboarding-dialog
+    onboardingOverlay: document.getElementById('onboarding-overlay'),
+    btnOnboardingConfirm: document.getElementById('btn-onboarding-confirm'),
+    
     // Hovedinnhold
     content: document.getElementById('content'),
     

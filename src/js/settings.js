@@ -153,3 +153,30 @@ async function zoomReset() {
 function toggleSettingsPanel() {
     toggleSettingsPanelUI();
 }
+
+// ===== Onboarding =====
+
+/**
+ * Viser onboarding-modalen hvis brukeren ikke har fullført den
+ * @returns {Promise<boolean>} True hvis onboarding ble vist
+ */
+async function checkAndShowOnboarding() {
+    const settings = getSettings();
+    if (!settings || settings.onboarding_completed) {
+        return false;
+    }
+    
+    return new Promise((resolve) => {
+        elements.onboardingOverlay.classList.remove('hidden');
+        
+        elements.btnOnboardingConfirm.addEventListener('click', async () => {
+            const selected = document.querySelector('input[name="onboarding-conversion"]:checked');
+            if (selected) {
+                await updateSetting('conversion_mode', selected.value);
+            }
+            await updateSetting('onboarding_completed', true);
+            elements.onboardingOverlay.classList.add('hidden');
+            resolve(true);
+        }, { once: true });
+    });
+}

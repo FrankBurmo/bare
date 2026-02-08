@@ -22,6 +22,9 @@ async function init() {
     // Last innstillinger
     await loadSettings();
     
+    // Vis onboarding ved første oppstart
+    await checkAndShowOnboarding();
+    
     // Registrer event listeners
     initEventListeners();
     

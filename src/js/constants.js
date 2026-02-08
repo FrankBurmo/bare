@@ -60,4 +60,5 @@ const DEFAULT_SETTINGS = {
     content_width: CONTENT_WIDTH_DEFAULT,
     conversion_mode: 'convert-all',
     readability_enabled: true,
+    onboarding_completed: false,
 };

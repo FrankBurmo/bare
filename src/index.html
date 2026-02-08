@@ -204,6 +204,59 @@
             </div>
         </div>
         
+        <!-- Første-kjøring onboarding modal -->
+        <div id="onboarding-overlay" class="modal-overlay hidden">
+            <div class="modal-dialog onboarding-dialog">
+                <div class="modal-header">
+                    <h2>Velkommen til Bare</h2>
+                </div>
+                <div class="modal-content onboarding-content">
+                    <div class="about-logo">[ B ]</div>
+                    <p class="onboarding-intro">
+                        Bare er en <strong>markdown-nettleser</strong>.
+                        Vanlige nettsider bruker HTML, men Bare kan konvertere
+                        dem til lesbart markdown-format.
+                    </p>
+                    
+                    <div class="onboarding-question">
+                        <p class="onboarding-label">> Hvordan vil du håndtere HTML-sider?</p>
+                    </div>
+                    
+                    <div class="onboarding-options">
+                        <label class="onboarding-option">
+                            <input type="radio" name="onboarding-conversion" value="convert-all" checked>
+                            <div class="onboarding-option-content">
+                                <strong>Konverter automatisk</strong>
+                                <span>HTML-sider konverteres til markdown automatisk</span>
+                            </div>
+                        </label>
+                        <label class="onboarding-option">
+                            <input type="radio" name="onboarding-conversion" value="markdown-only">
+                            <div class="onboarding-option-content">
+                                <strong>Kun markdown</strong>
+                                <span>Vis bare sider som allerede er markdown</span>
+                            </div>
+                        </label>
+                        <label class="onboarding-option">
+                            <input type="radio" name="onboarding-conversion" value="ask-everytime">
+                            <div class="onboarding-option-content">
+                                <strong>Spør hver gang</strong>
+                                <span>Du velger selv for hver side</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <button id="btn-onboarding-confirm" class="onboarding-confirm-btn">
+                        [ Start Bare ]
+                    </button>
+                    
+                    <p class="onboarding-hint">
+                        Du kan endre dette senere i innstillinger (⚙)
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer / Status Bar (Netscape-inspirert) -->
         <footer class="footer">
             <div class="footer-status-section">
