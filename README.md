@@ -15,7 +15,7 @@ Den ignorerer tradisjonelle nettsider og renderer kun `.md`-filer direkte fra HT
 
 ## Status
 
-✅ **Versjon 0.1.2** - Kjernefunksjonaliteten er implementert! Applikasjonen er fullt funksjonell for daglig bruk.
+✅ **Versjon 0.1.3** - Kjernefunksjonaliteten er implementert! Applikasjonen er fullt funksjonell for daglig bruk.
 
 **Fullførte faser:**
 - ✅ Fase 1: Proof of Concept
