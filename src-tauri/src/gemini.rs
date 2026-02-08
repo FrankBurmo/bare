@@ -379,8 +379,8 @@ impl GeminiClient {
             if let Some(cert) = certs.first() {
                 let fingerprint = cert_fingerprint(cert);
                 debug!(
-                    "Gemini: Sertifikat-fingerprint for {}: {}",
-                    host_port, fingerprint
+                    "Gemini: Sertifikat-fingerprint mottatt for {}",
+                    host_port
                 );
 
                 let mut store = self.tofu_store.lock().unwrap();
