@@ -494,13 +494,156 @@ Når du foreslår kode:
 
 ## Fremtidige Utvidelser (Vurder disse)
 
-- ✅ Gemini-protokoll støtte (gemini://)
-- ✅ Gopher-protokoll støtte (gopher://)
+- ✅ Gemini-protokoll støtte (gemini://) - **IMPLEMENTERT i v0.1.3**
+- ⚠️ Gopher-protokoll støtte (gopher://)
 - ✅ Lokale markdown-filer (file://)
-- ✅ Eksport til PDF
-- ✅ Custom themes/CSS
+- ⚠️ Eksport til PDF
+- ⚠️ Custom themes/CSS
 - ⚠️ Tab-støtte (vurder kompleksitet vs. nytte)
 - ⚠️ Synkronisering (kun hvis lokalt, ikke cloud)
+
+## Gemini-protokoll Håndtering
+
+**Implementasjon (v0.1.3):**
+
+Bare støtter nå fullstendig Gemini-protokollen med følgende arkitektur:
+
+### Rust Backend
+
+**gemini.rs:**
+```rust
+// Hovedstrukturer
+pub struct GeminiClient {
+    tls_config: Arc<ClientConfig>,
+    tofu_store: Arc<Mutex<TofuStore>>,
+}
+
+pub struct GeminiResponse {
+    pub status: u8,
+    pub meta: String,
+    pub body: String,
+    pub final_url: String,
+}
+```
+
+**Nøkkelprinsipper:**
+- TOFU (Trust On First Use) for TLS-sertifikater
+- SHA-256 fingerprint-lagring i `~/.config/bare/known_hosts.json`
+- Iterativ redirect-håndtering (maks 5 redirects)
+- Alle statuskoder håndteres: 10-11 (input), 20 (success), 30-31 (redirect), 40-69 (errors)
+- Timeout: 10 sekunder
+- Maksimal respons: 5 MB
+- Custom TofuVerifier som implementerer ServerCertVerifier
+
+**gemtext.rs:**
+```rust
+pub fn gemtext_to_markdown(input: &str) -> GemtextResult {
+    // Linje-basert parsing
+    // => url text → [text](url)
+    // * item → - item
+    // ### heading → ### heading
+    // ``` preformatted blocks → ``` code blocks
+}
+```
+
+**Konverteringsregler:**
+- Link-linjer: `=> gemini://example.com/page Example` → `[Example](gemini://example.com/page)`
+- List-items: `* Item` → `- Item`
+- Headings: Direkte pass-through (`# `, `## `, `### `)
+- Preformatted: ` ```alt-text ` → ` ```alt-text ` (bevares)
+- Blockquotes: `> text` → `> text` (bevares)
+
+### Frontend
+
+**navigation.js:**
+```javascript
+async function loadGeminiUrl(url, addHistory = true) {
+    const result = await invoke('fetch_gemini', { url, window: appWindow });
+    
+    if (result.startsWith('GEMINI_INPUT_PROMPT:')) {
+        // Vis input-dialog
+        showGeminiInputDialog(prompt, url, sensitive);
+    } else {
+        // Render innhold
+        displayContent(result);
+    }
+}
+```
+
+**Gemini Input Dialog:**
+- Modal overlay med prompt-tekst fra server
+- Støtte for sensitive input (status 11 = passord-type)
+- Enter-to-submit, Escape-to-cancel
+- Automatisk fokus på input-felt
+
+### Sikkerhetsvurderinger
+
+**TOFU-implementasjon:**
+- Første besøk: Lagre sertifikat-fingerprint
+- Påfølgende besøk: Verifiser mot lagret fingerprint
+- Endring: Vis feilmelding til bruker (mulig MITM-angrep)
+- Ikke CA-basert PKI (i tråd med Gemini-filosofien)
+
+**Validering:**
+```rust
+fn validate_gemini_url(url: &str) -> Result<Url, GeminiError> {
+    let parsed = Url::parse(url)?;
+    
+    if parsed.scheme() != "gemini" {
+        return Err(GeminiError::InvalidUrl("Not a gemini URL".into()));
+    }
+    
+    if url.len() > MAX_URL_LENGTH {
+        return Err(GeminiError::InvalidUrl("URL too long".into()));
+    }
+    
+    Ok(parsed)
+}
+```
+
+### Testing
+
+**Unit tests:**
+- gemini.rs: 19 tests (URL-validering, response-parsing, TOFU-logikk, redirect-håndtering)
+- gemtext.rs: 17 tests (alle gemtext-elementer, edge cases)
+- fetcher.rs: 4 nye tests (gemini:// URL-håndtering)
+
+**Manuelle test-scenarier:**
+1. Naviger til `gemini://geminiprotocol.net/`
+2. Klikk på lenker innenfor Gemini-space
+3. Test input-forespørsler (status 10)
+4. Verifiser TOFU-lagring i `~/.config/bare/known_hosts.json`
+5. Test cross-protokoll navigasjon (gemini → http og omvendt)
+6. Test back/forward mellom protokoller
+
+### Feilhåndtering
+
+```rust
+#[derive(Debug, thiserror::Error)]
+pub enum GeminiError {
+    #[error("Invalid URL: {0}")]
+    InvalidUrl(String),
+    
+    #[error("TLS error: {0}")]
+    TlsError(String),
+    
+    #[error("Certificate changed for {0} - possible MITM attack")]
+    CertificateChanged(String),
+    
+    #[error("Input required: {0}")]
+    InputRequired(String),
+    
+    #[error("Redirect loop detected")]
+    RedirectLoop,
+    
+    // ... flere error-typer
+}
+```
+
+**Brukervendte feilmeldinger:**
+- Norsk språk i UI
+- Tydelige forklaringer på TOFU-brudd
+- Valgfrie handlinger (f.eks. "Gå tilbake" vs "Fortsett likevel")
 
 ## Nyttige Kommandoer
 

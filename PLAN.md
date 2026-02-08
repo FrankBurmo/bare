@@ -228,16 +228,64 @@ bare/
 - Keyboard-first navigation
 - Modularisert JavaScript-arkitektur
 
-### Fase 5: Avanserte funksjoner (valgfritt)
+### Fase 5: Avanserte funksjoner (pågående)
 
 **Mål:** Utvid funksjonalitet
 
-- [ ] Gemini-protokoll støtte (gemini://)
+- [x] Gemini-protokoll støtte (gemini://) ✅ FULLFØRT
 - [ ] Gopher-protokoll støtte (gopher://)
 - [ ] Eksporter sider som PDF
 - [ ] Tab-støtte
 - [ ] Synkronisering av bokmerker
 - [ ] Utvidelser/plugins
+
+#### Gemini-protokoll implementasjon (v0.1.3)
+
+**Fullført:** Februar 2026
+
+Bare støtter nå fullstendig Gemini-protokollen (gemini://), et alternativt internett-økosystem fokusert på enkelhet og personvern.
+
+**Implementerte komponenter:**
+
+- **gemini.rs** - Komplett Gemini-klient
+  - TCP+TLS-tilkobling med tokio-rustls
+  - TOFU (Trust On First Use) sertifikathåndtering
+  - SHA-256 fingerprint-verifisering
+  - Persistent lagring av kjente servere (~/.config/bare/known_hosts.json)
+  - Håndtering av alle Gemini-statuskoder (10-69)
+  - Automatisk redirect-følging (maks 5)
+  - Relativ URL-oppløsning
+
+- **gemtext.rs** - Gemtext-til-Markdown konverterer
+  - Linje-basert parsing av text/gemini-format
+  - Støtte for: lenker, overskrifter, lister, preformaterte blokker, blockquotes
+  - Automatisk tittel-ekstraksjon fra første heading
+  - Fullstendig testet (17 unit tests)
+
+- **Frontend-integrasjon**
+  - Gemini URL-deteksjon i navigasjon
+  - Modal dialog for input-forespørsler (status 10/11)
+  - Støtte for sensitive input (passord-maskering)
+  - Sømløs veksling mellom HTTP og Gemini
+
+**Tekniske valg:**
+- TOFU i stedet for CA-basert PKI (i tråd med Gemini-filosofien)
+- Separate fetch-kommandoer (fetch_gemini vs fetch_url) for klarhet
+- rustls med ring-backend (unngår aws-lc-sys avhengigheter)
+- Iterativ redirect-håndtering (ikke rekursiv)
+
+**Sikkerhet:**
+- Validering av alle URLer før tilkobling
+- Timeout på 10 sekunder
+- Maksimal respons-størrelse: 5 MB
+- Maksimal URL-lengde: 1024 tegn
+- Sertifikat-endring trigger feil (TOFU-brudd)
+
+**Testing:**
+- 19 unit tests i gemini.rs
+- 17 unit tests i gemtext.rs
+- 4 nye tests i fetcher.rs
+- Total: 86 tester passerer
 
 ---
 

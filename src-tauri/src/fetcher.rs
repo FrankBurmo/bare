@@ -106,7 +106,7 @@ impl Fetcher {
             .map_err(|e| FetchError::InvalidUrl(format!("{}: {}", url_str, e)))?;
 
         match parsed.scheme() {
-            "http" | "https" => Ok(parsed),
+            "http" | "https" | "gemini" => Ok(parsed),
             scheme => Err(FetchError::UnsupportedScheme(scheme.to_string())),
         }
     }
@@ -183,10 +183,19 @@ impl Fetcher {
     }
 }
 
+/// Sjekk om en URL bruker Gemini-protokollen
+#[allow(dead_code)]
+pub fn is_gemini_url(url_str: &str) -> bool {
+    url_str.starts_with("gemini://")
+}
+
 /// Løs en relativ URL mot en base-URL
 pub fn resolve_url(base: &str, relative: &str) -> Result<String, FetchError> {
     // Hvis det allerede er en absolutt URL, returner den
-    if relative.starts_with("http://") || relative.starts_with("https://") {
+    if relative.starts_with("http://")
+        || relative.starts_with("https://")
+        || relative.starts_with("gemini://")
+    {
         return Ok(relative.to_string());
     }
 
@@ -221,6 +230,12 @@ mod tests {
     #[test]
     fn test_validate_url_http() {
         let result = Fetcher::validate_url("http://example.com/test.md");
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_validate_url_gemini() {
+        let result = Fetcher::validate_url("gemini://example.com/page");
         assert!(result.is_ok());
     }
 
@@ -275,5 +290,24 @@ mod tests {
     fn test_resolve_url_protocol_relative() {
         let result = resolve_url("https://example.com/docs/", "//other.com/test.md");
         assert_eq!(result.unwrap(), "https://other.com/test.md");
+    }
+
+    #[test]
+    fn test_resolve_url_gemini_absolute() {
+        let result = resolve_url("gemini://example.com/dir/", "gemini://other.com/page");
+        assert_eq!(result.unwrap(), "gemini://other.com/page");
+    }
+
+    #[test]
+    fn test_resolve_url_gemini_relative() {
+        let result = resolve_url("gemini://example.com/dir/page.gmi", "other.gmi");
+        assert_eq!(result.unwrap(), "gemini://example.com/dir/other.gmi");
+    }
+
+    #[test]
+    fn test_is_gemini_url() {
+        assert!(is_gemini_url("gemini://example.com"));
+        assert!(!is_gemini_url("https://example.com"));
+        assert!(!is_gemini_url("http://example.com"));
     }
 }

@@ -1309,3 +1309,80 @@ body {
     margin: 0;
     letter-spacing: 0.3px;
 }
+
+/* ===== Gemini Input Dialog ===== */
+
+.gemini-input-dialog {
+    max-width: 440px;
+    width: 90%;
+}
+
+.gemini-input-prompt {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-md);
+    line-height: 1.5;
+    padding: var(--space-sm);
+    background: var(--bg-secondary);
+    border: var(--border-w) solid var(--border-color);
+}
+
+.gemini-input-field {
+    width: 100%;
+    padding: var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: var(--border-w) solid var(--border-color);
+    outline: none;
+    box-sizing: border-box;
+    margin-bottom: var(--space-md);
+}
+
+.gemini-input-field:focus {
+    border-color: var(--accent-bg);
+}
+
+.gemini-input-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+}
+
+.gemini-input-btn {
+    padding: var(--space-xs) var(--space-md);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: var(--border-w) solid var(--border-color);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow-color);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.gemini-input-btn.cancel {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.gemini-input-btn.send {
+    background: var(--accent-bg);
+    color: var(--bg-primary);
+}
+
+[data-theme="dark"] .gemini-input-btn.send {
+    color: #0c0c0c;
+}
+
+.gemini-input-btn:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: calc(var(--shadow-offset) + 1px) calc(var(--shadow-offset) + 1px) 0 var(--shadow-color);
+}
+
+.gemini-input-btn:active {
+    transform: translate(var(--shadow-offset), var(--shadow-offset));
+    box-shadow: none;
+}

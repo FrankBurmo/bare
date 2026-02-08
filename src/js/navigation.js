@@ -98,6 +98,12 @@ async function loadPath(path, addHistory = true) {
         return;
     }
     
+    // Gemini-URLer
+    if (path.startsWith(GEMINI_SCHEME)) {
+        await loadGeminiUrl(path, addHistory);
+        return;
+    }
+    
     showLoading();
     elements.urlBar.value = path;
     
@@ -234,6 +240,12 @@ async function resolveAndNavigate(href) {
         return;
     }
     
+    // Gemini-URLer
+    if (href.startsWith(GEMINI_SCHEME)) {
+        await loadGeminiUrl(href);
+        return;
+    }
+    
     // File URLs
     if (href.startsWith('file://')) {
         const path = href.replace('file://', '');
@@ -247,14 +259,25 @@ async function resolveAndNavigate(href) {
     
     if (currentUrl) {
         try {
-            const resolvedUrl = await invokeNav('resolve_url', {
-                baseUrl: currentUrl,
-                relativeUrl: href
-            });
+            // Bruk riktig resolver basert på protokoll
+            let resolvedUrl;
+            if (currentUrl.startsWith(GEMINI_SCHEME)) {
+                resolvedUrl = await invokeNav('resolve_gemini_url', {
+                    baseUrl: currentUrl,
+                    relativeUrl: href
+                });
+            } else {
+                resolvedUrl = await invokeNav('resolve_url', {
+                    baseUrl: currentUrl,
+                    relativeUrl: href
+                });
+            }
             
             if (resolvedUrl.startsWith('file://')) {
                 const path = resolvedUrl.replace('file://', '');
                 await loadPath(path);
+            } else if (resolvedUrl.startsWith(GEMINI_SCHEME)) {
+                await loadGeminiUrl(resolvedUrl);
             } else {
                 await loadUrl(resolvedUrl);
             }
@@ -268,6 +291,92 @@ async function resolveAndNavigate(href) {
         await loadPath(newPath);
     } else {
         showError('Kan ikke navigere til relativ lenke uten en base-URL');
+    }
+}
+
+// ===== Gemini Loading =====
+
+/**
+ * Laster innhold fra en Gemini-URL
+ * @param {string} url - Gemini-URL å laste (gemini://...)
+ * @param {boolean} addHistory - Om URL skal legges til historikken
+ */
+async function loadGeminiUrl(url, addHistory = true) {
+    showLoading();
+    startFooterLoading();
+    elements.urlBar.value = url;
+    
+    try {
+        const result = await invokeNav('fetch_gemini', { url });
+        renderContent(result.html, result.title, result.was_converted);
+        setCurrentPath(null);
+        setCurrentUrl(result.url || url);
+        
+        if (result.url) {
+            elements.urlBar.value = result.url;
+        }
+        
+        if (addHistory) {
+            addToHistory(result.url || url);
+        }
+        
+        updateNavigationButtons();
+        updateFooter(result.url || url, true);
+        updateBookmarkButton();
+        showStatus('Gemini-side lastet', false);
+    } catch (error) {
+        stopFooterLoading();
+        
+        // Sjekk om dette er en input-prompt
+        if (typeof error === 'string' && error.startsWith(GEMINI_INPUT_PROMPT_PREFIX)) {
+            const prompt = error.substring(GEMINI_INPUT_PROMPT_PREFIX.length);
+            showGeminiInputDialog(prompt, url, false);
+        } else if (typeof error === 'string' && error.startsWith(GEMINI_SENSITIVE_INPUT_PROMPT_PREFIX)) {
+            const prompt = error.substring(GEMINI_SENSITIVE_INPUT_PROMPT_PREFIX.length);
+            showGeminiInputDialog(prompt, url, true);
+        } else {
+            showError(error);
+        }
+    }
+}
+
+/**
+ * Sender brukerinput til en Gemini-server og laster resultatet
+ * @param {string} url - Original Gemini-URL som ba om input
+ * @param {string} input - Brukerens input-tekst
+ */
+async function submitGeminiInput(url, input) {
+    showLoading();
+    startFooterLoading();
+    
+    try {
+        const result = await invokeNav('submit_gemini_input', { url, input });
+        renderContent(result.html, result.title, result.was_converted);
+        setCurrentPath(null);
+        setCurrentUrl(result.url || url);
+        
+        if (result.url) {
+            elements.urlBar.value = result.url;
+        }
+        
+        addToHistory(result.url || url);
+        updateNavigationButtons();
+        updateFooter(result.url || url, true);
+        updateBookmarkButton();
+        showStatus('Gemini-side lastet', false);
+    } catch (error) {
+        stopFooterLoading();
+        
+        // Sjekk om dette er enda en input-prompt
+        if (typeof error === 'string' && error.startsWith(GEMINI_INPUT_PROMPT_PREFIX)) {
+            const prompt = error.substring(GEMINI_INPUT_PROMPT_PREFIX.length);
+            showGeminiInputDialog(prompt, url, false);
+        } else if (typeof error === 'string' && error.startsWith(GEMINI_SENSITIVE_INPUT_PROMPT_PREFIX)) {
+            const prompt = error.substring(GEMINI_SENSITIVE_INPUT_PROMPT_PREFIX.length);
+            showGeminiInputDialog(prompt, url, true);
+        } else {
+            showError(error);
+        }
     }
 }
 
@@ -310,6 +419,12 @@ async function handleUrlSubmit() {
     // Absolutte URLer
     if (input.startsWith('http://') || input.startsWith('https://')) {
         await loadUrl(input);
+        return;
+    }
+    
+    // Gemini-URLer
+    if (input.startsWith(GEMINI_SCHEME)) {
+        await loadGeminiUrl(input);
         return;
     }
     

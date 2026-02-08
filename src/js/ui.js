@@ -358,3 +358,51 @@ function showAboutDialog() {
 function closeAboutDialog() {
     elements.aboutOverlay.classList.add('hidden');
 }
+
+// ===== Gemini Input Dialog =====
+
+/** Lagrer nåværende Gemini input URL */
+let geminiInputUrl = null;
+
+/**
+ * Viser Gemini input-dialog
+ * @param {string} prompt - Serverens prompt-tekst
+ * @param {string} url - Gemini-URL som ba om input
+ * @param {boolean} sensitive - Om input er sensitiv (passord)
+ */
+function showGeminiInputDialog(prompt, url, sensitive = false) {
+    geminiInputUrl = url;
+    elements.geminiInputPrompt.textContent = prompt || 'Serveren ber om input:';
+    elements.geminiInputField.value = '';
+    elements.geminiInputField.type = sensitive ? 'password' : 'text';
+    elements.geminiInputField.placeholder = sensitive ? 'Skriv inn (skjult)...' : 'Skriv inn tekst...';
+    elements.geminiInputOverlay.classList.remove('hidden');
+    
+    // Fokuser inputfeltet
+    setTimeout(() => elements.geminiInputField.focus(), 100);
+}
+
+/**
+ * Lukker Gemini input-dialog
+ */
+function closeGeminiInputDialog() {
+    elements.geminiInputOverlay.classList.add('hidden');
+    geminiInputUrl = null;
+    elements.geminiInputField.value = '';
+}
+
+/**
+ * Håndterer submit fra Gemini input-dialog
+ */
+async function handleGeminiInputSubmit() {
+    const input = elements.geminiInputField.value;
+    const url = geminiInputUrl;
+    
+    if (!url) return;
+    
+    closeGeminiInputDialog();
+    
+    if (input !== null && input !== undefined) {
+        await submitGeminiInput(url, input);
+    }
+}

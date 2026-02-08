@@ -6,6 +6,8 @@ mod bookmarks;
 mod commands;
 mod converter;
 mod fetcher;
+mod gemini;
+mod gemtext;
 mod markdown;
 mod settings;
 
@@ -45,6 +47,10 @@ pub fn run() {
             commands::zoom_in,
             commands::zoom_out,
             commands::zoom_reset,
+            // Gemini
+            commands::fetch_gemini,
+            commands::submit_gemini_input,
+            commands::resolve_gemini_url,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

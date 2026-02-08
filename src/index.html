@@ -257,6 +257,31 @@
             </div>
         </div>
 
+        <!-- Gemini Input Dialog -->
+        <div id="gemini-input-overlay" class="modal-overlay hidden">
+            <div class="modal-dialog gemini-input-dialog">
+                <div class="modal-header">
+                    <h2>Gemini Input</h2>
+                    <button id="btn-close-gemini-input" class="modal-close-btn">×</button>
+                </div>
+                <div class="modal-content">
+                    <p id="gemini-input-prompt" class="gemini-input-prompt"></p>
+                    <input 
+                        type="text" 
+                        id="gemini-input-field" 
+                        class="gemini-input-field" 
+                        placeholder="Skriv inn tekst..."
+                        spellcheck="false"
+                        autocomplete="off"
+                    >
+                    <div class="gemini-input-actions">
+                        <button id="btn-gemini-input-cancel" class="gemini-input-btn cancel">Avbryt</button>
+                        <button id="btn-gemini-input-send" class="gemini-input-btn send">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Footer / Status Bar (Netscape-inspirert) -->
         <footer class="footer">
             <div class="footer-status-section">

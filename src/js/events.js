@@ -12,6 +12,7 @@ function initEventListeners() {
     initBookmarkEvents();
     initSettingsEvents();
     initSearchEvents();
+    initGeminiInputEvents();
     initKeyboardShortcuts();
     initContentEvents();
 }
@@ -155,6 +156,33 @@ function initSearchEvents() {
     elements.btnSearchClose.addEventListener('click', closeSearch);
 }
 
+// ===== Gemini Input Events =====
+
+function initGeminiInputEvents() {
+    // Send-knapp
+    elements.btnGeminiInputSend.addEventListener('click', handleGeminiInputSubmit);
+    
+    // Avbryt-knapp
+    elements.btnGeminiInputCancel.addEventListener('click', closeGeminiInputDialog);
+    
+    // Lukk-knapp (X)
+    elements.btnCloseGeminiInput.addEventListener('click', closeGeminiInputDialog);
+    
+    // Enter i inputfelt
+    elements.geminiInputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleGeminiInputSubmit();
+        }
+    });
+    
+    // Klikk utenfor dialog
+    elements.geminiInputOverlay.addEventListener('click', (e) => {
+        if (e.target === elements.geminiInputOverlay) {
+            closeGeminiInputDialog();
+        }
+    });
+}
+
 // ===== Keyboard Shortcuts =====
 
 function initKeyboardShortcuts() {
@@ -268,6 +296,7 @@ function initKeyboardShortcuts() {
             closeSearch();
             closeDropdownMenu();
             closeAboutDialog();
+            closeGeminiInputDialog();
         }
     });
 }

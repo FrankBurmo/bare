@@ -24,7 +24,11 @@ serde_json = "1"
 pulldown-cmark = { version = "0.13", default-features = false, features = ["html", "simd"] }
 reqwest = { version = "0.13", features = ["rustls-no-provider"], default-features = false }
 rustls = { version = "0.23", default-features = false, features = ["ring", "logging", "std", "tls12"] }
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "logging", "tls12"] }
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 url = "2"
 dirs = "6"
 thiserror = "2"

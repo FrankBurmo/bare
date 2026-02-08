@@ -5,6 +5,8 @@
 use crate::bookmarks::{self, Bookmark, BookmarkStore};
 use crate::converter;
 use crate::fetcher::{self, Fetcher};
+use crate::gemini::{self, GeminiClient, GeminiError};
+use crate::gemtext;
 use crate::markdown;
 use crate::settings::{self, ConversionMode, FontFamily, Settings, Theme};
 use serde::{Deserialize, Serialize};
@@ -15,6 +17,9 @@ use tauri::Emitter;
 
 /// Global HTTP-klient (gjenbrukes for alle forespørsler)
 static FETCHER: LazyLock<Fetcher> = LazyLock::new(Fetcher::new);
+
+/// Global Gemini-klient (gjenbrukes for alle Gemini-forespørsler)
+static GEMINI_CLIENT: LazyLock<GeminiClient> = LazyLock::new(GeminiClient::new);
 
 /// Global bokmerke-lagring
 static BOOKMARKS: LazyLock<Mutex<BookmarkStore>> = LazyLock::new(|| {
@@ -517,6 +522,157 @@ pub fn zoom_reset() -> Result<SettingsInfo, String> {
     Ok(SettingsInfo::from(&*settings))
 }
 
+// ===== Gemini-commands =====
+
+/// Henter og rendrer innhold fra en Gemini-URL
+///
+/// # Arguments
+/// * `url` - Gemini-URL å hente (gemini://...)
+///
+/// # Returns
+/// RenderedPage med konvertert gemtext→markdown→HTML, eller feilmelding
+#[tauri::command]
+pub async fn fetch_gemini(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    let host = extract_host(&url);
+
+    // Steg 1: Kobler til
+    let _ = window.emit("loading-status", format!("Kobler til {}:1965...", host));
+
+    let result = GEMINI_CLIENT.fetch(&url).await;
+
+    match result {
+        Ok(response) => {
+            let body = response.body.unwrap_or_default();
+            let bytes = body.len();
+
+            // Steg 2: Overfører data
+            let _ = window.emit(
+                "loading-status",
+                format!("Overfører data... ({} bytes)", bytes),
+            );
+
+            // Sjekk om innholdet er gemtext
+            let is_gemtext = response.meta.is_empty()
+                || response.meta.starts_with("text/gemini")
+                || response.meta == "text/gemini";
+
+            if is_gemtext {
+                // Steg 3: Konverterer gemtext
+                let _ = window.emit("loading-status", "Konverterer gemtext...");
+                let gemtext_result = gemtext::gemtext_to_markdown(&body);
+
+                // Steg 4: Rendrer markdown
+                let _ = window.emit("loading-status", "Rendrer markdown...");
+                let html = markdown::render(&gemtext_result.markdown);
+
+                let title = gemtext_result
+                    .title
+                    .or_else(|| markdown::extract_title(&gemtext_result.markdown));
+
+                let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+                Ok(RenderedPage {
+                    html,
+                    title,
+                    url: Some(response.final_url),
+                    is_remote: true,
+                    was_converted: true,
+                })
+            } else if response.meta.starts_with("text/") {
+                // Ren tekst — vis som markdown-kodeblokk
+                let _ = window.emit("loading-status", "Rendrer tekst...");
+                let markdown_content = format!("```\n{}\n```", body);
+                let html = markdown::render(&markdown_content);
+
+                let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+                Ok(RenderedPage {
+                    html,
+                    title: None,
+                    url: Some(response.final_url),
+                    is_remote: true,
+                    was_converted: true,
+                })
+            } else {
+                // Ikke-tekstinnhold
+                Err(format!(
+                    "Innholdstypen '{}' støttes ikke. Bare kan kun vise tekst-basert innhold.",
+                    response.meta
+                ))
+            }
+        }
+        Err(GeminiError::InputRequired(prompt)) => {
+            let _ = window.emit("loading-status", "Venter på brukerinput...");
+            Err(format!("GEMINI_INPUT_PROMPT:{}", prompt))
+        }
+        Err(GeminiError::SensitiveInputRequired(prompt)) => {
+            let _ = window.emit("loading-status", "Venter på brukerinput...");
+            Err(format!("GEMINI_SENSITIVE_INPUT_PROMPT:{}", prompt))
+        }
+        Err(GeminiError::CertificateChanged {
+            host,
+            old_fp,
+            new_fp,
+        }) => {
+            let _ = window.emit("loading-status", "Sertifikat-feil");
+            Err(format!(
+                "⚠️ Sertifikatadvarsel for {}!\n\n\
+                 Sertifikatet har endret seg siden forrige besøk.\n\
+                 Dette kan indikere et sikkerhetsbrudd.\n\n\
+                 Gammelt fingerprint: {}\nNytt fingerprint: {}",
+                host, old_fp, new_fp
+            ))
+        }
+        Err(GeminiError::ClientCertRequired) => {
+            let _ = window.emit("loading-status", "Klientsertifikat påkrevd");
+            Err("Denne Gemini-kapselen krever klientsertifikat.\n\
+                 Denne funksjonaliteten er ikke støttet ennå."
+                .to_string())
+        }
+        Err(e) => {
+            let _ = window.emit("loading-status", "Feil under henting");
+            Err(e.to_string())
+        }
+    }
+}
+
+/// Sender brukerinput til en Gemini-server (statuskode 10)
+///
+/// Konstruerer en ny URL med ?input lagt til, og henter innholdet.
+///
+/// # Arguments
+/// * `url` - Original Gemini-URL som ba om input
+/// * `input` - Brukerens input-tekst
+///
+/// # Returns
+/// RenderedPage med resultatet, eller feilmelding
+#[tauri::command]
+pub async fn submit_gemini_input(
+    url: String,
+    input: String,
+    window: tauri::Window,
+) -> Result<RenderedPage, String> {
+    // Konstruer URL med input som query-parameter
+    let mut parsed = url::Url::parse(&url).map_err(|e| format!("Ugyldig URL: {}", e))?;
+    parsed.set_query(Some(&input));
+
+    let input_url = parsed.to_string();
+    fetch_gemini(input_url, window).await
+}
+
+/// Løser en relativ URL mot en Gemini base-URL
+///
+/// # Arguments
+/// * `base_url` - Nåværende Gemini-side sin URL
+/// * `relative_url` - Relativ URL som skal løses
+///
+/// # Returns
+/// Absolutt URL
+#[tauri::command]
+pub fn resolve_gemini_url(base_url: String, relative_url: String) -> Result<String, String> {
+    gemini::resolve_gemini_url(&base_url, &relative_url).map_err(|e| e.to_string())
+}
+
 /// Returnerer velkomst-innhold for når appen starter
 #[tauri::command]
 pub fn get_welcome_content() -> RenderedPage {
@@ -539,6 +695,18 @@ Klikk på **Åpne fil** i verktøylinjen for å velge en `.md`-fil fra datamaski
 ### Skriv inn en URL
 
 Skriv inn en URL til en markdown-fil i adressefeltet og trykk Enter.
+
+### Gemini-protokollen
+
+Bare støtter **Gemini-protokollen** — et enkelt og personvernvennlig alternativ til HTTP.
+
+Prøv en av disse adressene:
+
+- `gemini://geminiprotocol.net/`
+- `gemini://gemini.circumlunar.space/`
+- `gemini://geminiquickst.art/`
+
+Gemini-sider bruker et enkelt format kalt gemtext, som automatisk konverteres til markdown.
 
 ## Eksempel på markdown
 

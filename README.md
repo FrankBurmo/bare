@@ -50,9 +50,13 @@ Bare er bygget med:
 - ✅ Konfigurerbare innstillinger (skrift, tema, zoom, innholdsbredde)
 - ✅ 3-prikks meny med mindre brukte funksjoner
 - ✅ Om-dialog med versjonsinformasjon
+- ✅ **Gemini-protokoll støtte (gemini://)** - Nytt i v0.1.3!
+  - Full støtte for Gemini-protokollen
+  - TOFU (Trust On First Use) sertifikathåndtering
+  - Gemtext-til-Markdown konvertering
+  - Input-dialog for interaktive Gemini-sider
 
 ### Fremtidige muligheter
-- ⚠️ Gemini-protokoll støtte (gemini://)
 - ⚠️ Gopher-protokoll støtte (gopher://)
 - ⚠️ PDF-eksport
 - ⚠️ Tab-støtte

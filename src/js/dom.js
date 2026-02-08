@@ -73,6 +73,14 @@ const elements = {
     settingContentWidthValue: document.getElementById('setting-content-width-value'),
     settingConversionMode: document.getElementById('setting-conversion-mode'),
     settingReadability: document.getElementById('setting-readability'),
+    
+    // Gemini input-dialog
+    geminiInputOverlay: document.getElementById('gemini-input-overlay'),
+    geminiInputPrompt: document.getElementById('gemini-input-prompt'),
+    geminiInputField: document.getElementById('gemini-input-field'),
+    btnGeminiInputSend: document.getElementById('btn-gemini-input-send'),
+    btnGeminiInputCancel: document.getElementById('btn-gemini-input-cancel'),
+    btnCloseGeminiInput: document.getElementById('btn-close-gemini-input'),
 };
 
 // ===== Utility Functions =====
