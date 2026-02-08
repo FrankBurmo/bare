@@ -792,25 +792,111 @@ body {
     color: var(--text-secondary);
 }
 
-/* ===== Footer ===== */
+/* ===== Footer (Netscape-inspirert statusbar) ===== */
 .footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     height: var(--footer-height);
-    padding: 0 var(--space-sm);
+    padding: 0;
     background: var(--bg-toolbar);
     border-top: var(--border-w) solid var(--border-color);
     font-size: 11px;
     font-family: var(--font-ui);
     color: var(--text-muted);
     flex-shrink: 0;
+    gap: 0;
 }
 
-.footer-section {
+.footer-status-section {
+    flex: 1;
     display: flex;
     align-items: center;
     padding: 0 var(--space-sm);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.footer-status-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.footer-progress-section {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-xs);
+}
+
+.footer-progress {
+    width: 120px;
+    height: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.footer-progress.active {
+    opacity: 1;
+}
+
+.footer-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent-color);
+    transition: width 0.1s linear;
+}
+
+/* Classic animated diagonal stripes on progress bar */
+.footer-progress.active .footer-progress-bar {
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--accent-color),
+        var(--accent-color) 4px,
+        transparent 4px,
+        transparent 8px
+    );
+    background-size: 16px 16px;
+    animation: progress-stripes 0.4s linear infinite;
+}
+
+@keyframes progress-stripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 16px 0; }
+}
+
+[data-theme="dark"] .footer-progress-bar {
+    background: var(--accent-color);
+}
+
+[data-theme="dark"] .footer-progress.active .footer-progress-bar {
+    background: repeating-linear-gradient(
+        -45deg,
+        var(--accent-color),
+        var(--accent-color) 4px,
+        rgba(0,0,0,0.3) 4px,
+        rgba(0,0,0,0.3) 8px
+    );
+    background-size: 16px 16px;
+    animation: progress-stripes 0.4s linear infinite;
+}
+
+.footer-info-section {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-sm);
+    gap: var(--space-xs);
+    border-left: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.footer-sep {
+    color: var(--text-muted);
+    opacity: 0.4;
 }
 
 .zoom-level {

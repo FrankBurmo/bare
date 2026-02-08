@@ -39,6 +39,8 @@ const elements = {
     statusMessage: document.getElementById('status-message'),
     footerInfo: document.getElementById('footer-info'),
     footerStatus: document.getElementById('footer-status'),
+    footerProgress: document.getElementById('footer-progress'),
+    footerProgressBar: document.getElementById('footer-progress-bar'),
     zoomLevel: document.getElementById('zoom-level'),
     
     // Søk

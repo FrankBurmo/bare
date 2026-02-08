@@ -25,6 +25,9 @@ async function init() {
     // Registrer event listeners
     initEventListeners();
     
+    // Start lytting på loading-status events fra backend
+    await initLoadingStatusListener();
+    
     // Oppdater UI
     updateNavigationButtons();
     

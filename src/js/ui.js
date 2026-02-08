@@ -4,6 +4,8 @@
  * Håndterer status bar, loading states, footer og panel-visning.
  */
 
+const { listen } = window.__TAURI__.event;
+
 // ===== Status Bar =====
 
 let statusTimeout = null;
@@ -43,13 +45,135 @@ function hideStatus() {
     elements.statusBar.classList.add('hidden');
 }
 
+// ===== Footer Loading Status (Netscape-stil) =====
+
+let loadingStepIndex = 0;
+let progressAnimFrame = null;
+let progressTarget = 0;
+let progressCurrent = 0;
+let footerResetTimeout = null;
+
+/** Status-steg mapping til progress-prosent */
+const LOADING_STEP_PROGRESS = {
+    'lookup': 15,
+    'connect': 30,
+    'transfer': 60,
+    'convert': 75,
+    'render': 90,
+    'done': 100,
+    'error': 0,
+    'waiting': 45,
+    'stopped': 0,
+};
+
+/**
+ * Parser en loading-status melding og gir tilbake progress-steg
+ * @param {string} msg - Status-melding fra backend
+ * @returns {string} Steg-nøkkel
+ */
+function parseLoadingStep(msg) {
+    if (msg.startsWith('Slår opp')) return 'lookup';
+    if (msg.startsWith('Kobler til')) return 'connect';
+    if (msg.startsWith('Overfører data')) return 'transfer';
+    if (msg.startsWith('Konverterer')) return 'convert';
+    if (msg.startsWith('Rendrer')) return 'render';
+    if (msg.startsWith('Dokument: Ferdig')) return 'done';
+    if (msg.startsWith('Feil')) return 'error';
+    if (msg.startsWith('Venter')) return 'waiting';
+    if (msg.startsWith('Stoppet')) return 'stopped';
+    return 'transfer';
+}
+
+/**
+ * Starter loading-indikatoren i footer
+ */
+function startFooterLoading() {
+    if (footerResetTimeout) {
+        clearTimeout(footerResetTimeout);
+        footerResetTimeout = null;
+    }
+    loadingStepIndex = 0;
+    progressCurrent = 0;
+    progressTarget = 0;
+    elements.footerStatus.textContent = 'Kobler til...';
+    elements.footerProgress.classList.add('active');
+    elements.footerProgressBar.style.width = '0%';
+}
+
+/**
+ * Oppdaterer loading-status i footer med Netscape-lignende meldinger
+ * @param {string} message - Statusmelding fra backend
+ */
+function updateLoadingStatus(message) {
+    elements.footerStatus.textContent = message;
+    
+    const step = parseLoadingStep(message);
+    progressTarget = LOADING_STEP_PROGRESS[step] || 50;
+    
+    // Animer progress-baren jevnt
+    animateProgress();
+    
+    // Hvis ferdig, planlegg reset
+    if (step === 'done') {
+        footerResetTimeout = setTimeout(() => {
+            stopFooterLoading();
+        }, 1500);
+    }
+}
+
+/**
+ * Animerer progress-bar mot target
+ */
+function animateProgress() {
+    if (progressAnimFrame) {
+        cancelAnimationFrame(progressAnimFrame);
+    }
+    
+    function step() {
+        if (progressCurrent < progressTarget) {
+            // Rask start, saktere mot mål (ease-out)
+            const diff = progressTarget - progressCurrent;
+            const increment = Math.max(1, diff * 0.3);
+            progressCurrent = Math.min(progressTarget, progressCurrent + increment);
+            elements.footerProgressBar.style.width = progressCurrent + '%';
+            progressAnimFrame = requestAnimationFrame(step);
+        }
+    }
+    
+    progressAnimFrame = requestAnimationFrame(step);
+}
+
+/**
+ * Stopper loading-indikatoren og resetter footer
+ */
+function stopFooterLoading() {
+    if (progressAnimFrame) {
+        cancelAnimationFrame(progressAnimFrame);
+        progressAnimFrame = null;
+    }
+    elements.footerStatus.textContent = 'Klar';
+    elements.footerProgress.classList.remove('active');
+    elements.footerProgressBar.style.width = '0%';
+    progressCurrent = 0;
+    progressTarget = 0;
+}
+
+/**
+ * Initialiserer lytting på loading-status events fra Tauri-backend
+ */
+async function initLoadingStatusListener() {
+    await listen('loading-status', (event) => {
+        updateLoadingStatus(event.payload);
+    });
+}
+
 // ===== Content States =====
 
 /**
  * Viser loading-indikator i content-området
  */
 function showLoading() {
-    elements.content.innerHTML = '<div class="loading"><p>Laster...</p></div>';
+    elements.content.innerHTML = '<div class=\"loading\"><p>[ LASTER... ]</p></div>';
 }
 
 /**

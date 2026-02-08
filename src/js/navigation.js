@@ -14,6 +14,7 @@ const { open } = window.__TAURI__.dialog;
  */
 async function goHome() {
     showLoading();
+    startFooterLoading();
     updateFooterStatus('Laster startside...');
     try {
         const result = await invokeNav('get_welcome_content');
@@ -25,10 +26,10 @@ async function goHome() {
         updateNavigationButtons();
         updateFooter(HOME_PATH);
         updateBookmarkButton();
-        updateFooterStatus('Klar');
+        stopFooterLoading();
     } catch (error) {
         showError(`Kunne ikke laste startsiden: ${error}`);
-        updateFooterStatus('Feil');
+        stopFooterLoading();
     }
 }
 
@@ -46,11 +47,11 @@ async function reloadPage() {
     
     // Legg til loading-animasjon på reload-knappen
     elements.btnReload.classList.add('loading');
+    startFooterLoading();
     updateFooterStatus('Laster på nytt...');
     
     try {
         await loadPath(currentPath, false);
-        updateFooterStatus('Klar');
     } finally {
         elements.btnReload.classList.remove('loading');
     }
@@ -127,6 +128,7 @@ async function loadPath(path, addHistory = true) {
  */
 async function loadUrl(url, addHistory = true) {
     showLoading();
+    startFooterLoading();
     elements.urlBar.value = url;
     
     try {
@@ -153,6 +155,7 @@ async function loadUrl(url, addHistory = true) {
             showStatus('Markdown lastet fra nettverket', false);
         }
     } catch (error) {
+        stopFooterLoading();
         // Sjekk om dette er en konverteringsprompt
         if (typeof error === 'string' && error.startsWith(CONVERSION_PROMPT_PREFIX)) {
             const parts = error.split(':');
@@ -179,6 +182,7 @@ async function loadUrl(url, addHistory = true) {
  */
 async function convertAndLoad(url, addHistory = true) {
     showLoading();
+    startFooterLoading();
     elements.urlBar.value = url;
     
     try {
@@ -200,6 +204,7 @@ async function convertAndLoad(url, addHistory = true) {
         updateBookmarkButton();
         showStatus('HTML konvertert til markdown', false);
     } catch (error) {
+        stopFooterLoading();
         showError(error);
     }
 }

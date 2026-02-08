@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
+use tauri::Emitter;
 
 /// Global HTTP-klient (gjenbrukes for alle forespørsler)
 static FETCHER: LazyLock<Fetcher> = LazyLock::new(Fetcher::new);
@@ -26,6 +27,14 @@ static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| {
     let path = settings::get_settings_path();
     Mutex::new(Settings::load(&path).unwrap_or_default())
 });
+
+/// Ekstraher vertsnavn fra en URL for visning i statusbar
+fn extract_host(url: &str) -> String {
+    url::Url::parse(url)
+        .ok()
+        .and_then(|u| u.host_str().map(|h| h.to_string()))
+        .unwrap_or_else(|| url.to_string())
+}
 
 /// Henter app-versjon fra Cargo.toml
 #[tauri::command]
@@ -120,8 +129,30 @@ pub fn open_file(path: String) -> Result<RenderedPage, String> {
 /// # Returns
 /// RenderedPage med HTML og tittel, eller feilmelding
 #[tauri::command]
-pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
-    let result = FETCHER.fetch(&url).await.map_err(|e| e.to_string())?;
+pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    // Steg 1: Slår opp vert
+    let _ = window.emit(
+        "loading-status",
+        format!("Slår opp {}...", extract_host(&url)),
+    );
+
+    // Steg 2: Kobler til
+    let _ = window.emit(
+        "loading-status",
+        format!("Kobler til {}...", extract_host(&url)),
+    );
+
+    let result = FETCHER.fetch(&url).await.map_err(|e| {
+        let _ = window.emit("loading-status", "Feil under henting");
+        e.to_string()
+    })?;
+
+    // Steg 3: Overfører data
+    let bytes = result.content.len();
+    let _ = window.emit(
+        "loading-status",
+        format!("Overfører data... ({} bytes)", bytes),
+    );
 
     // Hent konverteringsinnstillinger
     let settings = SETTINGS.lock().unwrap();
@@ -130,9 +161,12 @@ pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
     drop(settings);
 
     if result.is_markdown {
-        // Native markdown - render direkte
+        // Steg 4: Rendrer markdown
+        let _ = window.emit("loading-status", "Rendrer markdown...");
         let html = markdown::render(&result.content);
         let title = markdown::extract_title(&result.content);
+
+        let _ = window.emit("loading-status", "Dokument: Ferdig");
 
         return Ok(RenderedPage {
             html,
@@ -146,12 +180,14 @@ pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
     // Ikke-markdown innhold - sjekk konverteringsmodus
     match conversion_mode {
         ConversionMode::MarkdownOnly => {
+            let _ = window.emit("loading-status", "Stoppet: Kun markdown");
             Err(format!(
                 "Innholdet er ikke markdown (Content-Type: {:?}). Konvertering er deaktivert i innstillingene.",
                 result.content_type
             ))
         }
         ConversionMode::AskEverytime => {
+            let _ = window.emit("loading-status", "Venter på brukervalg...");
             // Returner en spesiell respons som ber frontend spørre brukeren
             Err(format!(
                 "CONVERSION_PROMPT:Innholdet er HTML. Vil du konvertere det til markdown?:{}",
@@ -159,16 +195,19 @@ pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
             ))
         }
         ConversionMode::ConvertAll => {
-            // Konverter HTML til markdown
+            // Steg 4: Konverterer HTML
+            let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
             let conversion_result = converter::html_to_markdown(&result.content);
 
-            // Render markdown til HTML for visning
+            // Steg 5: Rendrer markdown
+            let _ = window.emit("loading-status", "Rendrer markdown...");
             let html = markdown::render(&conversion_result.markdown);
 
-            // Bruk tittel fra konvertering eller markdown
             let title = conversion_result
                 .title
                 .or_else(|| markdown::extract_title(&conversion_result.markdown));
+
+            let _ = window.emit("loading-status", "Dokument: Ferdig");
 
             Ok(RenderedPage {
                 html,
@@ -189,19 +228,41 @@ pub async fn fetch_url(url: String) -> Result<RenderedPage, String> {
 /// # Returns
 /// RenderedPage med konvertert innhold
 #[tauri::command]
-pub async fn convert_url(url: String) -> Result<RenderedPage, String> {
-    let result = FETCHER.fetch(&url).await.map_err(|e| e.to_string())?;
+pub async fn convert_url(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    let _ = window.emit(
+        "loading-status",
+        format!("Slår opp {}...", extract_host(&url)),
+    );
+    let _ = window.emit(
+        "loading-status",
+        format!("Kobler til {}...", extract_host(&url)),
+    );
+
+    let result = FETCHER.fetch(&url).await.map_err(|e| {
+        let _ = window.emit("loading-status", "Feil under henting");
+        e.to_string()
+    })?;
+
+    let bytes = result.content.len();
+    let _ = window.emit(
+        "loading-status",
+        format!("Overfører data... ({} bytes)", bytes),
+    );
 
     // Konverter HTML til markdown
+    let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
     let conversion_result = converter::html_to_markdown(&result.content);
 
     // Render markdown til HTML for visning
+    let _ = window.emit("loading-status", "Rendrer markdown...");
     let html = markdown::render(&conversion_result.markdown);
 
     // Bruk tittel fra konvertering eller markdown
     let title = conversion_result
         .title
         .or_else(|| markdown::extract_title(&conversion_result.markdown));
+
+    let _ = window.emit("loading-status", "Dokument: Ferdig");
 
     Ok(RenderedPage {
         html,
