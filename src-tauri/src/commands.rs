@@ -117,9 +117,7 @@ pub fn open_file(path: String, window: tauri::Window) -> Result<RenderedPage, St
     }
 
     // Steg 1: Åpner fil
-    let filename = path.file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("fil");
+    let filename = path.file_name().and_then(|n| n.to_str()).unwrap_or("fil");
     let _ = window.emit(
         "loading-status",
         format!("{} Lokal fil: Åpner {}...", EMOJI_FILE, filename),
@@ -160,7 +158,11 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
     let parsed_url = url::Url::parse(&url).map_err(|e| e.to_string())?;
     let scheme = parsed_url.scheme();
     let host = extract_host(&url);
-    let protocol_emoji = if scheme == "https" { EMOJI_HTTPS } else { EMOJI_HTTP };
+    let protocol_emoji = if scheme == "https" {
+        EMOJI_HTTPS
+    } else {
+        EMOJI_HTTP
+    };
     let protocol_name = if scheme == "https" { "HTTPS" } else { "HTTP" };
 
     // Steg 1: Slår opp vert
@@ -173,7 +175,10 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
     let tls_info = if scheme == "https" { "/TLS" } else { "" };
     let _ = window.emit(
         "loading-status",
-        format!("{} {}{}: Kobler til {}...", protocol_emoji, protocol_name, tls_info, host),
+        format!(
+            "{} {}{}: Kobler til {}...",
+            protocol_emoji, protocol_name, tls_info, host
+        ),
     );
 
     let result = FETCHER.fetch(&url).await.map_err(|e| {
@@ -267,7 +272,11 @@ pub async fn convert_url(url: String, window: tauri::Window) -> Result<RenderedP
     let parsed_url = url::Url::parse(&url).map_err(|e| e.to_string())?;
     let scheme = parsed_url.scheme();
     let host = extract_host(&url);
-    let protocol_emoji = if scheme == "https" { EMOJI_HTTPS } else { EMOJI_HTTP };
+    let protocol_emoji = if scheme == "https" {
+        EMOJI_HTTPS
+    } else {
+        EMOJI_HTTP
+    };
     let protocol_name = if scheme == "https" { "HTTPS" } else { "HTTP" };
 
     let _ = window.emit(
@@ -277,7 +286,10 @@ pub async fn convert_url(url: String, window: tauri::Window) -> Result<RenderedP
     let tls_info = if scheme == "https" { "/TLS" } else { "" };
     let _ = window.emit(
         "loading-status",
-        format!("{} {}{}: Kobler til {}...", protocol_emoji, protocol_name, tls_info, host),
+        format!(
+            "{} {}{}: Kobler til {}...",
+            protocol_emoji, protocol_name, tls_info, host
+        ),
     );
 
     let result = FETCHER.fetch(&url).await.map_err(|e| {
@@ -575,7 +587,10 @@ pub async fn fetch_gemini(url: String, window: tauri::Window) -> Result<Rendered
     // Steg 1: Gemini TLS-handshake
     let _ = window.emit(
         "loading-status",
-        format!("{} Gemini TLS-handshake (port 1965) med {}...", EMOJI_GEMINI, host),
+        format!(
+            "{} Gemini TLS-handshake (port 1965) med {}...",
+            EMOJI_GEMINI, host
+        ),
     );
 
     let result = GEMINI_CLIENT.fetch(&url).await;
