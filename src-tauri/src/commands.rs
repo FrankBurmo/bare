@@ -15,6 +15,12 @@ use std::path::PathBuf;
 use std::sync::{LazyLock, Mutex};
 use tauri::Emitter;
 
+// Emoji-konstanter for protokollidentifikasjon
+const EMOJI_HTTPS: &str = "🔒";
+const EMOJI_HTTP: &str = "🌐";
+const EMOJI_GEMINI: &str = "📡";
+const EMOJI_FILE: &str = "📁";
+
 /// Global HTTP-klient (gjenbrukes for alle forespørsler)
 static FETCHER: LazyLock<Fetcher> = LazyLock::new(Fetcher::new);
 
@@ -94,7 +100,7 @@ pub fn render_markdown(content: String) -> RenderedPage {
 /// # Returns
 /// RenderedPage med HTML og tittel, eller feilmelding
 #[tauri::command]
-pub fn open_file(path: String) -> Result<RenderedPage, String> {
+pub fn open_file(path: String, window: tauri::Window) -> Result<RenderedPage, String> {
     let path = PathBuf::from(&path);
 
     // Sjekk at filen eksisterer
@@ -110,12 +116,27 @@ pub fn open_file(path: String) -> Result<RenderedPage, String> {
         }
     }
 
+    // Steg 1: Åpner fil
+    let filename = path.file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("fil");
+    let _ = window.emit(
+        "loading-status",
+        format!("{} Lokal fil: Åpner {}...", EMOJI_FILE, filename),
+    );
+
     // Les innholdet
     let content = fs::read_to_string(&path).map_err(|e| format!("Kunne ikke lese fil: {}", e))?;
 
-    // Render markdown
+    // Steg 2: Rendrer markdown
+    let _ = window.emit(
+        "loading-status",
+        format!("{} Lokal fil: Rendrer markdown...", EMOJI_FILE),
+    );
     let html = markdown::render(&content);
     let title = markdown::extract_title(&content);
+
+    let _ = window.emit("loading-status", "Dokument: Ferdig");
 
     Ok(RenderedPage {
         html,
@@ -135,16 +156,24 @@ pub fn open_file(path: String) -> Result<RenderedPage, String> {
 /// RenderedPage med HTML og tittel, eller feilmelding
 #[tauri::command]
 pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    // Detekter protokoll
+    let parsed_url = url::Url::parse(&url).map_err(|e| e.to_string())?;
+    let scheme = parsed_url.scheme();
+    let host = extract_host(&url);
+    let protocol_emoji = if scheme == "https" { EMOJI_HTTPS } else { EMOJI_HTTP };
+    let protocol_name = if scheme == "https" { "HTTPS" } else { "HTTP" };
+
     // Steg 1: Slår opp vert
     let _ = window.emit(
         "loading-status",
-        format!("Slår opp {}...", extract_host(&url)),
+        format!("{} {}: Slår opp {}...", protocol_emoji, protocol_name, host),
     );
 
     // Steg 2: Kobler til
+    let tls_info = if scheme == "https" { "/TLS" } else { "" };
     let _ = window.emit(
         "loading-status",
-        format!("Kobler til {}...", extract_host(&url)),
+        format!("{} {}{}: Kobler til {}...", protocol_emoji, protocol_name, tls_info, host),
     );
 
     let result = FETCHER.fetch(&url).await.map_err(|e| {
@@ -234,13 +263,21 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
 /// RenderedPage med konvertert innhold
 #[tauri::command]
 pub async fn convert_url(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    // Detekter protokoll
+    let parsed_url = url::Url::parse(&url).map_err(|e| e.to_string())?;
+    let scheme = parsed_url.scheme();
+    let host = extract_host(&url);
+    let protocol_emoji = if scheme == "https" { EMOJI_HTTPS } else { EMOJI_HTTP };
+    let protocol_name = if scheme == "https" { "HTTPS" } else { "HTTP" };
+
     let _ = window.emit(
         "loading-status",
-        format!("Slår opp {}...", extract_host(&url)),
+        format!("{} {}: Slår opp {}...", protocol_emoji, protocol_name, host),
     );
+    let tls_info = if scheme == "https" { "/TLS" } else { "" };
     let _ = window.emit(
         "loading-status",
-        format!("Kobler til {}...", extract_host(&url)),
+        format!("{} {}{}: Kobler til {}...", protocol_emoji, protocol_name, tls_info, host),
     );
 
     let result = FETCHER.fetch(&url).await.map_err(|e| {
@@ -535,8 +572,11 @@ pub fn zoom_reset() -> Result<SettingsInfo, String> {
 pub async fn fetch_gemini(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
     let host = extract_host(&url);
 
-    // Steg 1: Kobler til
-    let _ = window.emit("loading-status", format!("Kobler til {}:1965...", host));
+    // Steg 1: Gemini TLS-handshake
+    let _ = window.emit(
+        "loading-status",
+        format!("{} Gemini TLS-handshake (port 1965) med {}...", EMOJI_GEMINI, host),
+    );
 
     let result = GEMINI_CLIENT.fetch(&url).await;
 

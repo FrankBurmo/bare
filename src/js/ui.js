@@ -72,15 +72,22 @@ const LOADING_STEP_PROGRESS = {
  * @returns {string} Steg-nøkkel
  */
 function parseLoadingStep(msg) {
-    if (msg.startsWith('Slår opp')) return 'lookup';
-    if (msg.startsWith('Kobler til')) return 'connect';
-    if (msg.startsWith('Overfører data')) return 'transfer';
-    if (msg.startsWith('Konverterer')) return 'convert';
-    if (msg.startsWith('Rendrer')) return 'render';
-    if (msg.startsWith('Dokument: Ferdig')) return 'done';
-    if (msg.startsWith('Feil')) return 'error';
-    if (msg.startsWith('Venter')) return 'waiting';
-    if (msg.startsWith('Stoppet')) return 'stopped';
+    // Strip emoji-prefiks hvis tilstede
+    const cleanMsg = msg.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
+    
+    if (cleanMsg.startsWith('Slår opp')) return 'lookup';
+    if (cleanMsg.startsWith('HTTP') || cleanMsg.startsWith('HTTPS') || cleanMsg.startsWith('Gemini') || cleanMsg.startsWith('Lokal fil')) {
+        if (cleanMsg.includes('Slår opp')) return 'lookup';
+        if (cleanMsg.includes('Kobler til') || cleanMsg.includes('handshake') || cleanMsg.includes('Åpner')) return 'connect';
+    }
+    if (cleanMsg.startsWith('Kobler til')) return 'connect';
+    if (cleanMsg.startsWith('Overfører data')) return 'transfer';
+    if (cleanMsg.startsWith('Konverterer')) return 'convert';
+    if (cleanMsg.startsWith('Rendrer')) return 'render';
+    if (cleanMsg.startsWith('Dokument: Ferdig')) return 'done';
+    if (cleanMsg.startsWith('Feil')) return 'error';
+    if (cleanMsg.startsWith('Venter')) return 'waiting';
+    if (cleanMsg.startsWith('Stoppet')) return 'stopped';
     return 'transfer';
 }
 
