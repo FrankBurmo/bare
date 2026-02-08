@@ -4,6 +4,10 @@
 
 **Bare** er en eksperimentell markdown-nettleser med fokus på personvern, hastighet og rent innhold. Nettleseren ignorerer tradisjonelle nettsider og rendrer kun `.md`-filer direkte fra HTTP-responser.
 
+### Lisens
+- Prosjektet er lisensiert under GNU General Public License v3.0 (GPL-3.0).
+- Bidrag til repoet skal kompatible med GPL-3.0.
+
 ### Kjernefilosofi
 - **Enkelhet:** Minimal funksjonalitet, ingen unødvendig kompleksitet
 - **Personvern:** Null sporing, ingen cookies, ingen JavaScript-kjøring

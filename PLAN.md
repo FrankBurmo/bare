@@ -19,6 +19,10 @@
 
 **Bare** er en eksperimentell nettleser designet for et tekst-basert internett. Den ignorerer tradisjonelle nettsider og rendrer kun `.md`-filer direkte fra HTTP-responser.
 
+### Lisens
+
+Prosjektet er lisensiert under GNU General Public License v3.0 (GPL-3.0). Se [LICENSE](LICENSE).
+
 ### Kjerneverdier
 
 | Verdi | Beskrivelse |

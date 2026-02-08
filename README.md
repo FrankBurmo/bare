@@ -145,7 +145,8 @@ Bare er inspirert av:
 
 ## Lisens
 
-[Kommer - avventer beslutning på MIT/Apache 2.0/GPL]
+Bare er lisensiert under GNU General Public License v3.0 (GPL-3.0).
+Se [LICENSE](LICENSE).
 
 ## Kontakt
 

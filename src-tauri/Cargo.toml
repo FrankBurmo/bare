@@ -3,7 +3,7 @@ name = "bare"
 version = "0.1.3"
 description = "En markdown-nettleser med fokus på personvern og enkelhet"
 authors = ["Bare Contributors"]
-license = "MIT"
+license = "GPL-3.0-only"
 repository = "https://github.com/FrankBurmo/bare"
 edition = "2021"
 
