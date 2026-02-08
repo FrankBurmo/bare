@@ -285,6 +285,7 @@ function toggleSettingsPanelUI() {
     const isVisible = !elements.settingsPanel.classList.contains('hidden');
     elements.settingsPanel.classList.toggle('hidden', isVisible);
     elements.bookmarksPanel.classList.add('hidden');
+    closeDropdownMenu();
     return !isVisible;
 }
 
