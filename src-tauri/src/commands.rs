@@ -702,9 +702,9 @@ Bare støtter **Gemini-protokollen** — et enkelt og personvernvennlig alternat
 
 Prøv en av disse adressene:
 
-- `gemini://geminiprotocol.net/`
-- `gemini://gemini.circumlunar.space/`
-- `gemini://geminiquickst.art/`
+- [gemini://geminiprotocol.net/](gemini://geminiprotocol.net/)
+- [gemini://gemini.circumlunar.space/](gemini://gemini.circumlunar.space/)
+- [gemini://geminiquickst.art/](gemini://geminiquickst.art/)
 
 Gemini-sider bruker et enkelt format kalt gemtext, som automatisk konverteres til markdown.
 
