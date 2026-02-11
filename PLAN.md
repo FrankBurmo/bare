@@ -237,7 +237,7 @@ bare/
 **Mål:** Utvid funksjonalitet
 
 - [x] Gemini-protokoll støtte (gemini://) ✅ FULLFØRT
-- [ ] Gopher-protokoll støtte (gopher://)
+- [ ] Gopher-protokoll støtte (gopher://) — se [GOPHER.md](GOPHER.md) for detaljert plan
 - [ ] Eksporter sider som PDF
 - [ ] Tab-støtte
 - [ ] Synkronisering av bokmerker
