@@ -7,6 +7,8 @@ use crate::converter;
 use crate::fetcher::{self, Fetcher};
 use crate::gemini::{self, GeminiClient, GeminiError};
 use crate::gemtext;
+use crate::gopher;
+use crate::gophermap;
 use crate::markdown;
 use crate::settings::{self, ConversionMode, FontFamily, Settings, Theme};
 use serde::{Deserialize, Serialize};
@@ -19,6 +21,7 @@ use tauri::Emitter;
 const EMOJI_HTTPS: &str = "🔒";
 const EMOJI_HTTP: &str = "🌐";
 const EMOJI_GEMINI: &str = "📡";
+const EMOJI_GOPHER: &str = "🐿️";
 const EMOJI_FILE: &str = "📁";
 
 /// Global HTTP-klient (gjenbrukes for alle forespørsler)
@@ -726,6 +729,198 @@ pub async fn submit_gemini_input(
 #[tauri::command]
 pub fn resolve_gemini_url(base_url: String, relative_url: String) -> Result<String, String> {
     gemini::resolve_gemini_url(&base_url, &relative_url).map_err(|e| e.to_string())
+}
+
+// ===== Gopher-commands =====
+
+/// Henter og rendrer innhold fra en Gopher-URL
+///
+/// # Arguments
+/// * `url` - Gopher-URL å hente (gopher://...)
+///
+/// # Returns
+/// RenderedPage med konvertert gophermap→markdown→HTML, eller feilmelding
+#[tauri::command]
+pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    let host = extract_host(&url);
+
+    // Steg 1: Kobler til
+    let _ = window.emit(
+        "loading-status",
+        format!("{} Gopher: Kobler til {} (port 70)...", EMOJI_GOPHER, host),
+    );
+
+    let result = gopher::fetch(&url).await;
+
+    match result {
+        Ok(response) => {
+            let bytes = response.body.len();
+
+            // Steg 2: Overfører data
+            let _ = window.emit(
+                "loading-status",
+                format!("Overfører data... ({} bytes)", bytes),
+            );
+
+            match response.content_type {
+                gopher::GopherContentType::Menu => {
+                    // Steg 3: Konverterer gophermap
+                    let _ = window.emit("loading-status", "Konverterer gophermap...");
+                    let gophermap_result =
+                        gophermap::to_markdown(&response.items, &response.final_url);
+
+                    // Steg 4: Rendrer markdown
+                    let _ = window.emit("loading-status", "Rendrer markdown...");
+                    let html = markdown::render(&gophermap_result.markdown);
+
+                    let title = gophermap_result
+                        .title
+                        .or_else(|| markdown::extract_title(&gophermap_result.markdown));
+
+                    let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+                    Ok(RenderedPage {
+                        html,
+                        title,
+                        url: Some(response.final_url),
+                        is_remote: true,
+                        was_converted: true,
+                    })
+                }
+                gopher::GopherContentType::Text => {
+                    // Steg 3: Rendrer tekst som markdown
+                    let _ = window.emit("loading-status", "Rendrer markdown...");
+                    let html = markdown::render(&response.body);
+                    let title = markdown::extract_title(&response.body);
+
+                    let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+                    Ok(RenderedPage {
+                        html,
+                        title,
+                        url: Some(response.final_url),
+                        is_remote: true,
+                        was_converted: false,
+                    })
+                }
+                gopher::GopherContentType::Html => {
+                    // Konverter HTML til markdown
+                    let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
+                    let conversion_result = converter::html_to_markdown(&response.body);
+
+                    let _ = window.emit("loading-status", "Rendrer markdown...");
+                    let html = markdown::render(&conversion_result.markdown);
+                    let title = conversion_result
+                        .title
+                        .or_else(|| markdown::extract_title(&conversion_result.markdown));
+
+                    let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+                    Ok(RenderedPage {
+                        html,
+                        title,
+                        url: Some(response.final_url),
+                        is_remote: true,
+                        was_converted: true,
+                    })
+                }
+                gopher::GopherContentType::Error => {
+                    // Vis feilmeny som markdown
+                    let _ = window.emit("loading-status", "Konverterer feilmelding...");
+                    let gophermap_result =
+                        gophermap::to_markdown(&response.items, &response.final_url);
+                    let html = markdown::render(&gophermap_result.markdown);
+
+                    let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+                    Ok(RenderedPage {
+                        html,
+                        title: Some("Gopher-feil".to_string()),
+                        url: Some(response.final_url),
+                        is_remote: true,
+                        was_converted: true,
+                    })
+                }
+                gopher::GopherContentType::Search => {
+                    // Bør ikke skje — search håndteres via SearchInputRequired error
+                    Err("GOPHER_SEARCH_PROMPT:".to_string() + &url)
+                }
+            }
+        }
+        Err(gopher::GopherError::SearchInputRequired) => {
+            let _ = window.emit("loading-status", "Venter på søkeinput...");
+            Err(format!("GOPHER_SEARCH_PROMPT:{}", url))
+        }
+        Err(e) => {
+            let _ = window.emit("loading-status", "Feil under henting");
+            Err(e.to_string())
+        }
+    }
+}
+
+/// Utfører et Gopher-søk (type 7)
+///
+/// # Arguments
+/// * `url` - Gopher-søke-URL
+/// * `query` - Brukerens søkestreng
+///
+/// # Returns
+/// RenderedPage med søkeresultater
+#[tauri::command]
+pub async fn gopher_search(
+    url: String,
+    query: String,
+    window: tauri::Window,
+) -> Result<RenderedPage, String> {
+    let host = extract_host(&url);
+
+    let _ = window.emit(
+        "loading-status",
+        format!("{} Gopher: Søker på {}...", EMOJI_GOPHER, host),
+    );
+
+    let result = gopher::search(&url, &query)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let bytes = result.body.len();
+    let _ = window.emit(
+        "loading-status",
+        format!("Overfører data... ({} bytes)", bytes),
+    );
+
+    let _ = window.emit("loading-status", "Konverterer søkeresultater...");
+    let gophermap_result = gophermap::to_markdown(&result.items, &result.final_url);
+
+    let _ = window.emit("loading-status", "Rendrer markdown...");
+    let html = markdown::render(&gophermap_result.markdown);
+
+    let title = gophermap_result
+        .title
+        .or_else(|| Some(format!("Søkeresultater: {}", query)));
+
+    let _ = window.emit("loading-status", "Dokument: Ferdig");
+
+    Ok(RenderedPage {
+        html,
+        title,
+        url: Some(result.final_url),
+        is_remote: true,
+        was_converted: true,
+    })
+}
+
+/// Løser en relativ URL mot en Gopher base-URL
+///
+/// # Arguments
+/// * `base_url` - Nåværende Gopher-side sin URL
+/// * `relative_url` - Relativ URL som skal løses
+///
+/// # Returns
+/// Absolutt URL
+#[tauri::command]
+pub fn resolve_gopher_url(base_url: String, relative_url: String) -> Result<String, String> {
+    gopher::resolve_gopher_url(&base_url, &relative_url).map_err(|e| e.to_string())
 }
 
 /// Returnerer velkomst-innhold for når appen starter

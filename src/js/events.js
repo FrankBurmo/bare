@@ -160,7 +160,7 @@ function initSearchEvents() {
 
 function initGeminiInputEvents() {
     // Send-knapp
-    elements.btnGeminiInputSend.addEventListener('click', handleGeminiInputSubmit);
+    elements.btnGeminiInputSend.addEventListener('click', handleInputDialogSubmit);
     
     // Avbryt-knapp
     elements.btnGeminiInputCancel.addEventListener('click', closeGeminiInputDialog);
@@ -171,7 +171,7 @@ function initGeminiInputEvents() {
     // Enter i inputfelt
     elements.geminiInputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            handleGeminiInputSubmit();
+            handleInputDialogSubmit();
         }
     });
     

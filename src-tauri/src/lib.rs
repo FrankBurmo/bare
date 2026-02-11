@@ -8,6 +8,8 @@ mod converter;
 mod fetcher;
 mod gemini;
 mod gemtext;
+mod gopher;
+mod gophermap;
 mod markdown;
 mod settings;
 
@@ -51,6 +53,10 @@ pub fn run() {
             commands::fetch_gemini,
             commands::submit_gemini_input,
             commands::resolve_gemini_url,
+            // Gopher
+            commands::fetch_gopher,
+            commands::gopher_search,
+            commands::resolve_gopher_url,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

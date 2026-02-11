@@ -76,7 +76,7 @@ function parseLoadingStep(msg) {
     const cleanMsg = msg.replace(/^[\u{1F300}-\u{1F9FF}]\s*/u, '');
     
     if (cleanMsg.startsWith('Slår opp')) return 'lookup';
-    if (cleanMsg.startsWith('HTTP') || cleanMsg.startsWith('HTTPS') || cleanMsg.startsWith('Gemini') || cleanMsg.startsWith('Lokal fil')) {
+    if (cleanMsg.startsWith('HTTP') || cleanMsg.startsWith('HTTPS') || cleanMsg.startsWith('Gemini') || cleanMsg.startsWith('Gopher') || cleanMsg.startsWith('Lokal fil')) {
         if (cleanMsg.includes('Slår opp')) return 'lookup';
         if (cleanMsg.includes('Kobler til') || cleanMsg.includes('handshake') || cleanMsg.includes('Åpner')) return 'connect';
     }
@@ -385,6 +385,7 @@ function showGeminiInputDialog(prompt, url, sensitive = false) {
     elements.geminiInputField.type = sensitive ? 'password' : 'text';
     elements.geminiInputField.placeholder = sensitive ? 'Skriv inn (skjult)...' : 'Skriv inn tekst...';
     elements.geminiInputOverlay.classList.remove('hidden');
+    elements.geminiInputOverlay.dataset.mode = 'gemini';
     
     // Fokuser inputfeltet
     setTimeout(() => elements.geminiInputField.focus(), 100);
@@ -396,7 +397,9 @@ function showGeminiInputDialog(prompt, url, sensitive = false) {
 function closeGeminiInputDialog() {
     elements.geminiInputOverlay.classList.add('hidden');
     geminiInputUrl = null;
+    gopherSearchUrl = null;
     elements.geminiInputField.value = '';
+    elements.geminiInputOverlay.dataset.mode = '';
 }
 
 /**
@@ -412,5 +415,52 @@ async function handleGeminiInputSubmit() {
     
     if (input !== null && input !== undefined) {
         await submitGeminiInput(url, input);
+    }
+}
+
+// ===== Gopher Search Dialog =====
+
+/** Lagrer nåværende Gopher søke-URL */
+let gopherSearchUrl = null;
+
+/**
+ * Viser Gopher søke-dialog (gjenbruker Gemini input-dialog UI)
+ * @param {string} url - Gopher-URL for søk
+ */
+function showGopherSearchDialog(url) {
+    gopherSearchUrl = url;
+    elements.geminiInputPrompt.textContent = 'Skriv inn søkeord:';
+    elements.geminiInputField.value = '';
+    elements.geminiInputField.type = 'text';
+    elements.geminiInputField.placeholder = 'Søk...';
+    elements.geminiInputOverlay.classList.remove('hidden');
+    
+    // Midlertidig overstyr submit-handler for Gopher
+    elements.geminiInputOverlay.dataset.mode = 'gopher';
+    
+    // Fokuser inputfeltet
+    setTimeout(() => elements.geminiInputField.focus(), 100);
+}
+
+/**
+ * Håndterer submit fra søke/input-dialog (felles for Gemini og Gopher)
+ */
+async function handleInputDialogSubmit() {
+    const input = elements.geminiInputField.value;
+    const mode = elements.geminiInputOverlay.dataset.mode;
+    
+    if (mode === 'gopher') {
+        const url = gopherSearchUrl;
+        if (!url) return;
+        
+        closeGeminiInputDialog();
+        gopherSearchUrl = null;
+        elements.geminiInputOverlay.dataset.mode = '';
+        
+        if (input !== null && input !== undefined && input.trim() !== '') {
+            await submitGopherSearch(url, input);
+        }
+    } else {
+        await handleGeminiInputSubmit();
     }
 }

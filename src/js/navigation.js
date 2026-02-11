@@ -104,6 +104,12 @@ async function loadPath(path, addHistory = true) {
         return;
     }
     
+    // Gopher-URLer
+    if (path.startsWith(GOPHER_SCHEME)) {
+        await loadGopherUrl(path, addHistory);
+        return;
+    }
+    
     showLoading();
     elements.urlBar.value = path;
     
@@ -246,6 +252,12 @@ async function resolveAndNavigate(href) {
         return;
     }
     
+    // Gopher-URLer
+    if (href.startsWith(GOPHER_SCHEME)) {
+        await loadGopherUrl(href);
+        return;
+    }
+    
     // File URLs
     if (href.startsWith('file://')) {
         const path = href.replace('file://', '');
@@ -266,6 +278,11 @@ async function resolveAndNavigate(href) {
                     baseUrl: currentUrl,
                     relativeUrl: href
                 });
+            } else if (currentUrl.startsWith(GOPHER_SCHEME)) {
+                resolvedUrl = await invokeNav('resolve_gopher_url', {
+                    baseUrl: currentUrl,
+                    relativeUrl: href
+                });
             } else {
                 resolvedUrl = await invokeNav('resolve_url', {
                     baseUrl: currentUrl,
@@ -278,6 +295,8 @@ async function resolveAndNavigate(href) {
                 await loadPath(path);
             } else if (resolvedUrl.startsWith(GEMINI_SCHEME)) {
                 await loadGeminiUrl(resolvedUrl);
+            } else if (resolvedUrl.startsWith(GOPHER_SCHEME)) {
+                await loadGopherUrl(resolvedUrl);
             } else {
                 await loadUrl(resolvedUrl);
             }
@@ -380,6 +399,79 @@ async function submitGeminiInput(url, input) {
     }
 }
 
+// ===== Gopher Loading =====
+
+/**
+ * Laster innhold fra en Gopher-URL
+ * @param {string} url - Gopher-URL å laste (gopher://...)
+ * @param {boolean} addHistory - Om URL skal legges til historikken
+ */
+async function loadGopherUrl(url, addHistory = true) {
+    showLoading();
+    startFooterLoading();
+    elements.urlBar.value = url;
+    
+    try {
+        const result = await invokeNav('fetch_gopher', { url });
+        renderContent(result.html, result.title, result.was_converted);
+        setCurrentPath(null);
+        setCurrentUrl(result.url || url);
+        
+        if (result.url) {
+            elements.urlBar.value = result.url;
+        }
+        
+        if (addHistory) {
+            addToHistory(result.url || url);
+        }
+        
+        updateNavigationButtons();
+        updateFooter(result.url || url, true);
+        updateBookmarkButton();
+        showStatus('Gopher-side lastet', false);
+    } catch (error) {
+        stopFooterLoading();
+        
+        // Sjekk om dette er en søke-prompt
+        if (typeof error === 'string' && error.startsWith(GOPHER_SEARCH_PROMPT_PREFIX)) {
+            const searchUrl = error.substring(GOPHER_SEARCH_PROMPT_PREFIX.length);
+            showGopherSearchDialog(searchUrl);
+        } else {
+            showError(error);
+        }
+    }
+}
+
+/**
+ * Sender et Gopher-søk og laster resultatet
+ * @param {string} url - Gopher-søke-URL
+ * @param {string} query - Søkestreng
+ */
+async function submitGopherSearch(url, query) {
+    showLoading();
+    startFooterLoading();
+    
+    try {
+        const result = await invokeNav('gopher_search', { url, query });
+        renderContent(result.html, result.title, result.was_converted);
+        setCurrentPath(null);
+        setCurrentUrl(result.url || url);
+        
+        if (result.url) {
+            elements.urlBar.value = result.url;
+        }
+        
+        addToHistory(result.url || url);
+        updateNavigationButtons();
+        updateFooter(result.url || url, true);
+        updateBookmarkButton();
+        showStatus('Gopher-søkeresultater lastet', false);
+    } catch (error) {
+        stopFooterLoading();
+        showError(error);
+    }
+}
+
 // ===== File Dialog =====
 
 /**
@@ -425,6 +517,12 @@ async function handleUrlSubmit() {
     // Gemini-URLer
     if (input.startsWith(GEMINI_SCHEME)) {
         await loadGeminiUrl(input);
+        return;
+    }
+    
+    // Gopher-URLer
+    if (input.startsWith(GOPHER_SCHEME)) {
+        await loadGopherUrl(input);
         return;
     }
     
