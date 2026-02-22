@@ -216,7 +216,11 @@ bare/
 │   │   ├── fetcher.rs        # HTTP client logic
 │   │   ├── converter.rs      # HTML→MD conversion
 │   │   ├── settings.rs       # Settings management
-│   │   └── bookmarks.rs      # Bookmarks management
+│   │   ├── bookmarks.rs      # Bookmarks management
+│   │   ├── gemini.rs         # Gemini protocol client
+│   │   ├── gemtext.rs        # Gemtext→Markdown converter
+│   │   ├── gopher.rs         # Gopher protocol client (RFC 1436)
+│   │   └── gophermap.rs      # Gophermap→Markdown converter
 │   ├── Cargo.toml
 │   └── tauri.conf.json
 ├── src/
@@ -499,7 +503,7 @@ Når du foreslår kode:
 ## Fremtidige Utvidelser (Vurder disse)
 
 - ✅ Gemini-protokoll støtte (gemini://) - **IMPLEMENTERT i v0.1.3**
-- ⚠️ Gopher-protokoll støtte (gopher://)
+- ✅ Gopher-protokoll støtte (gopher://) - **IMPLEMENTERT i v0.1.4**
 - ✅ Lokale markdown-filer (file://)
 - ⚠️ Eksport til PDF
 - ⚠️ Custom themes/CSS
@@ -648,6 +652,69 @@ pub enum GeminiError {
 - Norsk språk i UI
 - Tydelige forklaringer på TOFU-brudd
 - Valgfrie handlinger (f.eks. "Gå tilbake" vs "Fortsett likevel")
+
+## Gopher-protokoll Håndtering
+
+**Implementasjon (v0.1.4):**
+
+Bare støtter Gopher-protokollen (RFC 1436) med følgende arkitektur:
+
+### Rust Backend
+
+**gopher.rs:**
+```rust
+pub struct GopherResponse {
+    pub content_type: GopherContentType,
+    pub items: Vec<GopherItem>,   // for gophermap
+    pub text: String,             // for tekstfiler
+    pub final_url: String,
+}
+
+pub enum GopherContentType {
+    Menu,
+    Text,
+}
+```
+
+**Nøkkelprinsipper:**
+- Asynkron TCP-tilkobling med tokio (ingen TLS nødvendig for standard Gopher)
+- Parsing av alle elementtyper (0-9, i, h, s, +)
+- Støtte for søk (type 7): tab-separert selektor + søkestreng
+- Timeout: 10 sekunder
+- Maksimal respons: 5 MB
+
+**gophermap.rs:**
+```rust
+pub fn to_markdown(items: &[GopherItem], base_url: &str) -> GophermapResult {
+    // Konverterer Gopher-meny til Markdown
+    // Emoji-ikoner per type: 📁 mappe, 📄 tekst, 🔍 søk, osv.
+    // Automatisk tittel-ekstraksjon fra info-linjer
+}
+```
+
+### Frontend
+
+**navigation.js:**
+```javascript
+async function loadGopherUrl(url, addHistory = true) {
+    const result = await invoke('fetch_gopher', { url });
+    displayContent(result.html);
+}
+```
+
+**Søkedialog (type 7):**
+- Modal overlay med søke-input
+- Enter-to-submit, Escape-to-cancel
+- Resultat lastes som en ny Gopher-side
+
+### Manuelle test-scenarier
+
+1. Naviger til `gopher://gopher.floodgap.com/`
+2. Klikk på lenker i gophermap
+3. Test tekstfil-visning (type 0)
+4. Test søk på en søke-side (type 7)
+5. Verifiser cross-protokoll navigasjon (gopher → http og omvendt)
+6. Test back/forward mellom protokoller
 
 ## Nyttige Kommandoer
 

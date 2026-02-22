@@ -237,7 +237,7 @@ bare/
 **Mål:** Utvid funksjonalitet
 
 - [x] Gemini-protokoll støtte (gemini://) ✅ FULLFØRT
-- [ ] Gopher-protokoll støtte (gopher://) — se [GOPHER.md](GOPHER.md) for detaljert plan
+- [x] Gopher-protokoll støtte (gopher://) ✅ FULLFØRT — se [GOPHER.md](GOPHER.md) for detaljert plan
 - [ ] Eksporter sider som PDF
 - [ ] Tab-støtte
 - [ ] Synkronisering av bokmerker
@@ -290,6 +290,41 @@ Bare støtter nå fullstendig Gemini-protokollen (gemini://), et alternativt int
 - 17 unit tests i gemtext.rs
 - 4 nye tests i fetcher.rs
 - Total: 86 tester passerer
+
+---
+
+#### Gopher-protokoll implementasjon (v0.1.4)
+
+**Fullført:** Februar 2026
+
+Bare støtter nå fullstendig Gopher-protokollen (gopher://), en historisk internettprotokoll (RFC 1436) fra 1991 som deler Bares kjerneverdier om enkelhet og personvern.
+
+**Implementerte komponenter:**
+
+- **gopher.rs** - Komplett Gopher-klient (809 linjer)
+  - Asynkron TCP-tilkobling
+  - Parsing av alle standard elementtyper (type 0-9, +, i, h, s)
+  - Håndtering av tekstfiler og gophermap-menyer
+  - Søkestøtte (tab-separert selektor + søkestreng)
+  - Timeout på 10 sekunder + 5 MB maksgrense
+  - Relativ URL-oppløsning
+
+- **gophermap.rs** - Gophermap-til-Markdown konverterer (324 linjer)
+  - Konverterer Gopher-menyer til ryddig markdown
+  - Emoji-ikoner per elementtype (📁 mappe, 📄 tekst, 🔍 søk, osv.)
+  - Automatisk tittel-ekstraksjon fra info-linjer
+  - Gruppering av info-linjer for bedre lesbarhet
+
+- **Frontend-integrasjon**
+  - Gopher URL-deteksjon i navigasjon
+  - Modal søke-dialog for interaktive søk (Gopher item type 7)
+  - Sømless veksling mellom HTTP, Gemini og Gopher
+  - 🐿️-emoji i statusbar for Gopher-sider
+
+**Testing:**
+- 19 unit tests i gopher.rs
+- 11 unit tests i gophermap.rs
+- Total tester i prosjektet: 117+
 
 ---
 
@@ -478,13 +513,13 @@ Disse spørsmålene bør avklares før/under utvikling:
 - C) Spør brukeren hver gang
 - D) Konfigurerbar innstilling
 
-### 3. Protokoll-støtte
+### 3. Protokoll-støtte ✅ BESLUTTET
 > Skal Bare utvides til Gemini og/eller Gopher?
 
-**Vurdering:**
-- Gemini deler filosofien om enkelhet
-- Eksisterende community med ~3900 capsules
-- Gopher er historisk interessant men mindre aktivt
+**Beslutning:**
+- **Gemini (gemini://)** — Implementert i v0.1.3
+- **Gopher (gopher://)** — Implementert i v0.1.4
+- Begge protokoller deler Bares kjerneverdier om enkelhet og personvern
 
 ### 4. Målplattformer
 > Hvilke plattformer skal støttes først?
@@ -548,4 +583,4 @@ Prosjektet bruker GitHub Actions for automatisert bygg og testing:
 
 ---
 
-*Sist oppdatert: Januar 2026*
+*Sist oppdatert: Februar 2026 (v0.1.4)*

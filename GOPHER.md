@@ -1,6 +1,28 @@
-# Plan for Gopher-protokoll i Bare
+# Gopher-protokoll i Bare
 
-> Detaljert implementasjonsplan for gopher://-støtte i Bare-nettleseren
+> ✅ **IMPLEMENTERT i v0.1.4** (Februar 2026) — Detaljert implementasjonsplan og dokumentasjon for gopher://-støtte i Bare-nettleseren
+
+## Implementasjonsstatus
+
+**Status:** Fullstendig implementert
+
+| Komponent | Fil | Linjer | Tester | Status |
+|-----------|-----|--------|--------|--------|
+| Gopher-klient | `gopher.rs` | 809 | 19 | ✅ Fullført |
+| Gophermap-konverterer | `gophermap.rs` | 324 | 11 | ✅ Fullført |
+| Frontend-integrasjon | `navigation.js` | — | — | ✅ Fullført |
+| Tauri-kommando | `commands.rs` | — | — | ✅ Fullført |
+
+**Støttede funksjoner:**
+- ✅ Gopher-menyer (gophermap) → Markdown konvertering
+- ✅ Tekstfiler (type 0) → Markdown visning
+- ✅ Alle standard elementtyper (0-9, i, h, s, +)
+- ✅ Søk-dialog for interaktive søk (type 7)
+- ✅ Relativ URL-oppløsning
+- ✅ Timeout og størrelsesbegrensning (10s / 5 MB)
+- ✅ Sømløs navigasjon mellom HTTP, Gemini og Gopher
+
+---
 
 ## Innholdsfortegnelse
 

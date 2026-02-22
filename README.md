@@ -15,13 +15,14 @@ Den ignorerer tradisjonelle nettsider og renderer kun `.md`-filer direkte fra HT
 
 ## Status
 
-✅ **Versjon 0.1.3** - Kjernefunksjonaliteten er implementert! Applikasjonen er fullt funksjonell for daglig bruk.
+✅ **Versjon 0.1.4** - Kjernefunksjonaliteten er implementert! Applikasjonen er fullt funksjonell for daglig bruk.
 
 **Fullførte faser:**
 - ✅ Fase 1: Proof of Concept
 - ✅ Fase 2: Nettverksstøtte  
 - ✅ Fase 3: HTML-konvertering
 - ✅ Fase 4: Brukeropplevelse
+- ✅ Fase 5 (del 1): Gemini-protokoll + Gopher-protokoll
 
 Se [PLAN.md](PLAN.md) for detaljert utviklingsplan og fremtidige utvidelser.
 
@@ -50,14 +51,18 @@ Bare er bygget med:
 - ✅ Konfigurerbare innstillinger (skrift, tema, zoom, innholdsbredde)
 - ✅ 3-prikks meny med mindre brukte funksjoner
 - ✅ Om-dialog med versjonsinformasjon
-- ✅ **Gemini-protokoll støtte (gemini://)** - Nytt i v0.1.3!
+- ✅ **Gemini-protokoll støtte (gemini://)** - Implementert i v0.1.3
   - Full støtte for Gemini-protokollen
   - TOFU (Trust On First Use) sertifikathåndtering
   - Gemtext-til-Markdown konvertering
   - Input-dialog for interaktive Gemini-sider
+- ✅ **Gopher-protokoll støtte (gopher://)** - Nytt i v0.1.4!
+  - Full RFC 1436-implementasjon
+  - Gophermap-til-Markdown konvertering med emoji-ikoner
+  - Støtte for tekstfiler, menyer og søk
+  - Søk-dialog for interaktive Gopher-søk
 
 ### Fremtidige muligheter
-- ⚠️ Gopher-protokoll støtte (gopher://)
 - ⚠️ PDF-eksport
 - ⚠️ Tab-støtte
 - ⚠️ Custom themes/plugins
