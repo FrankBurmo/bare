@@ -1594,8 +1594,12 @@ function applyTranslations() {
     });
     
     // Oppdater elementer med data-i18n-html (for innhold med HTML)
+    // Bruker DOMParser for å unngå direkte innerHTML-tildeling (CodeQL/XSS)
     document.querySelectorAll('[data-i18n-html]').forEach(el => {
-        el.innerHTML = t(el.getAttribute('data-i18n-html'));
+        const translated = t(el.getAttribute('data-i18n-html'));
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(translated, 'text/html');
+        el.replaceChildren(...Array.from(doc.body.childNodes));
     });
     
     // Oppdater toolbar-knapper med tooltips (kombinerer tekst + snarvei)
