@@ -89,6 +89,10 @@ pub struct Settings {
     /// Om brukeren har fullført onboarding
     #[serde(default)]
     pub onboarding_completed: bool,
+
+    /// Språkpreferanse (ISO 639-1 kode, f.eks. "nb", "en", "system")
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 fn default_font_size() -> u32 {
@@ -107,6 +111,10 @@ fn default_readability() -> bool {
     true
 }
 
+fn default_language() -> String {
+    "system".to_string()
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -119,6 +127,7 @@ impl Default for Settings {
             conversion_mode: ConversionMode::default(),
             readability_enabled: default_readability(),
             onboarding_completed: false,
+            language: default_language(),
         }
     }
 }

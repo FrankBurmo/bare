@@ -11,16 +11,16 @@
         <!-- Verktøylinje (Retro Design) -->
         <header class="toolbar">
             <div class="toolbar-section toolbar-left">
-                <button id="btn-back" class="toolbar-btn nav-btn" disabled title="Tilbake (Alt+←)">
+                <button id="btn-back" class="toolbar-btn nav-btn" disabled title="Tilbake (Alt+←)" data-i18n-title="toolbar.back">
                     ◄
                 </button>
-                <button id="btn-forward" class="toolbar-btn nav-btn" disabled title="Fremover (Alt+→)">
+                <button id="btn-forward" class="toolbar-btn nav-btn" disabled title="Fremover (Alt+→)" data-i18n-title="toolbar.forward">
                     ►
                 </button>
-                <button id="btn-home" class="toolbar-btn" title="Hjem (G)">
+                <button id="btn-home" class="toolbar-btn" title="Hjem (G)" data-i18n-title="toolbar.home">
                     ⌂
                 </button>
-                <button id="btn-reload" class="toolbar-btn" title="Last på nytt (F5)">
+                <button id="btn-reload" class="toolbar-btn" title="Last på nytt (F5)" data-i18n-title="toolbar.reload">
                     ↻
                 </button>
                 <div class="toolbar-separator"></div>
@@ -34,6 +34,7 @@
                         id="url-bar" 
                         class="url-bar" 
                         placeholder="Skriv inn URL til .md-fil..."
+                        data-i18n-placeholder="urlbar.placeholder"
                         spellcheck="false"
                         autocomplete="off"
                     >
@@ -42,42 +43,42 @@
             
             <div class="toolbar-section toolbar-right">
                 <div class="toolbar-separator"></div>
-                <button id="btn-bookmark" class="toolbar-btn" title="Bokmerke denne siden (Ctrl+D)">
+                <button id="btn-bookmark" class="toolbar-btn" title="Bokmerke denne siden (Ctrl+D)" data-i18n-title="toolbar.bookmark">
                     ☆
                 </button>
-                <button id="btn-bookmarks" class="toolbar-btn" title="Vis bokmerker (Ctrl+B)">
+                <button id="btn-bookmarks" class="toolbar-btn" title="Vis bokmerker (Ctrl+B)" data-i18n-title="toolbar.bookmarks">
                     📑
                 </button>
-                <button id="btn-open" class="toolbar-btn" title="Åpne fil (Ctrl+O)">
+                <button id="btn-open" class="toolbar-btn" title="Åpne fil (Ctrl+O)" data-i18n-title="toolbar.openFile">
                     📁
                 </button>
                 <div class="menu-container">
-                    <button id="btn-menu" class="toolbar-btn" title="Meny">
+                    <button id="btn-menu" class="toolbar-btn" title="Meny" data-i18n-title="toolbar.menu">
                         ≡
                     </button>
                     <div id="dropdown-menu" class="dropdown-menu hidden">
                         <div class="menu-section">
-                            <span class="menu-label">Visning</span>
+                            <span class="menu-label" data-i18n="menu.view">Visning</span>
                             <div class="menu-zoom-controls">
-                                <button id="btn-zoom-out" class="menu-zoom-btn" title="Zoom ut (Ctrl+-)">[−]</button>
+                                <button id="btn-zoom-out" class="menu-zoom-btn" title="Zoom ut (Ctrl+-)" data-i18n-title="menu.zoomOut">[−]</button>
                                 <span id="menu-zoom-level" class="menu-zoom-level">100%</span>
-                                <button id="btn-zoom-in" class="menu-zoom-btn" title="Zoom inn (Ctrl++)">[ + ]</button>
+                                <button id="btn-zoom-in" class="menu-zoom-btn" title="Zoom inn (Ctrl++)" data-i18n-title="menu.zoomIn">[ + ]</button>
                             </div>
                         </div>
                         <div class="menu-divider"></div>
                         <button id="btn-theme" class="menu-item" title="Bytt tema">
                             <span class="menu-icon">◑</span>
-                            <span>Bytt tema</span>
+                            <span data-i18n="menu.toggleTheme">Bytt tema</span>
                         </button>
                         <div class="menu-divider"></div>
                         <button id="btn-settings" class="menu-item" title="Innstillinger">
                             <span class="menu-icon">⚙</span>
-                            <span>Innstillinger...</span>
+                            <span data-i18n="menu.settings">Innstillinger...</span>
                         </button>
                         <div class="menu-divider"></div>
                         <button id="btn-about" class="menu-item" title="Om Bare">
                             <span class="menu-icon">?</span>
-                            <span>Om Bare...</span>
+                            <span data-i18n="menu.about">Om Bare...</span>
                         </button>
                     </div>
                 </div>
@@ -91,12 +92,13 @@
                 id="search-input" 
                 class="search-input" 
                 placeholder="Søk i siden..."
+                data-i18n-placeholder="search.placeholder"
                 spellcheck="false"
             >
             <span id="search-count" class="search-count"></span>
-            <button id="btn-search-prev" class="search-btn" title="Forrige treff">↑</button>
-            <button id="btn-search-next" class="search-btn" title="Neste treff">↓</button>
-            <button id="btn-search-close" class="search-btn" title="Lukk (Esc)">✕</button>
+            <button id="btn-search-prev" class="search-btn" title="Forrige treff" data-i18n-title="search.prev">↑</button>
+            <button id="btn-search-next" class="search-btn" title="Neste treff" data-i18n-title="search.next">↓</button>
+            <button id="btn-search-close" class="search-btn" title="Lukk (Esc)" data-i18n-title="search.close">✕</button>
         </div>
         
         <!-- Status bar -->
@@ -107,65 +109,84 @@
         <!-- Bokmerke-panel -->
         <div id="bookmarks-panel" class="side-panel hidden">
             <div class="panel-header">
-                <h3>Bokmerker</h3>
+                <h3 data-i18n="bookmarks.title">Bokmerker</h3>
                 <button id="btn-close-bookmarks" class="panel-close-btn">✕</button>
             </div>
             <div id="bookmarks-list" class="panel-content">
-                <p class="empty-message">Ingen bokmerker ennå</p>
+                <p class="empty-message" data-i18n="bookmarks.empty">Ingen bokmerker ennå</p>
             </div>
         </div>
         
         <!-- Innstillinger-panel -->
         <div id="settings-panel" class="side-panel hidden">
             <div class="panel-header">
-                <h3>Innstillinger</h3>
+                <h3 data-i18n="settings.title">Innstillinger</h3>
                 <button id="btn-close-settings" class="panel-close-btn">✕</button>
             </div>
             <div class="panel-content">
                 <div class="setting-group">
-                    <label for="setting-theme">Tema</label>
+                    <label for="setting-language" data-i18n="settings.language">Språk</label>
+                    <select id="setting-language" class="setting-select">
+                        <option value="system" data-i18n="settings.languageSystem">System</option>
+                        <option value="nb">Norsk bokmål</option>
+                        <option value="nn">Norsk nynorsk</option>
+                        <option value="sv">Svenska</option>
+                        <option value="da">Dansk</option>
+                        <option value="fi">Suomi</option>
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                        <option value="fr">Français</option>
+                        <option value="es">Español</option>
+                        <option value="it">Italiano</option>
+                        <option value="pt">Português</option>
+                        <option value="nl">Nederlands</option>
+                        <option value="pl">Polski</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label for="setting-theme" data-i18n="settings.theme">Tema</label>
                     <select id="setting-theme" class="setting-select">
-                        <option value="light">Lys</option>
-                        <option value="dark">Mørk</option>
-                        <option value="system">System</option>
+                        <option value="light" data-i18n="settings.themeLight">Lys</option>
+                        <option value="dark" data-i18n="settings.themeDark">Mørk</option>
+                        <option value="system" data-i18n="settings.themeSystem">System</option>
                     </select>
                 </div>
                 <div class="setting-group">
-                    <label for="setting-font-family">Skrifttype</label>
+                    <label for="setting-font-family" data-i18n="settings.fontFamily">Skrifttype</label>
                     <select id="setting-font-family" class="setting-select">
-                        <option value="system">System</option>
-                        <option value="serif">Serif</option>
-                        <option value="sans-serif">Sans-serif</option>
-                        <option value="mono">Monospace</option>
+                        <option value="system" data-i18n="settings.fontSystem">System</option>
+                        <option value="serif" data-i18n="settings.fontSerif">Serif</option>
+                        <option value="sans-serif" data-i18n="settings.fontSansSerif">Sans-serif</option>
+                        <option value="mono" data-i18n="settings.fontMono">Monospace</option>
                     </select>
                 </div>
                 <div class="setting-group">
-                    <label for="setting-font-size">Skriftstørrelse</label>
+                    <label for="setting-font-size" data-i18n="settings.fontSize">Skriftstørrelse</label>
                     <input type="range" id="setting-font-size" class="setting-range" 
                            min="70" max="150" value="100" step="10">
                     <span id="setting-font-size-value">100%</span>
                 </div>
                 <div class="setting-group">
-                    <label for="setting-content-width">Innholdsbredde</label>
+                    <label for="setting-content-width" data-i18n="settings.contentWidth">Innholdsbredde</label>
                     <input type="range" id="setting-content-width" class="setting-range" 
                            min="400" max="1200" value="800" step="50">
                     <span id="setting-content-width-value">800px</span>
                 </div>
                 
                 <!-- HTML-konvertering innstillinger -->
-                <h4 class="setting-section-title">HTML-konvertering</h4>
+                <h4 class="setting-section-title" data-i18n="settings.htmlConversion">HTML-konvertering</h4>
                 <div class="setting-group">
-                    <label for="setting-conversion-mode">Konverteringsmodus</label>
+                    <label for="setting-conversion-mode" data-i18n="settings.conversionMode">Konverteringsmodus</label>
                     <select id="setting-conversion-mode" class="setting-select">
-                        <option value="convert-all">Konverter alt</option>
-                        <option value="markdown-only">Kun markdown</option>
-                        <option value="ask-everytime">Spør hver gang</option>
+                        <option value="convert-all" data-i18n="settings.convertAll">Konverter alt</option>
+                        <option value="markdown-only" data-i18n="settings.markdownOnly">Kun markdown</option>
+                        <option value="ask-everytime" data-i18n="settings.askEverytime">Spør hver gang</option>
                     </select>
                 </div>
                 <div class="setting-group setting-checkbox-group">
                     <label for="setting-readability">
                         <input type="checkbox" id="setting-readability" checked>
-                        Readability-modus (ekstraher hovedinnhold)
+                        <span data-i18n="settings.readability">Readability-modus (ekstraher hovedinnhold)</span>
                     </label>
                 </div>
             </div>
@@ -174,7 +195,7 @@
         <!-- Hovedinnhold -->
         <main id="content" class="content">
             <div class="loading">
-                <p>[ LASTER... ]</p>
+                <p>[ <span data-i18n="loading.text">LASTER...</span> ]</p>
             </div>
         </main>
         
@@ -182,25 +203,25 @@
         <div id="about-overlay" class="modal-overlay hidden">
             <div class="modal-dialog about-dialog">
                 <div class="modal-header">
-                    <h2>Om Bare</h2>
+                    <h2 data-i18n="about.title">Om Bare</h2>
                     <button id="btn-close-about" class="modal-close-btn">×</button>
                 </div>
                 <div class="modal-content">
                     <div class="about-logo">[ B ]</div>
                     <h3>Bare</h3>
                     <p class="about-version" id="about-version">Version 0.1.0</p>
-                    <p class="about-description">
+                    <p class="about-description" data-i18n="about.description">
                         En eksperimentell markdown-nettleser med fokus på personvern, hastighet og rent innhold.
                     </p>
                     <div class="about-features">
-                        <p>> Ren markdown-visning</p>
-                        <p>> Ingen sporing eller cookies</p>
-                        <p>> Rask og lettvektig</p>
-                        <p>> Lys og mørk modus</p>
+                        <p data-i18n="about.feature1">> Ren markdown-visning</p>
+                        <p data-i18n="about.feature2">> Ingen sporing eller cookies</p>
+                        <p data-i18n="about.feature3">> Rask og lettvektig</p>
+                        <p data-i18n="about.feature4">> Lys og mørk modus</p>
                     </div>
                     <p class="about-copyright">
-                        © 2025-2026 Bare Contributors<br>
-                        Lisensiert under GNU GPL v3
+                        <span data-i18n="about.copyright">© 2025-2026 Bare Contributors</span><br>
+                        <span data-i18n="about.license">Lisensiert under GNU GPL v3</span>
                     </p>
                 </div>
             </div>
@@ -210,49 +231,49 @@
         <div id="onboarding-overlay" class="modal-overlay hidden">
             <div class="modal-dialog onboarding-dialog">
                 <div class="modal-header">
-                    <h2>Velkommen til Bare</h2>
+                    <h2 data-i18n="onboarding.welcome">Velkommen til Bare</h2>
                 </div>
                 <div class="modal-content onboarding-content">
                     <div class="about-logo">[ B ]</div>
-                    <p class="onboarding-intro">
+                    <p class="onboarding-intro" data-i18n-html="onboarding.intro">
                         Bare er en <strong>markdown-nettleser</strong>.
                         Vanlige nettsider bruker HTML, men Bare kan konvertere
                         dem til lesbart markdown-format.
                     </p>
                     
                     <div class="onboarding-question">
-                        <p class="onboarding-label">> Hvordan vil du håndtere HTML-sider?</p>
+                        <p class="onboarding-label" data-i18n="onboarding.question">> Hvordan vil du håndtere HTML-sider?</p>
                     </div>
                     
                     <div class="onboarding-options">
                         <label class="onboarding-option">
                             <input type="radio" name="onboarding-conversion" value="convert-all" checked>
                             <div class="onboarding-option-content">
-                                <strong>Konverter automatisk</strong>
-                                <span>HTML-sider konverteres til markdown automatisk</span>
+                                <strong data-i18n="onboarding.convertAutoTitle">Konverter automatisk</strong>
+                                <span data-i18n="onboarding.convertAutoDesc">HTML-sider konverteres til markdown automatisk</span>
                             </div>
                         </label>
                         <label class="onboarding-option">
                             <input type="radio" name="onboarding-conversion" value="markdown-only">
                             <div class="onboarding-option-content">
-                                <strong>Kun markdown</strong>
-                                <span>Vis bare sider som allerede er markdown</span>
+                                <strong data-i18n="onboarding.markdownOnlyTitle">Kun markdown</strong>
+                                <span data-i18n="onboarding.markdownOnlyDesc">Vis bare sider som allerede er markdown</span>
                             </div>
                         </label>
                         <label class="onboarding-option">
                             <input type="radio" name="onboarding-conversion" value="ask-everytime">
                             <div class="onboarding-option-content">
-                                <strong>Spør hver gang</strong>
-                                <span>Du velger selv for hver side</span>
+                                <strong data-i18n="onboarding.askTitle">Spør hver gang</strong>
+                                <span data-i18n="onboarding.askDesc">Du velger selv for hver side</span>
                             </div>
                         </label>
                     </div>
                     
-                    <button id="btn-onboarding-confirm" class="onboarding-confirm-btn">
+                    <button id="btn-onboarding-confirm" class="onboarding-confirm-btn" data-i18n="onboarding.confirm">
                         [ Start Bare ]
                     </button>
                     
-                    <p class="onboarding-hint">
+                    <p class="onboarding-hint" data-i18n="onboarding.hint">
                         Du kan endre dette senere i innstillinger (⚙)
                     </p>
                 </div>
@@ -263,7 +284,7 @@
         <div id="gemini-input-overlay" class="modal-overlay hidden">
             <div class="modal-dialog gemini-input-dialog">
                 <div class="modal-header">
-                    <h2>Gemini Input</h2>
+                    <h2 data-i18n="input.title">Gemini Input</h2>
                     <button id="btn-close-gemini-input" class="modal-close-btn">×</button>
                 </div>
                 <div class="modal-content">
@@ -273,12 +294,13 @@
                         id="gemini-input-field" 
                         class="gemini-input-field" 
                         placeholder="Skriv inn tekst..."
+                        data-i18n-placeholder="input.placeholder"
                         spellcheck="false"
                         autocomplete="off"
                     >
                     <div class="gemini-input-actions">
-                        <button id="btn-gemini-input-cancel" class="gemini-input-btn cancel">Avbryt</button>
-                        <button id="btn-gemini-input-send" class="gemini-input-btn send">Send</button>
+                        <button id="btn-gemini-input-cancel" class="gemini-input-btn cancel" data-i18n="input.cancel">Avbryt</button>
+                        <button id="btn-gemini-input-send" class="gemini-input-btn send" data-i18n="input.send">Send</button>
                     </div>
                 </div>
             </div>
@@ -287,7 +309,7 @@
         <!-- Footer / Status Bar (Netscape-inspirert) -->
         <footer class="footer">
             <div class="footer-status-section">
-                <span id="footer-status" class="footer-status-text">Klar</span>
+                <span id="footer-status" class="footer-status-text" data-i18n="footer.ready">Klar</span>
             </div>
             <div class="footer-progress-section">
                 <div id="footer-progress" class="footer-progress">
@@ -307,17 +329,19 @@
         1. constants.js - Konstanter (ingen avhengigheter)
         2. state.js - State management (bruker konstanter)
         3. dom.js - DOM-elementer og utilities
-        4. ui.js - UI-funksjoner (bruker state, dom, constants)
-        5. settings.js - Innstillinger (bruker state, ui)
-        6. bookmarks.js - Bokmerker (bruker state, ui)
-        7. search.js - Søk (bruker state, dom)
-        8. navigation.js - Navigasjon (bruker alt over)
-        9. events.js - Event handlers (bruker alt over)
-        10. main.js - Entry point (orkestrerer alt)
+        4. i18n.js - Språkstyring/oversettelser (bruker dom, state)
+        5. ui.js - UI-funksjoner (bruker state, dom, constants, i18n)
+        6. settings.js - Innstillinger (bruker state, ui, i18n)
+        7. bookmarks.js - Bokmerker (bruker state, ui, i18n)
+        8. search.js - Søk (bruker state, dom, i18n)
+        9. navigation.js - Navigasjon (bruker alt over)
+        10. events.js - Event handlers (bruker alt over)
+        11. main.js - Entry point (orkestrerer alt)
     -->
     <script src="js/constants.js"></script>
     <script src="js/state.js"></script>
     <script src="js/dom.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/bookmarks.js"></script>

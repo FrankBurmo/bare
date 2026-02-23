@@ -131,6 +131,15 @@ function initSettingsEvents() {
     elements.settingReadability.addEventListener('change', (e) => {
         updateSetting('readability_enabled', e.target.checked);
     });
+    
+    // Språk
+    if (elements.settingLanguage) {
+        elements.settingLanguage.addEventListener('change', (e) => {
+            const langValue = e.target.value;
+            setLanguage(langValue);
+            updateSetting('language', langValue);
+        });
+    }
 }
 
 // ===== Search Events =====

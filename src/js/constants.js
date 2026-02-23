@@ -66,4 +66,5 @@ const DEFAULT_SETTINGS = {
     conversion_mode: 'convert-all',
     readability_enabled: true,
     onboarding_completed: false,
+    language: 'system',
 };

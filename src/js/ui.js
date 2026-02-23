@@ -102,7 +102,7 @@ function startFooterLoading() {
     loadingStepIndex = 0;
     progressCurrent = 0;
     progressTarget = 0;
-    elements.footerStatus.textContent = 'Kobler til...';
+    elements.footerStatus.textContent = t('footer.connecting');
     elements.footerProgress.classList.add('active');
     elements.footerProgressBar.style.width = '0%';
 }
@@ -158,7 +158,7 @@ function stopFooterLoading() {
         cancelAnimationFrame(progressAnimFrame);
         progressAnimFrame = null;
     }
-    elements.footerStatus.textContent = 'Klar';
+    elements.footerStatus.textContent = t('footer.ready');
     elements.footerProgress.classList.remove('active');
     elements.footerProgressBar.style.width = '0%';
     progressCurrent = 0;
@@ -180,7 +180,7 @@ async function initLoadingStatusListener() {
  * Viser loading-indikator i content-området
  */
 function showLoading() {
-    elements.content.innerHTML = '<div class=\"loading\"><p>[ LASTER... ]</p></div>';
+    elements.content.innerHTML = `<div class="loading"><p>${t('loading.text')}</p></div>`;
 }
 
 /**
@@ -190,9 +190,9 @@ function showLoading() {
 function showError(message) {
     elements.content.innerHTML = `
         <div class="markdown-body">
-            <h1>⚠️ Feil</h1>
+            <h1>${t('error.title')}</h1>
             <p>${escapeHtml(message)}</p>
-            <p><a href="#" onclick="goHome(); return false;">Gå til startsiden</a></p>
+            <p><a href="#" onclick="goHome(); return false;">${t('error.goHome')}</a></p>
         </div>
     `;
     showStatus(message, true);
@@ -205,7 +205,7 @@ function showError(message) {
  * @param {boolean} wasConverted - Om innholdet ble konvertert fra HTML
  */
 function renderContent(html, title, wasConverted = false) {
-    const convertedBadge = wasConverted ? '<span class="converted-badge" title="Konvertert fra HTML">📄→📝</span>' : '';
+    const convertedBadge = wasConverted ? `<span class="converted-badge" title="${t('footer.converted')}">📄→📝</span>` : '';
     elements.content.innerHTML = `<div class="markdown-body">${convertedBadge}${html}</div>`;
     
     setCurrentTitle(title);
@@ -227,7 +227,7 @@ function renderContent(html, title, wasConverted = false) {
 function updateFooter(path, wasConverted = false) {
     if (path && path !== HOME_PATH) {
         const filename = path.split(/[\\/]/).pop();
-        const conversionIndicator = wasConverted ? ' (konvertert)' : '';
+        const conversionIndicator = wasConverted ? ` (${t('footer.converted')})` : '';
         elements.footerInfo.textContent = `Bare ${getAppVersion()} — ${filename}${conversionIndicator}`;
     } else {
         elements.footerInfo.textContent = `Bare ${getAppVersion()}`;
@@ -318,7 +318,7 @@ function closeSettingsPanel() {
  */
 function updateThemeButton(theme) {
     const icon = theme === 'dark' ? '☀️' : '🌙';
-    elements.btnTheme.innerHTML = `<span class="menu-icon">${icon}</span><span>Bytt tema</span>`;
+    elements.btnTheme.innerHTML = `<span class="menu-icon">${icon}</span><span data-i18n="menu.toggleTheme">${t('menu.toggleTheme')}</span>`;
 }
 
 // ===== Dropdown Menu =====
@@ -380,10 +380,10 @@ let geminiInputUrl = null;
  */
 function showGeminiInputDialog(prompt, url, sensitive = false) {
     geminiInputUrl = url;
-    elements.geminiInputPrompt.textContent = prompt || 'Serveren ber om input:';
+    elements.geminiInputPrompt.textContent = prompt || t('input.serverPrompt');
     elements.geminiInputField.value = '';
     elements.geminiInputField.type = sensitive ? 'password' : 'text';
-    elements.geminiInputField.placeholder = sensitive ? 'Skriv inn (skjult)...' : 'Skriv inn tekst...';
+    elements.geminiInputField.placeholder = sensitive ? t('input.placeholderSensitive') : t('input.placeholder');
     elements.geminiInputOverlay.classList.remove('hidden');
     elements.geminiInputOverlay.dataset.mode = 'gemini';
     
@@ -429,10 +429,10 @@ let gopherSearchUrl = null;
  */
 function showGopherSearchDialog(url) {
     gopherSearchUrl = url;
-    elements.geminiInputPrompt.textContent = 'Skriv inn søkeord:';
+    elements.geminiInputPrompt.textContent = t('input.searchPrompt');
     elements.geminiInputField.value = '';
     elements.geminiInputField.type = 'text';
-    elements.geminiInputField.placeholder = 'Søk...';
+    elements.geminiInputField.placeholder = t('input.searchPlaceholder');
     elements.geminiInputOverlay.classList.remove('hidden');
     
     // Midlertidig overstyr submit-handler for Gopher

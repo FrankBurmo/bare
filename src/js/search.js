@@ -133,9 +133,9 @@ function updateSearchCount() {
     const currentIndex = getCurrentMatchIndex();
     
     if (matches.length === 0) {
-        elements.searchCount.textContent = 'Ingen treff';
+        elements.searchCount.textContent = t('search.noMatches');
     } else {
-        elements.searchCount.textContent = `${currentIndex + 1} av ${matches.length}`;
+        elements.searchCount.textContent = t('search.matches', { current: currentIndex + 1, total: matches.length });
     }
 }
 

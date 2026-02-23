@@ -15,7 +15,7 @@ const { open } = window.__TAURI__.dialog;
 async function goHome() {
     showLoading();
     startFooterLoading();
-    updateFooterStatus('Laster startside...');
+    updateFooterStatus(t('footer.loadingHome'));
     try {
         const result = await invokeNav('get_welcome_content');
         renderContent(result.html, result.title);
@@ -28,7 +28,7 @@ async function goHome() {
         updateBookmarkButton();
         stopFooterLoading();
     } catch (error) {
-        showError(`Kunne ikke laste startsiden: ${error}`);
+        showError(`${t('status.loadHomeError')}: ${error}`);
         stopFooterLoading();
     }
 }
@@ -48,7 +48,7 @@ async function reloadPage() {
     // Legg til loading-animasjon på reload-knappen
     elements.btnReload.classList.add('loading');
     startFooterLoading();
-    updateFooterStatus('Laster på nytt...');
+    updateFooterStatus(t('footer.reloading'));
     
     try {
         await loadPath(currentPath, false);
@@ -162,9 +162,9 @@ async function loadUrl(url, addHistory = true) {
         updateBookmarkButton();
         
         if (result.was_converted) {
-            showStatus('HTML konvertert til markdown', false);
+            showStatus(t('status.htmlConverted'), false);
         } else {
-            showStatus('Markdown lastet fra nettverket', false);
+            showStatus(t('status.markdownLoaded'), false);
         }
     } catch (error) {
         stopFooterLoading();
@@ -189,7 +189,7 @@ async function loadUrl(url, addHistory = true) {
             if (confirm(message)) {
                 await convertAndLoad(promptUrl, addHistory);
             } else {
-                showError('Konvertering avbrutt av brukeren');
+                showError(t('status.conversionCancelled'));
             }
         } else {
             showError(error);
@@ -226,7 +226,7 @@ async function convertAndLoad(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus('HTML konvertert til markdown', false);
+        showStatus(t('status.htmlConverted'), false);
     } catch (error) {
         stopFooterLoading();
         showError(error);
@@ -301,7 +301,7 @@ async function resolveAndNavigate(href) {
                 await loadUrl(resolvedUrl);
             }
         } catch (error) {
-            showError(`Kunne ikke løse URL: ${error}`);
+            showError(`${t('status.urlResolveError')}: ${error}`);
         }
     } else if (currentPath) {
         // Lokal fil - løs relativt til den
@@ -309,7 +309,7 @@ async function resolveAndNavigate(href) {
         const newPath = basePath + href;
         await loadPath(newPath);
     } else {
-        showError('Kan ikke navigere til relativ lenke uten en base-URL');
+        showError(t('status.noBaseUrl'));
     }
 }
 
@@ -342,7 +342,7 @@ async function loadGeminiUrl(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus('Gemini-side lastet', false);
+        showStatus(t('status.geminiLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         
@@ -382,7 +382,7 @@ async function submitGeminiInput(url, input) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus('Gemini-side lastet', false);
+        showStatus(t('status.geminiLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         
@@ -428,7 +428,7 @@ async function loadGopherUrl(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus('Gopher-side lastet', false);
+        showStatus(t('status.gopherLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         
@@ -465,7 +465,7 @@ async function submitGopherSearch(url, query) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus('Gopher-søkeresultater lastet', false);
+        showStatus(t('status.gopherSearchLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         showError(error);
@@ -491,7 +491,7 @@ async function openFileDialog() {
             await loadPath(selected);
         }
     } catch (error) {
-        showError(`Kunne ikke åpne fil: ${error}`);
+        showError(`${t('status.openFileError')}: ${error}`);
     }
 }
 
