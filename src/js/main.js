@@ -16,7 +16,7 @@ async function init() {
         setAppVersion(version);
         updateFooter(null);
     } catch (error) {
-        console.error('Kunne ikke hente app-versjon:', error);
+        console.error(t('status.loadVersionError') + ':', error);
     }
     
     // Last innstillinger

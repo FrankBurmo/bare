@@ -14,7 +14,7 @@ async function loadBookmarks() {
         const bookmarks = await invokeBookmarks('get_bookmarks');
         renderBookmarksList(bookmarks);
     } catch (error) {
-        console.error('Kunne ikke laste bokmerker:', error);
+        console.error(t('status.loadSettingsError') + ':', error);
     }
 }
 
@@ -24,7 +24,7 @@ async function loadBookmarks() {
  */
 function renderBookmarksList(bookmarks) {
     if (bookmarks.length === 0) {
-        elements.bookmarksList.innerHTML = '<p class="empty-message">Ingen bokmerker ennå</p>';
+        elements.bookmarksList.innerHTML = `<p class="empty-message" data-i18n="bookmarks.empty">${t('bookmarks.empty')}</p>`;
         return;
     }
     
@@ -45,7 +45,7 @@ function renderBookmarksList(bookmarks) {
 async function toggleBookmark() {
     const url = getCurrentLocation();
     if (!url || url === HOME_PATH) {
-        showStatus('Kan ikke bokmerke denne siden', true);
+        showStatus(t('status.noBaseUrl'), true);
         return;
     }
     
@@ -59,18 +59,18 @@ async function toggleBookmark() {
             if (bookmark) {
                 await invokeBookmarks('remove_bookmark', { id: bookmark.id });
                 updateBookmarkButtonUI(false);
-                showStatus('Bokmerke fjernet');
+                showStatus(t('bookmarks.removed'));
             }
         } else {
             const title = state.currentTitle || url;
             await invokeBookmarks('add_bookmark', { title, url });
             updateBookmarkButtonUI(true);
-            showStatus('Bokmerke lagt til');
+            showStatus(t('bookmarks.added'));
         }
         
         await loadBookmarks();
     } catch (error) {
-        showStatus(`Kunne ikke oppdatere bokmerke: ${error}`, true);
+        showStatus(`${t('status.settingsError')}: ${error}`, true);
     }
 }
 
@@ -88,7 +88,7 @@ async function updateBookmarkButton() {
         const isBookmarked = await invokeBookmarks('is_bookmarked', { url });
         updateBookmarkButtonUI(isBookmarked);
     } catch (error) {
-        console.error('Kunne ikke sjekke bokmerke-status:', error);
+        console.error(t('status.settingsError') + ':', error);
     }
 }
 
@@ -120,9 +120,9 @@ async function deleteBookmark(id) {
         await invokeBookmarks('remove_bookmark', { id });
         await loadBookmarks();
         await updateBookmarkButton();
-        showStatus('Bokmerke slettet');
+        showStatus(t('bookmarks.removed'));
     } catch (error) {
-        showStatus(`Kunne ikke slette bokmerke: ${error}`, true);
+        showStatus(`${t('status.settingsError')}: ${error}`, true);
     }
 }
 

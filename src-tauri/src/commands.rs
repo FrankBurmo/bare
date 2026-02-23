@@ -425,6 +425,7 @@ pub struct SettingsInfo {
     pub conversion_mode: String,
     pub readability_enabled: bool,
     pub onboarding_completed: bool,
+    pub language: String,
 }
 
 impl From<&Settings> for SettingsInfo {
@@ -452,6 +453,7 @@ impl From<&Settings> for SettingsInfo {
             },
             readability_enabled: s.readability_enabled,
             onboarding_completed: s.onboarding_completed,
+            language: s.language.clone(),
         }
     }
 }
@@ -475,6 +477,7 @@ pub struct UpdateSettingsParams {
     pub conversion_mode: Option<String>,
     pub readability_enabled: Option<bool>,
     pub onboarding_completed: Option<bool>,
+    pub language: Option<String>,
 }
 
 /// Oppdater innstillinger
@@ -529,6 +532,10 @@ pub fn update_settings(params: UpdateSettingsParams) -> Result<SettingsInfo, Str
 
     if let Some(oc) = params.onboarding_completed {
         settings.onboarding_completed = oc;
+    }
+
+    if let Some(lang) = params.language {
+        settings.language = lang;
     }
 
     // Lagre til fil

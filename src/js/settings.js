@@ -13,10 +13,19 @@ async function loadSettings() {
     try {
         const settings = await invoke('get_settings');
         setSettings(settings);
+        
+        // Initialiser språk fra innstillinger
+        if (settings.language && settings.language !== 'system') {
+            setLanguage(settings.language);
+        } else {
+            initI18n();
+        }
+        
         applySettings();
     } catch (error) {
-        console.error('Kunne ikke laste innstillinger:', error);
+        console.error(t('status.loadSettingsError') + ':', error);
         setSettings({ ...DEFAULT_SETTINGS });
+        initI18n();
     }
 }
 
@@ -79,6 +88,9 @@ function updateSettingsPanel(settings) {
     if (elements.settingReadability) {
         elements.settingReadability.checked = settings.readability_enabled;
     }
+    if (elements.settingLanguage) {
+        elements.settingLanguage.value = getSavedLanguagePreference();
+    }
 }
 
 /**
@@ -94,7 +106,7 @@ async function updateSetting(key, value) {
         setSettings(newSettings);
         applySettings();
     } catch (error) {
-        showStatus(`Kunne ikke oppdatere innstilling: ${error}`, true);
+        showStatus(`${t('status.settingsError')}: ${error}`, true);
     }
 }
 
@@ -117,7 +129,7 @@ async function zoomIn() {
         setSettings(newSettings);
         applySettings();
     } catch (error) {
-        showStatus(`Kunne ikke zoome inn: ${error}`, true);
+        showStatus(`${t('status.zoomInError')}: ${error}`, true);
     }
 }
 
@@ -130,7 +142,7 @@ async function zoomOut() {
         setSettings(newSettings);
         applySettings();
     } catch (error) {
-        showStatus(`Kunne ikke zoome ut: ${error}`, true);
+        showStatus(`${t('status.zoomOutError')}: ${error}`, true);
     }
 }
 
@@ -143,7 +155,7 @@ async function zoomReset() {
         setSettings(newSettings);
         applySettings();
     } catch (error) {
-        showStatus(`Kunne ikke tilbakestille zoom: ${error}`, true);
+        showStatus(`${t('status.zoomResetError')}: ${error}`, true);
     }
 }
 

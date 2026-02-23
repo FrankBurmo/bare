@@ -73,6 +73,7 @@ const elements = {
     settingContentWidthValue: document.getElementById('setting-content-width-value'),
     settingConversionMode: document.getElementById('setting-conversion-mode'),
     settingReadability: document.getElementById('setting-readability'),
+    settingLanguage: document.getElementById('setting-language'),
     
     // Gemini input-dialog
     geminiInputOverlay: document.getElementById('gemini-input-overlay'),
