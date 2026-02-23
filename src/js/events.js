@@ -33,10 +33,6 @@ function initToolbarEvents() {
     elements.btnHome.addEventListener('click', goHome);
     elements.btnReload.addEventListener('click', reloadPage);
     elements.btnOpen.addEventListener('click', openFileDialog);
-    elements.btnTheme.addEventListener('click', () => {
-        toggleTheme();
-        closeDropdownMenu();
-    });
     
     // Zoom
     elements.btnZoomIn.addEventListener('click', zoomIn);

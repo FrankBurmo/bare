@@ -1612,16 +1612,6 @@ function applyTranslations() {
         elements.footerStatus.textContent = t('footer.ready');
     }
     
-    // Oppdater tema-knapp
-    const settings = getSettings();
-    if (settings) {
-        let effectiveTheme = settings.theme;
-        if (effectiveTheme === 'system') {
-            effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        updateThemeButton(effectiveTheme);
-    }
-    
     // Oppdater språk-velger
     const langSelect = document.getElementById('setting-language');
     if (langSelect) {

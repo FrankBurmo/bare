@@ -310,17 +310,6 @@ function closeSettingsPanel() {
     elements.settingsPanel.classList.add('hidden');
 }
 
-// ===== Theme Button =====
-
-/**
- * Oppdaterer tema-knappens ikon
- * @param {string} theme - Aktivt tema ('light' eller 'dark')
- */
-function updateThemeButton(theme) {
-    const icon = theme === 'dark' ? '☀️' : '🌙';
-    elements.btnTheme.innerHTML = `<span class="menu-icon">${icon}</span><span data-i18n="menu.toggleTheme">${t('menu.toggleTheme')}</span>`;
-}
-
 // ===== Dropdown Menu =====
 
 /**

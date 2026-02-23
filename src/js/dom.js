@@ -13,7 +13,6 @@ const elements = {
     btnHome: document.getElementById('btn-home'),
     btnReload: document.getElementById('btn-reload'),
     btnOpen: document.getElementById('btn-open'),
-    btnTheme: document.getElementById('btn-theme'),
     btnBookmark: document.getElementById('btn-bookmark'),
     btnBookmarks: document.getElementById('btn-bookmarks'),
     btnZoomIn: document.getElementById('btn-zoom-in'),

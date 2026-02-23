@@ -42,7 +42,6 @@ function applySettings() {
         effectiveTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     document.documentElement.setAttribute('data-theme', effectiveTheme);
-    updateThemeButton(effectiveTheme);
     
     // Skriftstørrelse
     document.documentElement.style.setProperty('--base-font-size', `${settings.font_size}%`);
