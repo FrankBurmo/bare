@@ -1,163 +1,163 @@
 # bare
-En åpen kildekode-nettleser som kun leser Markdown. Ingen scripts, ingen cookies, ingen CSS-kaos. Bare innholdet du kom for å lese, servert i et rent og strukturert format direkte fra kilden.
+An open-source browser that only reads Markdown. No scripts, no cookies, no CSS chaos. Just the content you came to read, served in a clean and structured format directly from the source.
 
 > "The internet doesn't have to be heavy."
 
-**Bare** er en eksperimentell nettleser bygget for å utforske et tekst-basert internett. 
-Den ignorerer tradisjonelle nettsider og renderer kun `.md`-filer direkte fra HTTP-responser.
+**Bare** is an experimental browser built to explore a text-based internet.
+It ignores traditional web pages and renders only `.md` files directly from HTTP responses.
 
-### Hvorfor?
-- **Lynrask:** Ingen tunge rammeverk å laste ned.
-- **Personvern:** Ingen støtte for scripts betyr null sporing.
-- **Fokus:** Innholdet presenteres konsistent uavhengig av kilden.
+### Why?
+- **Blazing fast:** No heavy frameworks to download.
+- **Privacy:** No script support means zero tracking.
+- **Focus:** Content is presented consistently regardless of the source.
 
 ![Netscape_inspirert_B_animasjon_med_jord](https://github.com/user-attachments/assets/29ca95b2-d09b-4ba4-8293-752f4df8624c)
 
 ## Status
 
-✅ **Versjon 0.1.4** - Kjernefunksjonaliteten er implementert! Applikasjonen er fullt funksjonell for daglig bruk.
+✅ **Version 0.1.4** — Core functionality is implemented! The application is fully functional for daily use.
 
-**Fullførte faser:**
-- ✅ Fase 1: Proof of Concept
-- ✅ Fase 2: Nettverksstøtte  
-- ✅ Fase 3: HTML-konvertering
-- ✅ Fase 4: Brukeropplevelse
-- ✅ Fase 5 (del 1): Gemini-protokoll + Gopher-protokoll
+**Completed phases:**
+- ✅ Phase 1: Proof of Concept
+- ✅ Phase 2: Network support
+- ✅ Phase 3: HTML conversion
+- ✅ Phase 4: User experience
+- ✅ Phase 5 (part 1): Gemini protocol + Gopher protocol
 
-Se [PLAN.md](PLAN.md) for detaljert utviklingsplan og fremtidige utvidelser.
+See [PLAN.md](PLAN.md) for the detailed development plan and future extensions.
 
-## Teknologi
+## Technology
 
-Bare er bygget med:
+Bare is built with:
 
-- **[Tauri 2.0](https://tauri.app/)** - Lett og sikker app-rammeverk (~2-5 MB vs Electron's ~100 MB)
-- **Rust** - Backend for sikkerhet og ytelse
-- **[pulldown-cmark](https://crates.io/crates/pulldown-cmark)** - Rask CommonMark + GFM markdown parser
-- **[reqwest](https://crates.io/crates/reqwest)** - Async HTTP-klient med TLS
-- **Vanilla HTML/CSS/JS** - Minimal frontend uten frameworks
+- **[Tauri 2.0](https://tauri.app/)** — Lightweight and secure app framework (~2–5 MB vs Electron's ~100 MB)
+- **Rust** — Backend for safety and performance
+- **[pulldown-cmark](https://crates.io/crates/pulldown-cmark)** — Fast CommonMark + GFM markdown parser
+- **[reqwest](https://crates.io/crates/reqwest)** — Async HTTP client with TLS
+- **Vanilla HTML/CSS/JS** — Minimal frontend without frameworks
 
-## Funksjoner
+## Features
 
-### Implementerte funksjoner
-- ✅ Visning av `.md`-filer fra HTTP/HTTPS
-- ✅ Lokale markdown-filer (Ctrl+O)
-- ✅ HTML-til-Markdown konvertering med Readability-modus
-- ✅ Back/forward navigasjon med historikk
-- ✅ Bokmerker med persistent lagring
-- ✅ Lys/mørk modus med system-sync
-- ✅ Søk i side (Ctrl+F)
-- ✅ Zoom inn/ut (Ctrl+/Ctrl-)
-- ✅ Keyboard shortcuts (Vim-inspirert)
-- ✅ Konfigurerbare innstillinger (skrift, tema, zoom, innholdsbredde)
-- ✅ 3-prikks meny med mindre brukte funksjoner
-- ✅ Om-dialog med versjonsinformasjon
-- ✅ **Gemini-protokoll støtte (gemini://)** - Implementert i v0.1.3
-  - Full støtte for Gemini-protokollen
-  - TOFU (Trust On First Use) sertifikathåndtering
-  - Gemtext-til-Markdown konvertering
-  - Input-dialog for interaktive Gemini-sider
-- ✅ **Gopher-protokoll støtte (gopher://)** - Nytt i v0.1.4!
-  - Full RFC 1436-implementasjon
-  - Gophermap-til-Markdown konvertering med emoji-ikoner
-  - Støtte for tekstfiler, menyer og søk
-  - Søk-dialog for interaktive Gopher-søk
+### Implemented
+- ✅ Rendering `.md` files over HTTP/HTTPS
+- ✅ Local markdown files (Ctrl+O)
+- ✅ HTML-to-Markdown conversion with Readability mode
+- ✅ Back/forward navigation with history
+- ✅ Bookmarks with persistent storage
+- ✅ Light/dark mode with system sync
+- ✅ In-page search (Ctrl+F)
+- ✅ Zoom in/out (Ctrl+/Ctrl-)
+- ✅ Keyboard shortcuts (Vim-inspired)
+- ✅ Configurable settings (font, theme, zoom, content width)
+- ✅ Three-dot menu for less-used functions
+- ✅ About dialog with version information
+- ✅ **Gemini protocol support (gemini://)** — Added in v0.1.3
+  - Full Gemini protocol implementation
+  - TOFU (Trust On First Use) certificate handling
+  - Gemtext-to-Markdown conversion
+  - Input dialog for interactive Gemini pages
+- ✅ **Gopher protocol support (gopher://)** — New in v0.1.4!
+  - Full RFC 1436 implementation
+  - Gophermap-to-Markdown conversion with emoji icons
+  - Support for text files, menus, and search
+  - Search dialog for interactive Gopher queries
 
-### Fremtidige muligheter
-- ⚠️ PDF-eksport
-- ⚠️ Tab-støtte
+### Future possibilities
+- ⚠️ PDF export
+- ⚠️ Tab support
 - ⚠️ Custom themes/plugins
 
-## Sikkerhet og Personvern
+## Security & Privacy
 
-Bare er designet med personvern som første prioritet:
+Bare is designed with privacy as the top priority:
 
-| Funksjon | Status | Personvern-gevinst |
-|----------|--------|-------------------|
-| JavaScript | ❌ Ingen støtte | Null sporing, ingen malware |
-| Cookies | ❌ Ingen støtte | Ingen tredjeparts sporing |
-| CSS | ❌ Minimal/ingen | Ingen fingerprinting via CSS |
-| Bilder | ⚠️ Valgfritt | Forhindrer tracking pixels |
-| Tracking | ❌ Umulig | Total beskyttelse |
+| Feature | Status | Privacy benefit |
+|---------|--------|----------------|
+| JavaScript | ❌ Not supported | Zero tracking, no malware |
+| Cookies | ❌ Not supported | No third-party tracking |
+| CSS | ❌ Minimal/none | No CSS fingerprinting |
+| Images | ⚠️ Optional | Prevents tracking pixels |
+| Tracking | ❌ Impossible | Total protection |
 
-## Installasjon
+## Installation
 
-> ⚠️ Prosjektet er ikke klart for bruk ennå.
+> ⚠️ The project is not yet ready for general use.
 
-### Forutsetninger
+### Prerequisites
 
 - [Rust](https://rustup.rs/) (latest stable)
 - [Node.js](https://nodejs.org/) (for Tauri CLI)
 - [Tauri Prerequisites](https://tauri.app/v2/guides/prerequisites/)
 
-### Bygge fra kildekode
+### Building from source
 
 ```bash
-# Klon repository
+# Clone the repository
 git clone https://github.com/FrankBurmo/bare.git
 cd bare
 
-# Installer Tauri CLI
+# Install Tauri CLI
 cargo install tauri-cli
 
-# Kjør i utviklingsmodus
+# Run in development mode
 cargo tauri dev
 
-# Bygg for produksjon
+# Build for production
 cargo tauri build
 ```
 
-## Bruk
+## Usage
 
-(Kommer når første versjon er klar)
+(Coming when the first release is ready)
 
-## Utviklingsplan
+## Roadmap
 
-Se [PLAN.md](PLAN.md) for detaljert roadmap med:
-- 5 utviklingsfaser fra PoC til polert produkt
-- Tekniske valg og arkitektur
-- Vurdering av server-komponent
-- Åpne spørsmål og beslutninger
+See [PLAN.md](PLAN.md) for a detailed roadmap including:
+- 5 development phases from PoC to polished product
+- Technical decisions and architecture
+- Evaluation of a server component
+- Open questions and decisions
 
-## Bidrag
+## Contributing
 
-Bidrag er velkomne! Vennligst les [.github/copilot-instructions.md](.github/copilot-instructions.md) for kodestandard og prosjektfilosofi før du sender inn pull requests.
+Contributions are welcome! Please read [.github/copilot-instructions.md](.github/copilot-instructions.md) for coding standards and project philosophy before submitting pull requests.
 
-### Prinsipper for bidrag
-- **Enkelhet først** - Ikke legg til unødvendig kompleksitet
-- **Personvern alltid** - Aldri kompromiss på sikkerhet eller personvern
-- **Test grundig** - Skriv tester for ny funksjonalitet
-- **Dokumenter** - Public APIs skal ha dokumentasjon
+### Contribution principles
+- **Simplicity first** — Don't add unnecessary complexity
+- **Privacy always** — Never compromise on security or privacy
+- **Test thoroughly** — Write tests for new functionality
+- **Document** — Public APIs should have documentation
 
-## Inspirasjon
+## Inspiration
 
-Bare er inspirert av:
-- **[Gemini Protocol](https://geminiprotocol.net/)** - Minimalistisk dokumentprotokoll
-- **[Lynx](https://lynx.invisible-island.net/)** - Tekstbasert nettleser siden 1992
-- **[Gopher](https://en.wikipedia.org/wiki/Gopher_(protocol))** - Enkel dokumentdistribusjon fra 1991
+Bare is inspired by:
+- **[Gemini Protocol](https://geminiprotocol.net/)** — Minimalist document protocol
+- **[Lynx](https://lynx.invisible-island.net/)** — Text-based browser since 1992
+- **[Gopher](https://en.wikipedia.org/wiki/Gopher_(protocol))** — Simple document distribution since 1991
 
-## Filosofi
+## Philosophy
 
-### Hva Bare ER
-- En minimal markdown-leser for det moderne internett
-- Et personvern-verktøy
-- Et eksperiment i enkelhet
+### What Bare IS
+- A minimal markdown reader for the modern internet
+- A privacy tool
+- An experiment in simplicity
 
-### Hva Bare IKKE er
-- ❌ En fullverdig nettleser (vi vil aldri støtte JavaScript)
-- ❌ En HTML-renderer (kun markdown er førsteklasses)
-- ❌ En tekstbehandler (kun visning, ikke redigering)
-- ❌ Et sosialt medie-verktøy
+### What Bare is NOT
+- ❌ A full-featured browser (we will never support JavaScript)
+- ❌ An HTML renderer (only markdown is first-class)
+- ❌ A text editor (view only, not edit)
+- ❌ A social media tool
 
-## Lisens
+## License
 
-Bare er lisensiert under GNU General Public License v3.0 (GPL-3.0).
-Se [LICENSE](LICENSE).
+Bare is licensed under the GNU General Public License v3.0 (GPL-3.0).
+See [LICENSE](LICENSE).
 
-## Kontakt
+## Contact
 
 - **Issues:** [GitHub Issues](https://github.com/FrankBurmo/bare/issues)
-- **Diskusjoner:** [GitHub Discussions](https://github.com/FrankBurmo/bare/discussions)
+- **Discussions:** [GitHub Discussions](https://github.com/FrankBurmo/bare/discussions)
 
 ---
 
-*"For en verden hvor innhold er viktigere enn animasjoner."*
+*"For a world where content matters more than animations."*
