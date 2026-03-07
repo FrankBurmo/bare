@@ -24,7 +24,7 @@ It ignores traditional web pages and renders only `.md` files directly from HTTP
 - ✅ Phase 4: User experience
 - ✅ Phase 5 (part 1): Gemini protocol + Gopher protocol
 
-See [PLAN.md](PLAN.md) for the detailed development plan and future extensions.
+See [PLAN.md](docs/PLAN.md) for the detailed development plan and future extensions.
 
 ## Technology
 
@@ -112,7 +112,7 @@ cargo tauri build
 
 ## Roadmap
 
-See [PLAN.md](PLAN.md) for a detailed roadmap including:
+See [PLAN.md](docs/PLAN.md) for a detailed roadmap including:
 - 5 development phases from PoC to polished product
 - Technical decisions and architecture
 - Evaluation of a server component
