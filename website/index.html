@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bare &mdash; A minimal Markdown browser</title>
+  <meta name="description" content="Bare is an open-source browser that renders Markdown directly &mdash; no JavaScript, no cookies, no tracking. Fast, private, and focused on content.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Bare &mdash; A minimal Markdown browser">
+  <meta property="og:description" content="An open-source browser that renders Markdown directly. No JavaScript, no cookies, no tracking. Just content.">
+  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:url" content="https://frankburmo.github.io/bare">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bare &mdash; A minimal Markdown browser">
+  <meta name="twitter:description" content="An open-source browser that renders Markdown directly. No JavaScript, no cookies, no tracking.">
+  <meta name="twitter:image" content="assets/og-image.png">
+
+  <link rel="canonical" href="https://frankburmo.github.io/bare">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="container">
+      <a href="https://github.com/FrankBurmo/bare" class="logo-link" aria-label="Bare on GitHub">
+        <img src="assets/logo.svg" alt="Bare" class="logo" width="80" height="80">
+      </a>
+      <h1>The browser that gets<br>out of your way.</h1>
+      <p class="tagline">
+        Bare renders Markdown directly &mdash; no JavaScript, no cookies, no tracking.<br>
+        Just the content you came to read.
+      </p>
+      <div class="cta-group">
+        <a href="https://github.com/FrankBurmo/bare/releases/latest" class="btn btn-primary">
+          Download
+        </a>
+        <a href="https://github.com/FrankBurmo/bare" class="btn btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          View on GitHub
+        </a>
+      </div>
+      <p class="hero-note">&#9888; Early development &mdash; build from source or watch releases.</p>
+    </div>
+  </header>
+
+  <!-- ===== WHY BARE ===== -->
+  <section class="features" aria-labelledby="features-heading">
+    <div class="container">
+      <h2 id="features-heading">Why Bare?</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon" aria-hidden="true">&#9889;</span>
+          <h3>Blazing Fast</h3>
+          <p>Pages load in milliseconds, not seconds. No megabytes of JavaScript to parse &mdash; Bare fetches and renders only what matters.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon" aria-hidden="true">&#128274;</span>
+          <h3>Zero Tracking</h3>
+          <p>Scripts and cookies are structurally impossible &mdash; not a setting you can forget to enable. Your browsing is yours alone, by architecture.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon" aria-hidden="true">&#128214;</span>
+          <h3>Pure Content</h3>
+          <p>Markdown is rendered consistently regardless of the source. No pop-ups, no ad carousels, no layout surprises. Just the words.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PROTOCOLS ===== -->
+  <section class="protocols" aria-labelledby="protocols-heading">
+    <div class="container">
+      <h2 id="protocols-heading">Protocol Support</h2>
+      <p class="section-lead">Bare speaks the original internet&rsquo;s languages. Navigate Gopher holes and Gemini capsules as first-class citizens alongside the modern web.</p>
+      <div class="protocol-grid">
+        <div class="protocol-card">
+          <span class="protocol-icon" aria-hidden="true">&#127760;</span>
+          <strong>HTTP / HTTPS</strong>
+          <code>https://</code>
+        </div>
+        <div class="protocol-card">
+          <span class="protocol-icon" aria-hidden="true">&#129680;</span>
+          <strong>Gemini</strong>
+          <code>gemini://</code>
+        </div>
+        <div class="protocol-card">
+          <span class="protocol-icon" aria-hidden="true">&#128063;</span>
+          <strong>Gopher</strong>
+          <code>gopher://</code>
+        </div>
+        <div class="protocol-card">
+          <span class="protocol-icon" aria-hidden="true">&#128193;</span>
+          <strong>Local files</strong>
+          <code>file://</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-it-works" aria-labelledby="how-heading">
+    <div class="container">
+      <h2 id="how-heading">How It Works</h2>
+      <div class="flow" role="list">
+        <div class="flow-step" role="listitem">
+          <span class="flow-number" aria-hidden="true">1</span>
+          <p>Enter a URL in the address bar</p>
+        </div>
+        <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+        <div class="flow-step" role="listitem">
+          <span class="flow-number" aria-hidden="true">2</span>
+          <p>Bare fetches the content</p>
+        </div>
+        <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+        <div class="flow-step" role="listitem">
+          <span class="flow-number" aria-hidden="true">3</span>
+          <p>Clean Markdown is rendered</p>
+        </div>
+      </div>
+      <p class="how-detail">
+        Native <code>.md</code> URLs are rendered directly. HTML pages are converted to Markdown via
+        a Readability-style extractor &mdash; stripping away ads, navigation, and noise to surface the actual content.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===== PRIVACY ===== -->
+  <section class="privacy" aria-labelledby="privacy-heading">
+    <div class="container">
+      <h2 id="privacy-heading">Security &amp; Privacy by Design</h2>
+      <p class="section-lead">Privacy in Bare is not a setting &mdash; it&rsquo;s the architecture.</p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Feature</th>
+              <th scope="col">Status</th>
+              <th scope="col">Privacy benefit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>JavaScript</td>
+              <td><span class="badge badge-no">Not supported</span></td>
+              <td>Zero tracking, no malware execution</td>
+            </tr>
+            <tr>
+              <td>Cookies</td>
+              <td><span class="badge badge-no">Not supported</span></td>
+              <td>No third-party tracking</td>
+            </tr>
+            <tr>
+              <td>CSS</td>
+              <td><span class="badge badge-no">Minimal / none</span></td>
+              <td>No CSS fingerprinting</td>
+            </tr>
+            <tr>
+              <td>Images</td>
+              <td><span class="badge badge-warn">Optional</span></td>
+              <td>Prevents tracking pixels</td>
+            </tr>
+            <tr>
+              <td>Tracking</td>
+              <td><span class="badge badge-no">Impossible</span></td>
+              <td>Total protection</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GETTING STARTED ===== -->
+  <section class="getting-started" aria-labelledby="start-heading">
+    <div class="container">
+      <h2 id="start-heading">Getting Started</h2>
+      <div class="start-grid">
+        <div class="start-card">
+          <h3>Download</h3>
+          <p>Pre-built binaries are coming soon. Check GitHub Releases for the latest builds for Windows, macOS, and Linux.</p>
+          <a href="https://github.com/FrankBurmo/bare/releases" class="btn btn-primary">GitHub Releases</a>
+        </div>
+        <div class="start-card">
+          <h3>Build from Source</h3>
+          <p>Requires <a href="https://rustup.rs/">Rust</a> and the <a href="https://tauri.app/v2/guides/prerequisites/">Tauri prerequisites</a>.</p>
+          <pre><code>git clone https://github.com/FrankBurmo/bare.git
+cd bare
+cargo install tauri-cli
+cargo tauri build</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMMUNITY ===== -->
+  <section class="community" aria-labelledby="community-heading">
+    <div class="container">
+      <h2 id="community-heading">Open Source &amp; Community</h2>
+      <p>Bare is free and open source under the <strong>GPL-3.0</strong> license. Contributions, bug reports, and ideas are all welcome.</p>
+      <div class="community-links">
+        <a href="https://github.com/FrankBurmo/bare" class="community-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+          </svg>
+          Source Code
+        </a>
+        <a href="https://github.com/FrankBurmo/bare/issues" class="community-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Issues
+        </a>
+        <a href="https://github.com/FrankBurmo/bare/discussions" class="community-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          Discussions
+        </a>
+        <a href="https://github.com/FrankBurmo/bare/blob/main/LICENSE" class="community-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          GPL-3.0 License
+        </a>
+      </div>
+      <div class="built-with">
+        <p>Built with <strong>Rust</strong> + <strong>Tauri</strong>. Tiny binary, no Electron bloat.</p>
+        <div class="tech-tags">
+          <span class="tech-tag">Rust</span>
+          <span class="tech-tag">Tauri 2.0</span>
+          <span class="tech-tag">pulldown-cmark</span>
+          <span class="tech-tag">GPL-3.0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        <a href="https://github.com/FrankBurmo/bare">Bare</a> &mdash;
+        <a href="https://github.com/FrankBurmo/bare/blob/main/LICENSE">GPL-3.0</a> &mdash;
+        <a href="https://github.com/FrankBurmo/bare/issues">Issues</a> &mdash;
+        <a href="https://github.com/FrankBurmo/bare/discussions">Discussions</a>
+      </p>
+      <p class="footer-note">No trackers on this site. Built with vanilla HTML &amp; CSS.</p>
+      <p class="footer-quote"><em>&ldquo;For a world where content matters more than animations.&rdquo;</em></p>
+    </div>
+  </footer>
+
+</body>
+</html>
