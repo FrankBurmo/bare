@@ -1,6 +1,6 @@
 [package]
 name = "bare"
-version = "0.1.4"
+version = "0.1.5"
 description = "En markdown-nettleser med fokus på personvern og enkelhet"
 authors = ["Bare Contributors"]
 license = "GPL-3.0-only"
