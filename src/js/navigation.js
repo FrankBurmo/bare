@@ -7,6 +7,27 @@
 const { invoke: invokeNav } = window.__TAURI__.core;
 const { open } = window.__TAURI__.dialog;
 
+// ===== PDF Helpers =====
+
+/**
+ * Sjekker om en URL peker til en PDF-fil
+ */
+function isPdfUrl(url) {
+    try {
+        const pathname = new URL(url).pathname;
+        return pathname.toLowerCase().endsWith('.pdf');
+    } catch {
+        return url.split('?')[0].toLowerCase().endsWith('.pdf');
+    }
+}
+
+/**
+ * Åpner en URL i systemets standard program
+ */
+async function openExternally(url) {
+    await window.__TAURI__.opener.openUrl(url);
+}
+
 // ===== Home =====
 
 /**
@@ -94,6 +115,10 @@ async function loadPath(path, addHistory = true) {
     
     // Sjekk om dette er en URL eller lokal fil
     if (path.startsWith('http://') || path.startsWith('https://')) {
+        if (isPdfUrl(path)) {
+            await openExternally(path);
+            return;
+        }
         await loadUrl(path, addHistory);
         return;
     }
@@ -107,6 +132,12 @@ async function loadPath(path, addHistory = true) {
     // Gopher-URLer
     if (path.startsWith(GOPHER_SCHEME)) {
         await loadGopherUrl(path, addHistory);
+        return;
+    }
+    
+    // Lokal PDF-fil
+    if (path.toLowerCase().endsWith('.pdf')) {
+        await window.__TAURI__.opener.openPath(path);
         return;
     }
     
@@ -235,6 +266,10 @@ async function convertAndLoad(url, addHistory = true) {
 async function resolveAndNavigate(href) {
     // Absolutte URLer
     if (href.startsWith('http://') || href.startsWith('https://')) {
+        if (isPdfUrl(href)) {
+            await openExternally(href);
+            return;
+        }
         await loadUrl(href);
         return;
     }
@@ -291,6 +326,10 @@ async function resolveAndNavigate(href) {
             } else if (resolvedUrl.startsWith(GOPHER_SCHEME)) {
                 await loadGopherUrl(resolvedUrl);
             } else {
+                if (isPdfUrl(resolvedUrl)) {
+                    await openExternally(resolvedUrl);
+                    return;
+                }
                 await loadUrl(resolvedUrl);
             }
         } catch (error) {
@@ -499,6 +538,10 @@ async function handleUrlSubmit() {
     
     // Absolutte URLer
     if (input.startsWith('http://') || input.startsWith('https://')) {
+        if (isPdfUrl(input)) {
+            await openExternally(input);
+            return;
+        }
         await loadUrl(input);
         return;
     }
@@ -524,6 +567,10 @@ async function handleUrlSubmit() {
     } else {
         // Anta HTTPS for alt annet
         const urlWithScheme = 'https://' + input;
+        if (isPdfUrl(urlWithScheme)) {
+            await openExternally(urlWithScheme);
+            return;
+        }
         await loadUrl(urlWithScheme);
     }
 }
