@@ -36,7 +36,7 @@ Disse tjenestene er under utvikling og vil levere sanntidsinnhold i Markdown-for
 
 - [Statens vegvesen](https://www.vegvesen.no) — veitrafikk, førerkort og kjøretøy
 - [Ruter](https://ruter.no) — kollektivtransport i Oslo og Viken
-- [Entur](https://entur.no) — nasjonale reiser med buss, tog, båt og fly
+- [Entur](https://entur.no) — nasjonale reiser med kollektivtransport
 
 ---
 
@@ -48,14 +48,14 @@ Disse tjenestene er under utvikling og vil levere sanntidsinnhold i Markdown-for
 - [VG](https://www.vg.no) — nyheter, sport og underholdning
 - [Digi.no](https://www.digi.no) — norsk teknologinyheter
 
-Bare sin innholdsekstraktor fjerner reklame og støy fra disse sidene automatisk.
+Bare forsøker å ekstrahere rent innhold fra disse sidene — uten reklame og støy.
 
 ---
 
 ## Søk
 
 - [DuckDuckGo](https://duckduckgo.com) — anbefalt for personvern
-- [Kvasir](https://www.kvasir.no) — norsk søkemotor
+- [Startpage](https://www.startpage.com) — privat Google-proxy
 - [Google](https://www.google.no) — generelt søk
 - [Bing](https://www.bing.com) — alternativt søk
 
@@ -99,6 +99,8 @@ Bare er en eksperimentell nettleser som viser rent innhold uten reklame, sporing
 
 ---
 
-Denne startportalen er åpen kildekode. Forslag og rettelser mottas via [Issues på GitHub](https://github.com/FrankBurmo/bare-start/issues).
+Denne startportalen er åpen kildekode — forslag og rettelser mottas via
+[Issues](https://github.com/FrankBurmo/bare-start/issues) eller
+[repoet på GitHub](https://github.com/FrankBurmo/bare-start).
 
 Lisens: CC0 — fri bruk uten begrensninger. Ingen sporing på denne siden.
