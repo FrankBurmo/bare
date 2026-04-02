@@ -913,19 +913,6 @@ body {
 /* ===== Bookmark Star ===== */
 .toolbar-btn.bookmarked { color: #ffc107; }
 
-/* ===== Converted Badge ===== */
-.converted-badge {
-    display: inline-block;
-    font-size: 11px;
-    font-family: var(--font-ui);
-    padding: 2px 8px;
-    margin-bottom: var(--space-md);
-    background: var(--bg-secondary);
-    border: var(--border-w) solid var(--border-color);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
 /* ===== Dropdown Menu — Brutalist popup ===== */
 .menu-container { position: relative; }
 

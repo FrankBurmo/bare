@@ -145,7 +145,7 @@ async function loadUrl(url, addHistory = true) {
     
     try {
         const result = await invokeNav('fetch_url', { url });
-        renderContent(result.html, result.title, result.was_converted);
+        renderContent(result.html, result.title);
         setCurrentPath(null);
         setCurrentUrl(result.url || url);
         
@@ -160,12 +160,6 @@ async function loadUrl(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, result.was_converted);
         updateBookmarkButton();
-        
-        if (result.was_converted) {
-            showStatus(t('status.htmlConverted'), false);
-        } else {
-            showStatus(t('status.markdownLoaded'), false);
-        }
     } catch (error) {
         stopFooterLoading();
         // Sjekk om dette er en konverteringsprompt
@@ -211,7 +205,7 @@ async function convertAndLoad(url, addHistory = true) {
     
     try {
         const result = await invokeNav('convert_url', { url });
-        renderContent(result.html, result.title, true);
+        renderContent(result.html, result.title);
         setCurrentPath(null);
         setCurrentUrl(result.url || url);
         
@@ -226,7 +220,6 @@ async function convertAndLoad(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus(t('status.htmlConverted'), false);
     } catch (error) {
         stopFooterLoading();
         showError(error);
@@ -327,7 +320,7 @@ async function loadGeminiUrl(url, addHistory = true) {
     
     try {
         const result = await invokeNav('fetch_gemini', { url });
-        renderContent(result.html, result.title, result.was_converted);
+        renderContent(result.html, result.title);
         setCurrentPath(null);
         setCurrentUrl(result.url || url);
         
@@ -342,7 +335,6 @@ async function loadGeminiUrl(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus(t('status.geminiLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         
@@ -370,7 +362,7 @@ async function submitGeminiInput(url, input) {
     
     try {
         const result = await invokeNav('submit_gemini_input', { url, input });
-        renderContent(result.html, result.title, result.was_converted);
+        renderContent(result.html, result.title);
         setCurrentPath(null);
         setCurrentUrl(result.url || url);
         
@@ -382,7 +374,6 @@ async function submitGeminiInput(url, input) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus(t('status.geminiLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         
@@ -413,7 +404,7 @@ async function loadGopherUrl(url, addHistory = true) {
     
     try {
         const result = await invokeNav('fetch_gopher', { url });
-        renderContent(result.html, result.title, result.was_converted);
+        renderContent(result.html, result.title);
         setCurrentPath(null);
         setCurrentUrl(result.url || url);
         
@@ -428,7 +419,6 @@ async function loadGopherUrl(url, addHistory = true) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus(t('status.gopherLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         
@@ -453,7 +443,7 @@ async function submitGopherSearch(url, query) {
     
     try {
         const result = await invokeNav('gopher_search', { url, query });
-        renderContent(result.html, result.title, result.was_converted);
+        renderContent(result.html, result.title);
         setCurrentPath(null);
         setCurrentUrl(result.url || url);
         
@@ -465,7 +455,6 @@ async function submitGopherSearch(url, query) {
         updateNavigationButtons();
         updateFooter(result.url || url, true);
         updateBookmarkButton();
-        showStatus(t('status.gopherSearchLoaded'), false);
     } catch (error) {
         stopFooterLoading();
         showError(error);

@@ -202,11 +202,9 @@ function showError(message) {
  * Rendrer innhold i content-området
  * @param {string} html - HTML-innhold
  * @param {string|null} title - Sidetittel
- * @param {boolean} wasConverted - Om innholdet ble konvertert fra HTML
  */
-function renderContent(html, title, wasConverted = false) {
-    const convertedBadge = wasConverted ? `<span class="converted-badge" title="${t('footer.converted')}">📄→📝</span>` : '';
-    elements.content.innerHTML = `<div class="markdown-body">${convertedBadge}${html}</div>`;
+function renderContent(html, title) {
+    elements.content.innerHTML = `<div class="markdown-body">${html}</div>`;
     
     setCurrentTitle(title);
     
