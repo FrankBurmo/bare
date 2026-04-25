@@ -1,0 +1,380 @@
+/**
+ * Bare Browser - LikeC4 C4-diagram
+ *
+ * Viser systemarkitekturen til Bare: en personvernfokusert markdown-nettleser
+ * bygget med Tauri, Rust og Vanilla JS.
+ *
+ * Nivåer:
+ *   1. System Context  – «bare_context»
+ *   2. Container       – «bare_containers»
+ *   3. Komponent (backend) – «backend_components»
+ *   4. Komponent (frontend) – «frontend_components»
+ */
+
+specification {
+  element actor {
+    style {
+      shape person
+      color green
+    }
+  }
+  element system {
+    style {
+      color blue
+    }
+  }
+  element container {
+    style {
+      color sky
+    }
+  }
+  element component {
+    style {
+      color slate
+    }
+  }
+  element storage {
+    style {
+      shape storage
+      color amber
+    }
+  }
+
+  tag external {
+    style {
+      color gray
+      border dashed
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODEL
+// ─────────────────────────────────────────────────────────────────────────────
+model {
+
+  // Aktør
+  user = actor 'Bruker' {
+    description 'Person som bruker Bare til å lese markdown-innhold'
+  }
+
+  // ── Bare Browser (primærsystem) ──────────────────────────────────────────
+  bare = system 'Bare Browser' {
+    description 'Personvernfokusert markdown-nettleser uten JavaScript, cookies eller sporing'
+
+    // ── Frontend (Tauri WebView) ────────────────────────────────────────
+    frontend = container 'Frontend' {
+      description 'Brukergrensesnitt rendret i Tauri WebView'
+      technology 'Vanilla HTML / CSS / JavaScript'
+
+      main_js = component 'main.js' {
+        description 'Entry point – initialiserer appen og koordinerer alle moduler'
+      }
+      events_js = component 'events.js' {
+        description 'Registrerer og håndterer alle DOM-events og tastatursnarveier'
+      }
+      navigation_js = component 'navigation.js' {
+        description 'URL-navigasjon, historikk (tilbake/fremover) og protokollruting'
+      }
+      ui_js = component 'ui.js' {
+        description 'UI-hjelpefunksjoner: statusbar, paneler, dialoger og tema'
+      }
+      state_js = component 'state.js' {
+        description 'Global klientside-tilstand: historikkliste og innlastede innstillinger'
+      }
+      settings_js = component 'settings.js' {
+        description 'Panel og logikk for brukerinnstillinger (tema, font, konverteringsmodus)'
+      }
+      bookmarks_js = component 'bookmarks.js' {
+        description 'Panel og logikk for bokmerker'
+      }
+      search_js = component 'search.js' {
+        description 'Innsides-søk med highlight og treff-navigasjon'
+      }
+      dom_js = component 'dom.js' {
+        description 'DOM-element-referanser og felles hjelpefunksjoner'
+      }
+      constants_js = component 'constants.js' {
+        description 'Delte konstanter og konfigurasjoner'
+      }
+      i18n_js = component 'i18n.js' {
+        description 'Internasjonalisering og tekst-lokalisering'
+      }
+    }
+
+    // ── Tauri Runtime ───────────────────────────────────────────────────
+    tauri_runtime = container 'Tauri Runtime' {
+      description 'Bro mellom WebView-frontend og Rust-backend via IPC (invoke/emit)'
+      technology 'Tauri 2.0 (Rust)'
+    }
+
+    // ── Rust Backend ────────────────────────────────────────────────────
+    backend = container 'Rust Backend' {
+      description 'Forretningslogikk og nettverkslag kompilert til native binær'
+      technology 'Rust (async/await, Tokio)'
+
+      commands = component 'commands.rs' {
+        description 'Tauri IPC-kommandoer eksponert til frontend. Koordinerer alle bakgrunnsoperasjoner.'
+      }
+      fetcher = component 'fetcher.rs' {
+        description 'HTTP/HTTPS-klient (reqwest). Validerer URL, henter innhold og detekterer Content-Type.'
+      }
+      markdown_mod = component 'markdown.rs' {
+        description 'Markdown-rendering med pulldown-cmark (CommonMark + GFM: tabeller, tasklister)'
+      }
+      converter = component 'converter.rs' {
+        description 'Konverterer HTML til Markdown via html2md. Saniterer script/style-elementer.'
+      }
+      gemini_mod = component 'gemini.rs' {
+        description 'Gemini-protokollklient (TCP+TLS). Implementerer TOFU-sertifikathåndtering og redirect-logikk.'
+      }
+      gemtext_mod = component 'gemtext.rs' {
+        description 'Parser for Gemtext-format. Konverterer gemtext til Markdown.'
+      }
+      gopher_mod = component 'gopher.rs' {
+        description 'Gopher-protokollklient (RFC 1436, TCP). Håndterer menytyper og tekstfiler.'
+      }
+      gophermap_mod = component 'gophermap.rs' {
+        description 'Konverterer Gopher-menyer (gophermap) til Markdown med emoji-ikoner per type.'
+      }
+      settings_mod = component 'settings.rs' {
+        description 'Les og skriv brukerinnstillinger (tema, font, zoom, konverteringsmodus) til disk.'
+      }
+      bookmarks_mod = component 'bookmarks.rs' {
+        description 'CRUD-operasjoner for bokmerker persistert som JSON.'
+      }
+    }
+
+    // ── Lokal fillagring ────────────────────────────────────────────────
+    known_hosts = storage 'known_hosts.json' {
+      description 'TOFU-lager for Gemini TLS-sertifikat-fingerprints (SHA-256)'
+    }
+    bookmarks_file = storage 'bookmarks.json' {
+      description 'Brukerbokmerker (id, tittel, url, tidspunkt)'
+    }
+    settings_file = storage 'settings.json' {
+      description 'Brukerinnstillinger (tema, font, zoom, konverteringsmodus)'
+    }
+  }
+
+  // ── Eksterne systemer ────────────────────────────────────────────────────
+  http_servers = system 'HTTP/HTTPS-servere' {
+    #external
+    description 'Offentlige webservere som serverer Markdown- eller HTML-filer'
+  }
+
+  gemini_servers = system 'Gemini-servere' {
+    #external
+    description 'Gemini-protokollservere (gemini://, port 1965, TLS)'
+  }
+
+  gopher_servers = system 'Gopher-servere' {
+    #external
+    description 'Gopher-protokollservere (gopher://, port 70, RFC 1436)'
+  }
+
+  local_fs = system 'Lokalt filsystem' {
+    #external
+    description 'Brukerens lokale filer som kan åpnes direkte (file://)'
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Relasjoner
+  // ─────────────────────────────────────────────────────────────────────
+
+  // Bruker ↔ Bare
+  user -> bare.frontend 'Taster URL, klikker lenker, justerer innstillinger'
+  bare.frontend -> user 'Viser rendret Markdown-innhold'
+
+  // Frontend → IPC
+  bare.frontend -> bare.tauri_runtime 'invoke() / emit() via Tauri IPC'
+  bare.tauri_runtime -> bare.frontend 'Returnerer HTML/data til WebView'
+
+  // IPC → Backend
+  bare.tauri_runtime -> bare.backend.commands 'Kaller Rust-kommandoer'
+  bare.backend.commands -> bare.tauri_runtime 'Returnerer svar'
+
+  // Backend interne
+  bare.backend.commands -> bare.backend.fetcher 'fetch_url()'
+  bare.backend.commands -> bare.backend.markdown_mod 'render_markdown()'
+  bare.backend.commands -> bare.backend.converter 'convert_url()'
+  bare.backend.commands -> bare.backend.gemini_mod 'fetch_gemini()'
+  bare.backend.commands -> bare.backend.gopher_mod 'fetch_gopher()'
+  bare.backend.commands -> bare.backend.settings_mod 'get/update_settings()'
+  bare.backend.commands -> bare.backend.bookmarks_mod 'get/add/remove_bookmark()'
+
+  bare.backend.fetcher -> bare.backend.markdown_mod 'Sender hentet innhold til rendering'
+  bare.backend.fetcher -> bare.backend.converter 'Sender HTML-innhold til konvertering'
+  bare.backend.converter -> bare.backend.markdown_mod 'Sender konvertert Markdown til rendering'
+
+  bare.backend.gemini_mod -> bare.backend.gemtext_mod 'Parser Gemtext-respons'
+  bare.backend.gemtext_mod -> bare.backend.markdown_mod 'Sender konvertert Markdown til rendering'
+
+  bare.backend.gopher_mod -> bare.backend.gophermap_mod 'Parser Gopher-menyer'
+  bare.backend.gophermap_mod -> bare.backend.markdown_mod 'Sender konvertert Markdown til rendering'
+
+  // Backend → lagring
+  bare.backend.gemini_mod -> bare.known_hosts 'Leser/skriver TOFU-fingerprints'
+  bare.backend.bookmarks_mod -> bare.bookmarks_file 'Leser/skriver bokmerker'
+  bare.backend.settings_mod -> bare.settings_file 'Leser/skriver innstillinger'
+
+  // Backend → eksterne systemer
+  bare.backend.fetcher -> http_servers 'HTTP GET (reqwest)'
+  bare.backend.gemini_mod -> gemini_servers 'TCP+TLS, port 1965'
+  bare.backend.gopher_mod -> gopher_servers 'TCP, port 70'
+  bare.backend.commands -> local_fs 'Leser lokale .md-filer (file://)'
+
+  // Frontend interne
+  bare.frontend.main_js -> bare.frontend.events_js 'Initialiserer event handlers'
+  bare.frontend.main_js -> bare.frontend.navigation_js 'Kaller navigasjonsfunksjoner'
+  bare.frontend.main_js -> bare.frontend.ui_js 'Oppdaterer UI-tilstand'
+  bare.frontend.main_js -> bare.frontend.state_js 'Initialiserer global state'
+  bare.frontend.navigation_js -> bare.frontend.ui_js 'Oppdaterer statusbar og tittel'
+  bare.frontend.navigation_js -> bare.frontend.state_js 'Oppdaterer historikkliste'
+  bare.frontend.settings_js -> bare.frontend.state_js 'Lagrer innstillinger i state'
+  bare.frontend.bookmarks_js -> bare.frontend.state_js 'Oppdaterer bokmerkestilstand'
+  bare.frontend.search_js -> bare.frontend.dom_js 'Søker i rendret DOM-innhold'
+  bare.frontend.events_js -> bare.frontend.navigation_js 'Ruter tastatur- og klikkhendelser'
+  bare.frontend.events_js -> bare.frontend.search_js 'Håndterer Ctrl+F'
+  bare.frontend.events_js -> bare.frontend.settings_js 'Håndterer innstillingsendringer'
+  bare.frontend.events_js -> bare.frontend.bookmarks_js 'Håndterer bokmerkehendelser'
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VIEWS
+// ─────────────────────────────────────────────────────────────────────────────
+views {
+
+  // 1. System Context
+  view bare_context of bare {
+    title 'Bare Browser – Systemkontekst (C4 nivå 1)'
+    description 'Viser Bare Browser i kontekst med brukeren og eksterne systemer'
+
+    include
+      user,
+      bare,
+      http_servers,
+      gemini_servers,
+      gopher_servers,
+      local_fs
+
+    style bare {
+      color blue
+    }
+    style user {
+      color green
+    }
+    style http_servers, gemini_servers, gopher_servers, local_fs {
+      color gray
+      opacity 50%
+    }
+  }
+
+  // 2. Container-diagram
+  view bare_containers of bare {
+    title 'Bare Browser – Kontainere (C4 nivå 2)'
+    description 'Viser de tekniske kontainerne inni Bare Browser'
+
+    include
+      user,
+      bare.*,
+      http_servers,
+      gemini_servers,
+      gopher_servers,
+      local_fs
+
+    style user {
+      color green
+    }
+    style bare.frontend {
+      color sky
+    }
+    style bare.tauri_runtime {
+      color indigo
+    }
+    style bare.backend {
+      color blue
+    }
+    style bare.known_hosts, bare.bookmarks_file, bare.settings_file {
+      color amber
+    }
+    style http_servers, gemini_servers, gopher_servers, local_fs {
+      color gray
+      opacity 50%
+    }
+  }
+
+  // 3. Komponent-diagram: Rust Backend
+  view backend_components of bare.backend {
+    title 'Rust Backend – Komponenter (C4 nivå 3)'
+    description 'Viser de individuelle Rust-modulene i backend-laget'
+
+    include
+      bare.tauri_runtime,
+      bare.backend.*,
+      bare.known_hosts,
+      bare.bookmarks_file,
+      bare.settings_file,
+      http_servers,
+      gemini_servers,
+      gopher_servers,
+      local_fs
+
+    style bare.backend.commands {
+      color blue
+    }
+    style bare.backend.fetcher, bare.backend.gemini_mod, bare.backend.gopher_mod {
+      color sky
+    }
+    style bare.backend.markdown_mod, bare.backend.converter,
+          bare.backend.gemtext_mod, bare.backend.gophermap_mod {
+      color violet
+    }
+    style bare.backend.settings_mod, bare.backend.bookmarks_mod {
+      color indigo
+    }
+    style bare.known_hosts, bare.bookmarks_file, bare.settings_file {
+      color amber
+    }
+    style http_servers, gemini_servers, gopher_servers, local_fs {
+      color gray
+      opacity 50%
+    }
+  }
+
+  // 4. Komponent-diagram: Frontend
+  view frontend_components of bare.frontend {
+    title 'Frontend – Komponenter (C4 nivå 3)'
+    description 'Viser JavaScript-modulene i Tauri WebView-frontend'
+
+    include
+      user,
+      bare.frontend.*,
+      bare.tauri_runtime
+
+    style user {
+      color green
+    }
+    style bare.frontend.main_js {
+      color blue
+    }
+    style bare.frontend.navigation_js, bare.frontend.events_js {
+      color sky
+    }
+    style bare.frontend.ui_js, bare.frontend.dom_js {
+      color slate
+    }
+    style bare.frontend.state_js, bare.frontend.constants_js {
+      color indigo
+    }
+    style bare.frontend.settings_js, bare.frontend.bookmarks_js {
+      color violet
+    }
+    style bare.frontend.search_js, bare.frontend.i18n_js {
+      color teal
+    }
+    style bare.tauri_runtime {
+      color indigo
+    }
+  }
+}
