@@ -40,12 +40,7 @@ specification {
     }
   }
 
-  tag external {
-    style {
-      color gray
-      border dashed
-    }
-  }
+  tag external
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -328,7 +323,7 @@ views {
     }
     style bare.backend.markdown_mod, bare.backend.converter,
           bare.backend.gemtext_mod, bare.backend.gophermap_mod {
-      color violet
+      color green
     }
     style bare.backend.settings_mod, bare.backend.bookmarks_mod {
       color indigo
@@ -368,10 +363,10 @@ views {
       color indigo
     }
     style bare.frontend.settings_js, bare.frontend.bookmarks_js {
-      color violet
+      color green
     }
     style bare.frontend.search_js, bare.frontend.i18n_js {
-      color teal
+      color amber
     }
     style bare.tauri_runtime {
       color indigo
