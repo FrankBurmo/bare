@@ -3,7 +3,7 @@
 //! Håndterer nettverksforespørsler for å hente markdown-filer fra internett.
 
 use log::{debug, info, warn};
-use reqwest::header::{HeaderMap, CONTENT_TYPE, USER_AGENT};
+use reqwest::header::{HeaderMap, ACCEPT, CONTENT_TYPE, USER_AGENT};
 use std::time::Duration;
 use thiserror::Error;
 use url::Url;
@@ -130,13 +130,19 @@ impl Fetcher {
         let url = Self::validate_url(url_str)?;
         info!("Fetching content from: {}", url);
 
-        let response = self.client.get(url.as_str()).send().await.map_err(|e| {
-            if e.is_timeout() {
-                FetchError::Timeout(self.timeout_seconds)
-            } else {
-                FetchError::Network(e)
-            }
-        })?;
+        let response = self
+            .client
+            .get(url.as_str())
+            .header(ACCEPT, "text/markdown, text/plain;q=0.9, text/html;q=0.5")
+            .send()
+            .await
+            .map_err(|e| {
+                if e.is_timeout() {
+                    FetchError::Timeout(self.timeout_seconds)
+                } else {
+                    FetchError::Network(e)
+                }
+            })?;
 
         let status = response.status();
         let final_url = response.url().to_string();

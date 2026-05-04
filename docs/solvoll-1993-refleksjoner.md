@@ -92,13 +92,13 @@ Solvoll-artikkelen peker indirekte på flere områder der Bare kan forbedres ell
 
 Artikkelen understreker viktigheten av **format-forhandling** mellom avsender og mottaker — at systemene er enige om hvilken form informasjonen skal ha. HTTP har Content-Type-headere for nettopp dette, men de brukes inkonsekvent.
 
-**Forbedringspotensial:** Bare kan sende eksplisitte `Accept`-headere som signaliserer preferanse for `text/markdown` og `text/plain` over `text/html`. Noen servere og CDN-er respekterer dette og kan da servere renere innhold direkte.
+**✅ Implementert (mai 2026):** Bare sender nå eksplisitte `Accept`-headere i alle HTTP-forespørsler:
 
 ```
 Accept: text/markdown, text/plain;q=0.9, text/html;q=0.5
 ```
 
-Dette er en liten endring i `fetcher.rs` som er i full overensstemmelse med Solvoll-artiklenes ånd.
+Endringen er gjort i `fetcher.rs` — `Fetcher::fetch()`-metoden setter headeren på alle GET-forespørsler. Servere og CDN-er som respekterer innholdsforhandling kan da servere renere innhold direkte, uten at Bare trenger å konvertere fra HTML. Dette er i full overensstemmelse med Solvoll-artiklenes ånd om eksplisitt format-forhandling mellom avsender og mottaker.
 
 ### 5.2 Semantisk strukturbevaring
 
@@ -151,7 +151,7 @@ Viktig: Eventuelle "bidrag"-funksjoner bør **ikke** innebære dataoverføring t
 | Enkelhet slår kompleksitet | ✅ Markdown > HTML | Fortsett kursen |
 | Innhold skilt fra presentasjon | ✅ Brukers preferanser styrer | Styrk semantisk bevaring |
 | Babels tårn — proprietære formater | ✅ Løst via konvertering | Bedre format-forhandling |
-| Distribuert informasjonstilgang | ✅ HTTP + Gemini + Gopher | Eksplisitte Accept-headere |
+| Distribuert informasjonstilgang | ✅ HTTP + Gemini + Gopher | ✅ Eksplisitte Accept-headere |
 | Toveis informasjonsutveksling | ❌ Kun lesing | Lokal eksport/annotasjon |
 | Kontekst og metadata | ⚠️ Delvis | Kildeinfo i UI |
 

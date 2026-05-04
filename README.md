@@ -63,6 +63,9 @@ Bare is built with:
   - Gophermap-to-Markdown conversion with emoji icons
   - Support for text files, menus, and search
   - Search dialog for interactive Gopher queries
+- ✅ **Explicit content negotiation** — HTTP `Accept` header signals preference for Markdown
+  - Servers and CDNs that support content negotiation can serve cleaner content directly
+  - Header: `Accept: text/markdown, text/plain;q=0.9, text/html;q=0.5`
 
 ### Future possibilities
 - ⚠️ PDF export
