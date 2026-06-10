@@ -2,8 +2,8 @@
 //!
 //! Bruker pulldown-cmark for å konvertere markdown til HTML.
 
-use pulldown_cmark::{html, Options, Parser};
 use ammonia::Builder;
+use pulldown_cmark::{html, Options, Parser};
 use std::collections::HashSet;
 
 /// Rendrer markdown-innhold til HTML
@@ -32,12 +32,61 @@ pub fn render(content: &str) -> String {
 fn sanitize_rendered_html(html: &str) -> String {
     let mut allowed_tags: HashSet<&str> = HashSet::new();
     for tag in &[
-        "main", "article", "section", "aside", "header", "footer", "nav",
-        "div", "span", "p", "br", "hr", "h1", "h2", "h3", "h4", "h5", "h6",
-        "ul", "ol", "li", "dl", "dt", "dd", "table", "thead", "tbody", "tfoot",
-        "tr", "th", "td", "a", "img", "figure", "figcaption", "blockquote",
-        "pre", "code", "em", "strong", "b", "i", "u", "s", "del", "ins",
-        "sub", "sup", "small", "mark", "abbr", "time", "address", "details", "summary",
+        "main",
+        "article",
+        "section",
+        "aside",
+        "header",
+        "footer",
+        "nav",
+        "div",
+        "span",
+        "p",
+        "br",
+        "hr",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "ul",
+        "ol",
+        "li",
+        "dl",
+        "dt",
+        "dd",
+        "table",
+        "thead",
+        "tbody",
+        "tfoot",
+        "tr",
+        "th",
+        "td",
+        "a",
+        "img",
+        "figure",
+        "figcaption",
+        "blockquote",
+        "pre",
+        "code",
+        "em",
+        "strong",
+        "b",
+        "i",
+        "u",
+        "s",
+        "del",
+        "ins",
+        "sub",
+        "sup",
+        "small",
+        "mark",
+        "abbr",
+        "time",
+        "address",
+        "details",
+        "summary",
         "input", // For task lists
     ] {
         allowed_tags.insert(tag);

@@ -58,7 +58,10 @@ pub fn html_to_markdown(html: &str, url: Option<&str>) -> ConversionResult {
     match Readability::new(html, url, Some(cfg)) {
         Ok(mut readability) => match readability.parse() {
             Ok(article) => {
-                debug!("Readability ekstraherte {} bytes", article.text_content.len());
+                debug!(
+                    "Readability ekstraherte {} bytes",
+                    article.text_content.len()
+                );
                 return ConversionResult {
                     markdown: article.text_content.to_string(),
                     title: if article.title.is_empty() {
@@ -70,11 +73,17 @@ pub fn html_to_markdown(html: &str, url: Option<&str>) -> ConversionResult {
                 };
             }
             Err(e) => {
-                warn!("Readability-parsing feilet: {}. Fallback til enkel konvertering.", e);
+                warn!(
+                    "Readability-parsing feilet: {}. Fallback til enkel konvertering.",
+                    e
+                );
             }
         },
         Err(e) => {
-            warn!("Kunne ikke initialisere Readability: {}. Fallback til enkel konvertering.", e);
+            warn!(
+                "Kunne ikke initialisere Readability: {}. Fallback til enkel konvertering.",
+                e
+            );
         }
     }
 
