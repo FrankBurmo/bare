@@ -4,6 +4,7 @@
 //! Inkluderer readability-modus for å ekstrahere hovedinnhold.
 
 use ammonia::Builder;
+use dom_smoothie::{Config, Readability, TextMode};
 use log::{debug, info, warn};
 use std::collections::HashSet;
 
@@ -40,39 +41,54 @@ pub struct ConversionResult {
 ///
 /// # Arguments
 /// * `html` - HTML-innhold som skal konverteres
+/// * `url` - Valgfri URL for å hjelpe Readability med relative lenker
 ///
 /// # Returns
 /// Konvertert markdown-innhold
-pub fn html_to_markdown(html: &str) -> ConversionResult {
+pub fn html_to_markdown(html: &str, url: Option<&str>) -> ConversionResult {
     info!("Konverterer HTML til markdown ({} bytes)", html.len());
 
-    // Ekstraher tittel før sanitizing
+    // Konfigurer dom_smoothie for markdown-output
+    let cfg = Config {
+        text_mode: TextMode::Markdown,
+        ..Default::default()
+    };
+
+    // Prøv Readability-ekstraksjon
+    match Readability::new(html, url, Some(cfg)) {
+        Ok(mut readability) => match readability.parse() {
+            Ok(article) => {
+                debug!("Readability ekstraherte {} bytes", article.text_content.len());
+                return ConversionResult {
+                    markdown: article.text_content.to_string(),
+                    title: if article.title.is_empty() {
+                        None
+                    } else {
+                        Some(article.title.to_string())
+                    },
+                    used_readability: true,
+                };
+            }
+            Err(e) => {
+                warn!("Readability-parsing feilet: {}. Fallback til enkel konvertering.", e);
+            }
+        },
+        Err(e) => {
+            warn!("Kunne ikke initialisere Readability: {}. Fallback til enkel konvertering.", e);
+        }
+    }
+
+    // Fallback: Bruk den gamle metoden hvis Readability feiler
     let title = extract_title(html);
-
-    // Sanitize HTML for å fjerne scripts, styles, etc.
     let clean_html = sanitize_html(html);
-
-    // Ekstraher hovedinnhold hvis mulig (readability-modus)
-    let (content_html, used_readability) = extract_main_content(&clean_html);
-
-    // Konverter til markdown
-    let markdown = html2md::parse_html(&content_html);
-
-    // Fiks brutte lenker (multi-linje lenker som html2md genererer)
+    let markdown = html2md::parse_html(&clean_html);
     let fixed_links = fix_broken_links(&markdown);
-
-    // Rydd opp i markdown (fjern overflødige linjer, etc.)
     let cleaned_markdown = clean_markdown(&fixed_links);
-
-    debug!(
-        "Konvertering fullført: {} bytes markdown",
-        cleaned_markdown.len()
-    );
 
     ConversionResult {
         markdown: cleaned_markdown,
         title,
-        used_readability,
+        used_readability: false,
     }
 }
 
@@ -218,82 +234,6 @@ fn sanitize_html(html: &str) -> String {
         .link_rel(Some("noopener noreferrer"))
         .clean(html)
         .to_string()
-}
-
-/// Forsøk å ekstrahere hovedinnholdet fra HTML (readability-modus)
-fn extract_main_content(html: &str) -> (String, bool) {
-    let html_lower = html.to_lowercase();
-
-    // Prøv å finne main/article/content elementer
-    let content_markers = [
-        ("<article", "</article>"),
-        ("<main", "</main>"),
-        (r#"<div class="content"#, "</div>"),
-        (r#"<div id="content"#, "</div>"),
-        (r#"<div class="post"#, "</div>"),
-        (r#"<div class="article"#, "</div>"),
-        (r#"<div class="entry"#, "</div>"),
-    ];
-
-    for (start_marker, end_marker) in content_markers {
-        if let Some(start_pos) = html_lower.find(start_marker) {
-            // Finn slutten av start-taggen
-            if let Some(tag_end) = html_lower[start_pos..].find('>') {
-                let content_start = start_pos + tag_end + 1;
-
-                // Finn den matchende slutttaggen (forenklet - tar siste forekomst)
-                if let Some(end_pos) = html_lower.rfind(end_marker) {
-                    if end_pos > content_start {
-                        let extracted = &html[content_start..end_pos];
-                        if extracted.len() > 100 {
-                            // Sørg for at vi har faktisk innhold
-                            debug!("Ekstraherte hovedinnhold med markør: {}", start_marker);
-                            return (extracted.to_string(), true);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Prøv å fjerne header, footer, nav, aside
-    let cleaned = remove_boilerplate(html);
-    if cleaned.len() < html.len() / 2 && cleaned.len() > 100 {
-        return (cleaned, true);
-    }
-
-    // Fallback: returner hele HTML
-    (html.to_string(), false)
-}
-
-/// Fjern boilerplate-elementer som header, footer, nav, aside
-fn remove_boilerplate(html: &str) -> String {
-    let mut result = html.to_string();
-
-    // Elementer å fjerne (forenklet implementasjon)
-    let remove_patterns = [
-        ("<header", "</header>"),
-        ("<footer", "</footer>"),
-        ("<nav", "</nav>"),
-        ("<aside", "</aside>"),
-        (r#"<div class="sidebar"#, "</div>"),
-        (r#"<div class="menu"#, "</div>"),
-        (r#"<div class="advertisement"#, "</div>"),
-        (r#"<div class="ads"#, "</div>"),
-    ];
-
-    for (start_marker, end_marker) in remove_patterns {
-        while let Some(start) = result.to_lowercase().find(start_marker) {
-            if let Some(end) = result[start..].to_lowercase().find(end_marker) {
-                let remove_end = start + end + end_marker.len();
-                result = format!("{}{}", &result[..start], &result[remove_end..]);
-            } else {
-                break;
-            }
-        }
-    }
-
-    result
 }
 
 /// Ekstraher tittel fra HTML
@@ -580,10 +520,10 @@ mod tests {
     #[test]
     fn test_html_to_markdown_basic() {
         let html = "<h1>Test</h1><p>Dette er en test.</p>";
-        let result = html_to_markdown(html);
-        // html2md bruker en annen syntaks, sjekk for tekst innhold
+        let result = html_to_markdown(html, None);
+        // dom_smoothie bruker markdown syntaks
         println!("Markdown output: {:?}", result.markdown);
-        assert!(result.markdown.contains("Test"));
+        assert!(result.markdown.contains("# Test"));
         assert!(result.markdown.contains("Dette er en test"));
     }
 
@@ -601,7 +541,7 @@ mod tests {
             </body>
             </html>
         "#;
-        let result = html_to_markdown(html);
+        let result = html_to_markdown(html, None);
         assert!(result.markdown.contains("Hovedinnhold"));
         assert!(result.used_readability);
     }

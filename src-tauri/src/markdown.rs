@@ -3,6 +3,8 @@
 //! Bruker pulldown-cmark for å konvertere markdown til HTML.
 
 use pulldown_cmark::{html, Options, Parser};
+use ammonia::Builder;
+use std::collections::HashSet;
 
 /// Rendrer markdown-innhold til HTML
 ///
@@ -22,7 +24,34 @@ pub fn render(content: &str) -> String {
     let mut html_output = String::new();
     html::push_html(&mut html_output, parser);
 
-    html_output
+    // Sanitize output for å fjerne eventuell rå HTML som pulldown-cmark slapp gjennom
+    sanitize_rendered_html(&html_output)
+}
+
+/// Sanitize HTML-output fra markdown-rendereren
+fn sanitize_rendered_html(html: &str) -> String {
+    let mut allowed_tags: HashSet<&str> = HashSet::new();
+    for tag in &[
+        "main", "article", "section", "aside", "header", "footer", "nav",
+        "div", "span", "p", "br", "hr", "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li", "dl", "dt", "dd", "table", "thead", "tbody", "tfoot",
+        "tr", "th", "td", "a", "img", "figure", "figcaption", "blockquote",
+        "pre", "code", "em", "strong", "b", "i", "u", "s", "del", "ins",
+        "sub", "sup", "small", "mark", "abbr", "time", "address", "details", "summary",
+        "input", // For task lists
+    ] {
+        allowed_tags.insert(tag);
+    }
+
+    Builder::default()
+        .tags(allowed_tags)
+        .add_generic_attributes(&["id", "class", "title", "lang"])
+        .add_tag_attributes("a", &["href", "target"])
+        .add_tag_attributes("img", &["src", "alt", "width", "height"])
+        .add_tag_attributes("input", &["type", "checked", "disabled"])
+        .link_rel(Some("noopener noreferrer"))
+        .clean(html)
+        .to_string()
 }
 
 /// Ekstraherer tittelen fra markdown-innhold (første H1)
@@ -72,7 +101,7 @@ mod tests {
     fn test_render_link() {
         let input = "[Link](https://example.com)";
         let output = render(input);
-        assert!(output.contains("<a href=\"https://example.com\">"));
+        assert!(output.contains("<a href=\"https://example.com\""));
         assert!(output.contains("Link</a>"));
     }
 
@@ -126,5 +155,14 @@ mod tests {
         let input = "  # Spaced Title  \n\nContent";
         let title = extract_title(input);
         assert_eq!(title, Some("Spaced Title".to_string()));
+    }
+
+    #[test]
+    fn test_render_sanitization() {
+        let input = "Raw <script>alert('xss')</script> HTML";
+        let output = render(input);
+        assert!(!output.contains("<script>"));
+        // Ammonia fjerner innholdet i script-tagger
+        assert!(output.contains("Raw  HTML"));
     }
 }

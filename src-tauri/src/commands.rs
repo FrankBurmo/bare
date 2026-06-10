@@ -239,7 +239,7 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
         ConversionMode::ConvertAll => {
             // Steg 4: Konverterer HTML
             let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
-            let conversion_result = converter::html_to_markdown(&result.content);
+            let conversion_result = converter::html_to_markdown(&result.content, Some(&result.final_url));
 
             // Steg 5: Rendrer markdown
             let _ = window.emit("loading-status", "Rendrer markdown...");
@@ -308,7 +308,7 @@ pub async fn convert_url(url: String, window: tauri::Window) -> Result<RenderedP
 
     // Konverter HTML til markdown
     let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
-    let conversion_result = converter::html_to_markdown(&result.content);
+    let conversion_result = converter::html_to_markdown(&result.content, Some(&result.final_url));
 
     // Render markdown til HTML for visning
     let _ = window.emit("loading-status", "Rendrer markdown...");
@@ -813,7 +813,7 @@ pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<Rendered
                 gopher::GopherContentType::Html => {
                     // Konverter HTML til markdown
                     let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
-                    let conversion_result = converter::html_to_markdown(&response.body);
+                    let conversion_result = converter::html_to_markdown(&response.body, Some(&response.final_url));
 
                     let _ = window.emit("loading-status", "Rendrer markdown...");
                     let html = markdown::render(&conversion_result.markdown);
