@@ -76,15 +76,8 @@ Hvert funn er merket med alvorlighetsgrad: 🔴 kritisk · 🟡 viktig · 🟢 f
 
 ### 4.1 Innholdsekstraksjon og konvertering (`converter.rs`)
 
-- 🔴 **Naiv «readability».** `extract_main_content` og `remove_boilerplate` bruker
-  `html_lower.find("<article")` + `rfind("</article>")` for å klippe ut innhold. Dette
-  bryter sammen ved nøstede elementer, flere `<article>`-tagger, eller manglende
-  sluttagger, og «siste forekomst»-heuristikken kan klippe enten for mye eller for lite.
-  Resultatet er **uforutsigbar lesekvalitet** — det stikk motsatte av verdiløftet om
-  «konsistent presentasjon uansett kilde».
-- 🟡 **`fix_broken_links` er et symptom.** En 100+ linjers håndskrevet parser som rydder opp
-  i ødelagt markdown fra `html2md`, signaliserer at `html2md` ikke er godt nok for
-  formålet. Dette er teknisk gjeld som vokser med hver edge-case.
+- ✅ **DOM-basert «readability».** (Løst i v0.1.6) Erstattet naiv streng-`find` med `dom_smoothie` for ekte DOM-skåring og Markdown-konvertering.
+- ✅ **`fix_broken_links` er fjernet.** (Løst i v0.1.6) `dom_smoothie` håndterer komplekse lenker og bilder korrekt, så den manuelle oppryddingen er ikke lenger nødvendig.
 - 🟡 **`decode_html_entities` er en hardkodet miniordbok** (~15 entiteter). Vil bomme på
   numeriske entiteter (`&#8217;`) og mindre vanlige navngitte entiteter.
 - 🟢 **`readability_enabled`-innstillingen er koblet fra.** I `fetch_url` leses verdien inn i
@@ -93,10 +86,7 @@ Hvert funn er merket med alvorlighetsgrad: 🔴 kritisk · 🟡 viktig · 🟢 f
 
 ### 4.2 Markdown-rendering (`markdown.rs`)
 
-- 🔴 **Rå HTML i markdown blir ikke sanert.** `pulldown-cmark` sender rå inline-HTML rett
-  gjennom (`Event::Html`). En ondsinnet `.md`-fil med `<img src=x onerror=...>` eller
-  `<iframe>` havner uendret i den genererte HTML-en. I dag stoppes kjøring kun av CSP
-  (se 4.5) — det finnes ingen forsvar i dybden på *denne* stien (kun på HTML→MD-stien).
+- ✅ **Sanering av rå HTML.** (Løst i v0.1.6) Lagt til `ammonia` i `markdown.rs` som sanerer all HTML-output fra `pulldown-cmark`.
 - 🟡 **Ingen syntaksutheving.** `PLAN.md` lover `syntect`, men kodeblokker rendres flatt.
   For et leseverktøy rettet mot teknisk innhold er dette en merkbar mangel.
 - 🟢 **Ingen overskrifts-ankere.** Overskrifter får ikke `id`, så innholdsfortegnelse,
@@ -205,10 +195,10 @@ produktet i en bedre tilstand.
 
 Mål: gjør lesekvalitet og personvern *vanntette*. Uten dette er resten kosmetikk.
 
-1. **Erstatt naiv ekstraksjon med ekte DOM-skåring.** 🔴
+1. **Erstatt naiv ekstraksjon med ekte DOM-skåring.** ✅ (Løst i v0.1.6)
    - Bytt ut streng-`find` i `converter.rs` med en DOM-basert pipeline:
      `html5ever`/`scraper` for parsing, og en Readability-portering
-     (vurder `dom_smoothie` eller `readability`-craten) for skåring på link-tetthet,
+     (bruker `dom_smoothie` v0.16+) for skåring på link-tetthet,
      tekstmengde og taggvekt.
    - Behold ammonia som saneringssteg, men **kjør det også på den rene markdown-stien**
      (saner output fra `pulldown-cmark`), slik Mozilla anbefaler (DOMPurify-ekvivalent + CSP).
@@ -281,10 +271,10 @@ Sortert etter effekt ÷ innsats. «Effekt» = bidrag til den perfekte opplevelse
 
 | # | Tiltak | Effekt | Innsats | Bølge |
 |---|--------|--------|---------|-------|
-| 1 | DOM-basert innholdsekstraksjon | 🔴 Svært høy | Høy | 1 |
+| 1 | DOM-basert innholdsekstraksjon | ✅ Ferdig | Høy | 1 |
 | 2 | Bildeblokkering + stram CSP | 🔴 Svært høy | Lav | 1 |
 | 3 | Render-cache (LRU) | 🟡 Høy | Lav | 1 |
-| 4 | Saner markdown-stien (ammonia) | 🔴 Høy | Lav | 1 |
+| 4 | Saner markdown-stien (ammonia) | ✅ Ferdig | Lav | 1 |
 | 5 | Koble til `readability_enabled` igjen | 🟢 Middels | Triviell | 1 |
 | 6 | Lenkehint (`f`) | 🟡 Høy | Middels | 2 |
 | 7 | Typografi + sepia/lese-temaer | 🟡 Høy | Lav | 2 |
