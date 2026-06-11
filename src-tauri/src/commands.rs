@@ -11,6 +11,7 @@ use crate::gopher;
 use crate::gophermap;
 use crate::markdown;
 use crate::settings::{self, ConversionMode, FontFamily, Settings, Theme};
+use log::{debug, info, warn};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
@@ -41,6 +42,11 @@ static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| {
     let path = settings::get_settings_path();
     Mutex::new(Settings::load(&path).unwrap_or_default())
 });
+
+/// Global cache for rendrede sider (LRU - Least Recently Used)
+/// Lagrer opptil 50 sider for å øke hastigheten på navigasjon.
+static RENDER_CACHE: LazyLock<Mutex<lru::LruCache<String, RenderedPage>>> =
+    LazyLock::new(|| Mutex::new(lru::LruCache::new(std::num::NonZeroUsize::new(50).unwrap())));
 
 /// Ekstraher vertsnavn fra en URL for visning i statusbar
 fn extract_host(url: &str) -> String {
@@ -157,6 +163,16 @@ pub fn open_file(path: String, window: tauri::Window) -> Result<RenderedPage, St
 /// RenderedPage med HTML og tittel, eller feilmelding
 #[tauri::command]
 pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    // Sjekk cache først
+    {
+        let mut cache = RENDER_CACHE.lock().unwrap();
+        if let Some(cached) = cache.get(&url) {
+            debug!("Cache hit for URL: {}", url);
+            let _ = window.emit("loading-status", "Dokument: Hentet fra cache");
+            return Ok(cached.clone());
+        }
+    }
+
     // Detekter protokoll
     let parsed_url = url::Url::parse(&url).map_err(|e| e.to_string())?;
     let scheme = parsed_url.scheme();
@@ -210,13 +226,24 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
 
         let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-        return Ok(RenderedPage {
+        let page = RenderedPage {
             html,
             title,
-            url: Some(result.final_url),
+            url: Some(result.final_url.clone()),
             is_remote: true,
             was_converted: false,
-        });
+        };
+
+        // Lagre i cache
+        {
+            let mut cache = RENDER_CACHE.lock().unwrap();
+            if result.final_url != url {
+                cache.put(result.final_url.clone(), page.clone());
+            }
+            cache.put(url, page.clone());
+        }
+
+        return Ok(page);
     }
 
     // Ikke-markdown innhold - sjekk konverteringsmodus
@@ -239,8 +266,11 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
         ConversionMode::ConvertAll => {
             // Steg 4: Konverterer HTML
             let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
-            let conversion_result =
-                converter::html_to_markdown(&result.content, Some(&result.final_url));
+            let conversion_result = converter::html_to_markdown(
+                &result.content,
+                Some(&result.final_url),
+                _readability_enabled,
+            );
 
             // Steg 5: Rendrer markdown
             let _ = window.emit("loading-status", "Rendrer markdown...");
@@ -252,13 +282,24 @@ pub async fn fetch_url(url: String, window: tauri::Window) -> Result<RenderedPag
 
             let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-            Ok(RenderedPage {
+            let page = RenderedPage {
                 html,
                 title,
-                url: Some(result.final_url),
+                url: Some(result.final_url.clone()),
                 is_remote: true,
                 was_converted: true,
-            })
+            };
+
+            // Lagre i cache
+            {
+                let mut cache = RENDER_CACHE.lock().unwrap();
+                if result.final_url != url {
+                    cache.put(result.final_url.clone(), page.clone());
+                }
+                cache.put(url, page.clone());
+            }
+
+            Ok(page)
         }
     }
 }
@@ -307,9 +348,18 @@ pub async fn convert_url(url: String, window: tauri::Window) -> Result<RenderedP
         format!("Overfører data... ({} bytes)", bytes),
     );
 
+    // Hent readability-innstilling
+    let settings = SETTINGS.lock().unwrap();
+    let readability_enabled = settings.readability_enabled;
+    drop(settings);
+
     // Konverter HTML til markdown
     let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
-    let conversion_result = converter::html_to_markdown(&result.content, Some(&result.final_url));
+    let conversion_result = converter::html_to_markdown(
+        &result.content,
+        Some(&result.final_url),
+        readability_enabled,
+    );
 
     // Render markdown til HTML for visning
     let _ = window.emit("loading-status", "Rendrer markdown...");
@@ -425,6 +475,7 @@ pub struct SettingsInfo {
     pub show_line_numbers: bool,
     pub conversion_mode: String,
     pub readability_enabled: bool,
+    pub image_mode: String,
     pub onboarding_completed: bool,
     pub language: String,
 }
@@ -453,6 +504,11 @@ impl From<&Settings> for SettingsInfo {
                 ConversionMode::AskEverytime => "ask-everytime".to_string(),
             },
             readability_enabled: s.readability_enabled,
+            image_mode: match s.image_mode {
+                settings::ImageMode::Block => "block".to_string(),
+                settings::ImageMode::Placeholder => "placeholder".to_string(),
+                settings::ImageMode::Show => "show".to_string(),
+            },
             onboarding_completed: s.onboarding_completed,
             language: s.language.clone(),
         }
@@ -477,6 +533,7 @@ pub struct UpdateSettingsParams {
     pub show_line_numbers: Option<bool>,
     pub conversion_mode: Option<String>,
     pub readability_enabled: Option<bool>,
+    pub image_mode: Option<String>,
     pub onboarding_completed: Option<bool>,
     pub language: Option<String>,
 }
@@ -529,6 +586,14 @@ pub fn update_settings(params: UpdateSettingsParams) -> Result<SettingsInfo, Str
 
     if let Some(re) = params.readability_enabled {
         settings.readability_enabled = re;
+    }
+
+    if let Some(im) = params.image_mode {
+        settings.image_mode = match im.as_str() {
+            "placeholder" => settings::ImageMode::Placeholder,
+            "show" => settings::ImageMode::Show,
+            _ => settings::ImageMode::Block,
+        };
     }
 
     if let Some(oc) = params.onboarding_completed {
@@ -593,6 +658,16 @@ pub fn zoom_reset() -> Result<SettingsInfo, String> {
 /// RenderedPage med konvertert gemtext→markdown→HTML, eller feilmelding
 #[tauri::command]
 pub async fn fetch_gemini(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    // Sjekk cache først
+    {
+        let mut cache = RENDER_CACHE.lock().unwrap();
+        if let Some(cached) = cache.get(&url) {
+            debug!("Cache hit for Gemini URL: {}", url);
+            let _ = window.emit("loading-status", "Dokument: Hentet fra cache");
+            return Ok(cached.clone());
+        }
+    }
+
     let host = extract_host(&url);
 
     // Steg 1: Gemini TLS-handshake
@@ -637,13 +712,24 @@ pub async fn fetch_gemini(url: String, window: tauri::Window) -> Result<Rendered
 
                 let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-                Ok(RenderedPage {
+                let page = RenderedPage {
                     html,
                     title,
-                    url: Some(response.final_url),
+                    url: Some(response.final_url.clone()),
                     is_remote: true,
                     was_converted: true,
-                })
+                };
+
+                // Lagre i cache
+                {
+                    let mut cache = RENDER_CACHE.lock().unwrap();
+                    if response.final_url != url {
+                        cache.put(response.final_url.clone(), page.clone());
+                    }
+                    cache.put(url, page.clone());
+                }
+
+                Ok(page)
             } else if response.meta.starts_with("text/") {
                 // Ren tekst — vis som markdown-kodeblokk
                 let _ = window.emit("loading-status", "Rendrer tekst...");
@@ -652,13 +738,24 @@ pub async fn fetch_gemini(url: String, window: tauri::Window) -> Result<Rendered
 
                 let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-                Ok(RenderedPage {
+                let page = RenderedPage {
                     html,
                     title: None,
-                    url: Some(response.final_url),
+                    url: Some(response.final_url.clone()),
                     is_remote: true,
                     was_converted: true,
-                })
+                };
+
+                // Lagre i cache
+                {
+                    let mut cache = RENDER_CACHE.lock().unwrap();
+                    if response.final_url != url {
+                        cache.put(response.final_url.clone(), page.clone());
+                    }
+                    cache.put(url, page.clone());
+                }
+
+                Ok(page)
             } else {
                 // Ikke-tekstinnhold
                 Err(format!(
@@ -750,6 +847,16 @@ pub fn resolve_gemini_url(base_url: String, relative_url: String) -> Result<Stri
 /// RenderedPage med konvertert gophermap→markdown→HTML, eller feilmelding
 #[tauri::command]
 pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<RenderedPage, String> {
+    // Sjekk cache først
+    {
+        let mut cache = RENDER_CACHE.lock().unwrap();
+        if let Some(cached) = cache.get(&url) {
+            debug!("Cache hit for Gopher URL: {}", url);
+            let _ = window.emit("loading-status", "Dokument: Hentet fra cache");
+            return Ok(cached.clone());
+        }
+    }
+
     let host = extract_host(&url);
 
     // Steg 1: Kobler til
@@ -787,13 +894,24 @@ pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<Rendered
 
                     let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-                    Ok(RenderedPage {
+                    let page = RenderedPage {
                         html,
                         title,
-                        url: Some(response.final_url),
+                        url: Some(response.final_url.clone()),
                         is_remote: true,
                         was_converted: true,
-                    })
+                    };
+
+                    // Lagre i cache
+                    {
+                        let mut cache = RENDER_CACHE.lock().unwrap();
+                        if response.final_url != url {
+                            cache.put(response.final_url.clone(), page.clone());
+                        }
+                        cache.put(url, page.clone());
+                    }
+
+                    Ok(page)
                 }
                 gopher::GopherContentType::Text => {
                     // Steg 3: Rendrer tekst som markdown
@@ -803,19 +921,38 @@ pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<Rendered
 
                     let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-                    Ok(RenderedPage {
+                    let page = RenderedPage {
                         html,
                         title,
-                        url: Some(response.final_url),
+                        url: Some(response.final_url.clone()),
                         is_remote: true,
                         was_converted: false,
-                    })
+                    };
+
+                    // Lagre i cache
+                    {
+                        let mut cache = RENDER_CACHE.lock().unwrap();
+                        if response.final_url != url {
+                            cache.put(response.final_url.clone(), page.clone());
+                        }
+                        cache.put(url, page.clone());
+                    }
+
+                    Ok(page)
                 }
                 gopher::GopherContentType::Html => {
                     // Konverter HTML til markdown
                     let _ = window.emit("loading-status", "Konverterer HTML til markdown...");
-                    let conversion_result =
-                        converter::html_to_markdown(&response.body, Some(&response.final_url));
+                    // Hent readability-innstilling
+                    let settings = SETTINGS.lock().unwrap();
+                    let readability_enabled = settings.readability_enabled;
+                    drop(settings);
+
+                    let conversion_result = converter::html_to_markdown(
+                        &response.body,
+                        Some(&response.final_url),
+                        readability_enabled,
+                    );
 
                     let _ = window.emit("loading-status", "Rendrer markdown...");
                     let html = markdown::render(&conversion_result.markdown);
@@ -825,13 +962,24 @@ pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<Rendered
 
                     let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-                    Ok(RenderedPage {
+                    let page = RenderedPage {
                         html,
                         title,
-                        url: Some(response.final_url),
+                        url: Some(response.final_url.clone()),
                         is_remote: true,
                         was_converted: true,
-                    })
+                    };
+
+                    // Lagre i cache
+                    {
+                        let mut cache = RENDER_CACHE.lock().unwrap();
+                        if response.final_url != url {
+                            cache.put(response.final_url.clone(), page.clone());
+                        }
+                        cache.put(url, page.clone());
+                    }
+
+                    Ok(page)
                 }
                 gopher::GopherContentType::Error => {
                     // Vis feilmeny som markdown
@@ -842,13 +990,24 @@ pub async fn fetch_gopher(url: String, window: tauri::Window) -> Result<Rendered
 
                     let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-                    Ok(RenderedPage {
+                    let page = RenderedPage {
                         html,
                         title: Some("Gopher-feil".to_string()),
-                        url: Some(response.final_url),
+                        url: Some(response.final_url.clone()),
                         is_remote: true,
                         was_converted: true,
-                    })
+                    };
+
+                    // Lagre i cache
+                    {
+                        let mut cache = RENDER_CACHE.lock().unwrap();
+                        if response.final_url != url {
+                            cache.put(response.final_url.clone(), page.clone());
+                        }
+                        cache.put(url, page.clone());
+                    }
+
+                    Ok(page)
                 }
                 gopher::GopherContentType::Search => {
                     // Bør ikke skje — search håndteres via SearchInputRequired error
@@ -910,13 +1069,24 @@ pub async fn gopher_search(
 
     let _ = window.emit("loading-status", "Dokument: Ferdig");
 
-    Ok(RenderedPage {
+    let page = RenderedPage {
         html,
         title,
-        url: Some(result.final_url),
+        url: Some(result.final_url.clone()),
         is_remote: true,
         was_converted: true,
-    })
+    };
+
+    // Lagre i cache
+    {
+        let mut cache = RENDER_CACHE.lock().unwrap();
+        if result.final_url != url {
+            cache.put(result.final_url.clone(), page.clone());
+        }
+        cache.put(url, page.clone());
+    }
+
+    Ok(page)
 }
 
 /// Løser en relativ URL mot en Gopher base-URL

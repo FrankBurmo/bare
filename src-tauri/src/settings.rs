@@ -51,6 +51,19 @@ pub enum ConversionMode {
     AskEverytime,
 }
 
+/// Bildevisningsmodus
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageMode {
+    /// Blokker alle eksterne bilder
+    #[default]
+    Block,
+    /// Vis ramme/placeholder for bilder
+    Placeholder,
+    /// Vis alle bilder
+    Show,
+}
+
 /// Brukerinnstillinger
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
@@ -85,6 +98,10 @@ pub struct Settings {
     /// Aktiver readability-modus for å ekstrahere hovedinnhold
     #[serde(default = "default_readability")]
     pub readability_enabled: bool,
+
+    /// Bildevisningsmodus
+    #[serde(default)]
+    pub image_mode: ImageMode,
 
     /// Om brukeren har fullført onboarding
     #[serde(default)]
@@ -126,6 +143,7 @@ impl Default for Settings {
             show_line_numbers: false,
             conversion_mode: ConversionMode::default(),
             readability_enabled: default_readability(),
+            image_mode: ImageMode::default(),
             onboarding_completed: false,
             language: default_language(),
         }

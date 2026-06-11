@@ -42,57 +42,63 @@ pub struct ConversionResult {
 /// # Arguments
 /// * `html` - HTML-innhold som skal konverteres
 /// * `url` - Valgfri URL for å hjelpe Readability med relative lenker
+/// * `readability_enabled` - Om vi skal prøve å ekstrahere hovedinnhold
 ///
 /// # Returns
 /// Konvertert markdown-innhold
-pub fn html_to_markdown(html: &str, url: Option<&str>) -> ConversionResult {
+pub fn html_to_markdown(
+    html: &str,
+    url: Option<&str>,
+    readability_enabled: bool,
+) -> ConversionResult {
     info!("Konverterer HTML til markdown ({} bytes)", html.len());
 
-    // Konfigurer dom_smoothie for markdown-output
-    let cfg = Config {
-        text_mode: TextMode::Markdown,
-        ..Default::default()
-    };
+    if readability_enabled {
+        // Konfigurer dom_smoothie for markdown-output
+        let cfg = Config {
+            text_mode: TextMode::Markdown,
+            ..Default::default()
+        };
 
-    // Prøv Readability-ekstraksjon
-    match Readability::new(html, url, Some(cfg)) {
-        Ok(mut readability) => match readability.parse() {
-            Ok(article) => {
-                debug!(
-                    "Readability ekstraherte {} bytes",
-                    article.text_content.len()
-                );
-                return ConversionResult {
-                    markdown: article.text_content.to_string(),
-                    title: if article.title.is_empty() {
-                        None
-                    } else {
-                        Some(article.title.to_string())
-                    },
-                    used_readability: true,
-                };
-            }
+        // Prøv Readability-ekstraksjon
+        match Readability::new(html, url, Some(cfg)) {
+            Ok(mut readability) => match readability.parse() {
+                Ok(article) => {
+                    debug!(
+                        "Readability ekstraherte {} bytes",
+                        article.text_content.len()
+                    );
+                    return ConversionResult {
+                        markdown: article.text_content.to_string(),
+                        title: if article.title.is_empty() {
+                            None
+                        } else {
+                            Some(article.title.to_string())
+                        },
+                        used_readability: true,
+                    };
+                }
+                Err(e) => {
+                    warn!(
+                        "Readability-parsing feilet: {}. Fallback til enkel konvertering.",
+                        e
+                    );
+                }
+            },
             Err(e) => {
                 warn!(
-                    "Readability-parsing feilet: {}. Fallback til enkel konvertering.",
+                    "Kunne ikke initialisere Readability: {}. Fallback til enkel konvertering.",
                     e
                 );
             }
-        },
-        Err(e) => {
-            warn!(
-                "Kunne ikke initialisere Readability: {}. Fallback til enkel konvertering.",
-                e
-            );
         }
     }
 
-    // Fallback: Bruk den gamle metoden hvis Readability feiler
+    // Fallback: Bruk den gamle metoden hvis Readability feiler eller er deaktivert
     let title = extract_title(html);
     let clean_html = sanitize_html(html);
     let markdown = html2md::parse_html(&clean_html);
-    let fixed_links = fix_broken_links(&markdown);
-    let cleaned_markdown = clean_markdown(&fixed_links);
+    let cleaned_markdown = clean_markdown(&markdown);
 
     ConversionResult {
         markdown: cleaned_markdown,
@@ -316,173 +322,6 @@ fn decode_html_entities(text: &str) -> String {
         .replace("&trade;", "™")
 }
 
-/// Fiks brutte lenker som html2md genererer
-///
-/// html2md konverterer komplekse `<a>`-tagger (med bilder, overskrifter, etc.) til
-/// multi-linje markdown-lenker som ikke er gyldig markdown-syntaks:
-///
-/// ```text
-/// [
-/// ![bilde](url)
-/// ### Tittel
-/// Beskrivelse
-/// ](/lenke)
-/// ```
-///
-/// Denne funksjonen finner og fikser disse brutte lenkene.
-fn fix_broken_links(markdown: &str) -> String {
-    let mut result = String::new();
-    let mut chars = markdown.chars().peekable();
-    let mut in_broken_link = false;
-    let mut link_content = String::new();
-    let mut bracket_depth = 0;
-
-    while let Some(c) = chars.next() {
-        if !in_broken_link {
-            // Sjekk om dette er starten på en brutt lenke
-            // En brutt lenke starter med '[' fulgt av newline
-            if c == '[' {
-                // Sjekk hva som kommer etter
-                let mut lookahead = String::new();
-                let mut temp_chars = chars.clone();
-                while let Some(&next) = temp_chars.peek() {
-                    if next == '\n' || next == '\r' {
-                        lookahead.push(next);
-                        temp_chars.next();
-                        break;
-                    } else if next.is_whitespace() {
-                        lookahead.push(next);
-                        temp_chars.next();
-                    } else {
-                        break;
-                    }
-                }
-
-                // Hvis '[' etterfølges av whitespace og newline, er dette sannsynligvis en brutt lenke
-                if lookahead.contains('\n') || lookahead.contains('\r') {
-                    in_broken_link = true;
-                    link_content.clear();
-                    bracket_depth = 1;
-                    // Hopp over whitespace etter '['
-                    while let Some(&next) = chars.peek() {
-                        if next == '\n' || next == '\r' {
-                            chars.next();
-                            break;
-                        } else if next.is_whitespace() {
-                            chars.next();
-                        } else {
-                            break;
-                        }
-                    }
-                    continue;
-                }
-            }
-            result.push(c);
-        } else {
-            // Vi er inne i en brutt lenke - samle innhold
-            if c == '[' {
-                bracket_depth += 1;
-                link_content.push(c);
-            } else if c == ']' {
-                bracket_depth -= 1;
-                if bracket_depth == 0 {
-                    // Sjekk om neste tegn er '('
-                    if chars.peek() == Some(&'(') {
-                        chars.next(); // Konsumer '('
-                        let mut url = String::new();
-                        let mut paren_depth = 1;
-
-                        for url_char in chars.by_ref() {
-                            if url_char == '(' {
-                                paren_depth += 1;
-                                url.push(url_char);
-                            } else if url_char == ')' {
-                                paren_depth -= 1;
-                                if paren_depth == 0 {
-                                    break;
-                                }
-                                url.push(url_char);
-                            } else {
-                                url.push(url_char);
-                            }
-                        }
-
-                        // Konverter den brutte lenken til fungerende markdown
-                        let fixed = convert_broken_link_to_markdown(&link_content, &url);
-                        result.push_str(&fixed);
-                    } else {
-                        // Ikke en lenke likevel, bare output innholdet
-                        result.push('[');
-                        result.push_str(&link_content);
-                        result.push(']');
-                    }
-                    in_broken_link = false;
-                } else {
-                    link_content.push(c);
-                }
-            } else {
-                link_content.push(c);
-            }
-        }
-    }
-
-    // Hvis vi fortsatt er i en brutt lenke når vi når slutten, output den som tekst
-    if in_broken_link {
-        result.push('[');
-        result.push_str(&link_content);
-    }
-
-    result
-}
-
-/// Konverter innholdet i en brutt lenke til fungerende markdown
-fn convert_broken_link_to_markdown(content: &str, url: &str) -> String {
-    let mut result = String::new();
-    let lines: Vec<&str> = content.lines().collect();
-
-    // Finn bilder, overskrifter og tekst
-    let mut images: Vec<String> = Vec::new();
-    let mut headings: Vec<String> = Vec::new();
-    let mut texts: Vec<String> = Vec::new();
-
-    for line in lines {
-        let trimmed = line.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
-
-        if trimmed.starts_with("![") {
-            // Bilde - ekstraher og legg til
-            images.push(trimmed.to_string());
-        } else if trimmed.starts_with('#') {
-            // Overskrift - ekstraher teksten
-            let heading_text = trimmed.trim_start_matches('#').trim();
-            headings.push(heading_text.to_string());
-        } else {
-            texts.push(trimmed.to_string());
-        }
-    }
-
-    // Bygg resultatet
-    // Først bildene (som lenker)
-    for img in &images {
-        // Gjør bildet til en lenke
-        result.push_str(&format!("[{}]({})\n\n", img, url));
-    }
-
-    // Så overskriftene (som lenker)
-    for heading in &headings {
-        result.push_str(&format!("### [{}]({})\n\n", heading, url));
-    }
-
-    // Så teksten
-    for text in &texts {
-        result.push_str(&format!("{}\n\n", text));
-    }
-
-    result
-}
-
 /// Rydd opp i konvertert markdown
 fn clean_markdown(markdown: &str) -> String {
     let lines: Vec<&str> = markdown.lines().collect();
@@ -529,7 +368,7 @@ mod tests {
     #[test]
     fn test_html_to_markdown_basic() {
         let html = "<h1>Test</h1><p>Dette er en test.</p>";
-        let result = html_to_markdown(html, None);
+        let result = html_to_markdown(html, None, false);
         // dom_smoothie bruker markdown syntaks
         println!("Markdown output: {:?}", result.markdown);
         assert!(result.markdown.contains("# Test"));
@@ -550,7 +389,7 @@ mod tests {
             </body>
             </html>
         "#;
-        let result = html_to_markdown(html, None);
+        let result = html_to_markdown(html, None, true);
         assert!(result.markdown.contains("Hovedinnhold"));
         assert!(result.used_readability);
     }
