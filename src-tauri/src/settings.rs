@@ -230,8 +230,10 @@ mod tests {
 
     #[test]
     fn test_zoom_limits() {
-        let mut settings = Settings::default();
-        settings.zoom = 200;
+        let mut settings = Settings {
+            zoom: 200,
+            ..Default::default()
+        };
         settings.zoom_in();
         assert_eq!(settings.zoom, 200); // Skal ikke gå over 200
 
@@ -245,9 +247,11 @@ mod tests {
         let dir = tempdir().unwrap();
         let path = dir.path().join("settings.json");
 
-        let mut settings = Settings::default();
-        settings.theme = Theme::Dark;
-        settings.zoom = 120;
+        let settings = Settings {
+            theme: Theme::Dark,
+            zoom: 120,
+            ..Default::default()
+        };
 
         settings.save(&path).unwrap();
 
