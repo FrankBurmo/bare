@@ -2,11 +2,15 @@
 //!
 //! Håndterer nettverksforespørsler for å hente markdown-filer fra internett.
 
+use futures_util::StreamExt;
 use log::{debug, info, warn};
 use reqwest::header::{HeaderMap, ACCEPT, CONTENT_TYPE, USER_AGENT};
 use std::time::Duration;
 use thiserror::Error;
 use url::Url;
+
+/// Maksimal størrelse på HTTP-respons (5MB), likt Gemini og Gopher
+const MAX_RESPONSE_SIZE: usize = 5 * 1024 * 1024;
 
 /// Feil som kan oppstå under henting av innhold
 #[derive(Debug, Error)]
@@ -25,6 +29,9 @@ pub enum FetchError {
 
     #[error("Server-feil ({0}): {1}")]
     ServerError(u16, String),
+
+    #[error("Filen er for stor: {0}")]
+    TooLarge(String),
 
     #[error("Timeout: Serveren svarte ikke innen {0} sekunder")]
     Timeout(u64),
@@ -177,7 +184,33 @@ impl Fetcher {
             content_type, is_markdown
         );
 
-        let content = response.text().await.map_err(FetchError::Network)?;
+        // Sjekk Content-Length hvis tilgjengelig
+        if let Some(len) = response.content_length() {
+            if len > MAX_RESPONSE_SIZE as u64 {
+                return Err(FetchError::TooLarge(format!(
+                    "{:.2} MB (maks {} MB)",
+                    len as f64 / (1024.0 * 1024.0),
+                    MAX_RESPONSE_SIZE / (1024 * 1024)
+                )));
+            }
+        }
+
+        // Hent body med størrelsesbegrensning
+        let mut body_bytes = Vec::new();
+        let mut stream = response.bytes_stream();
+
+        while let Some(chunk) = stream.next().await {
+            let chunk = chunk.map_err(FetchError::Network)?;
+            if body_bytes.len() + chunk.len() > MAX_RESPONSE_SIZE {
+                return Err(FetchError::TooLarge(format!(
+                    "Nedlasting avbrutt: Filen overstiger grensen på {} MB",
+                    MAX_RESPONSE_SIZE / (1024 * 1024)
+                )));
+            }
+            body_bytes.extend_from_slice(&chunk);
+        }
+
+        let content = String::from_utf8_lossy(&body_bytes).to_string();
         debug!("Fetched {} bytes", content.len());
 
         Ok(FetchResult {

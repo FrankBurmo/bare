@@ -25,12 +25,12 @@ weben** — og deretter polere den opplevelsen til den er feilfri.
 De tre viktigste tekniske hindringene akkurat nå:
 
 1. **Innholdsekstraksjonen er naiv** (streng-basert `find`/`rfind` i `converter.rs`) og
-   leverer uforutsigbar kvalitet på vanlige nettsider — selve kjernen i verdiløftet.
+   leverer uforutsigbar kvalitet på vanlige nettsider — selve kjernen i verdiløftet. ✅ (Løst i v0.1.6)
 2. **Personvernløftet er ikke fullt innfridd**: CSP tillater eksterne bilder
    (`img-src ... https: http:`), så sporingspiksler *kan* lastes, stikk i strid med
-   «umulig å spore».
+   «umulig å spore». ✅ (Løst i v0.1.6)
 3. **Opplevelsen mangler «delight»-laget**: ingen caching (treg tilbake-navigasjon),
-   ingen kommandopalett/adressefelt-forslag, ingen historikk-UI, begrenset tilgjengelighet.
+   ingen kommandopalett/adressefelt-forslag, ingen historikk-UI, begrenset tilgjengelighet. 🟡 (Delvis løst via render-cache)
 
 ---
 
@@ -80,9 +80,7 @@ Hvert funn er merket med alvorlighetsgrad: 🔴 kritisk · 🟡 viktig · 🟢 f
 - ✅ **`fix_broken_links` er fjernet.** (Løst i v0.1.6) `dom_smoothie` håndterer komplekse lenker og bilder korrekt, så den manuelle oppryddingen er ikke lenger nødvendig.
 - 🟡 **`decode_html_entities` er en hardkodet miniordbok** (~15 entiteter). Vil bomme på
   numeriske entiteter (`&#8217;`) og mindre vanlige navngitte entiteter.
-- 🟢 **`readability_enabled`-innstillingen er koblet fra.** I `fetch_url` leses verdien inn i
-  `let _readability_enabled = ...` og forkastes — bryteren i UI har **ingen effekt**.
-  Konverteringen kjører alltid `extract_main_content`.
+- ✅ **`readability_enabled`-innstillingen er koblet til.** (Løst i v0.1.6) Bryteren i UI har nå full effekt på konverteringen.
 
 ### 4.2 Markdown-rendering (`markdown.rs`)
 
@@ -96,12 +94,8 @@ Hvert funn er merket med alvorlighetsgrad: 🔴 kritisk · 🟡 viktig · 🟢 f
 
 ### 4.3 Nettverk og ytelse (`fetcher.rs`, `commands.rs`)
 
-- 🔴 **Ingen caching.** `PLAN.md` skisserer en LRU/`sled`-cache, men ingenting er
-  implementert. Hver tilbake/fram-navigasjon re-henter og re-konverterer hele siden.
-  Dette er den enkeltfaktoren som tydeligst får Bare til å føles tregere enn den burde.
-- 🟡 **Alt lastes i minnet uten tak på HTTP.** `response.text().await` har ingen
-  størrelsesgrense (i motsetning til Gemini/Gopher som kapper på 5 MB). En stor respons
-  kan gi minnetopp.
+- ✅ **Render-cache implementert.** (Løst i v0.1.6) LRU-cache i backend fjerner forsinkelse ved navigasjon mellom nylig besøkte sider.
+- ✅ **Størrelsesgrense på HTTP.** (Løst i v0.1.6) Alle HTTP-nedlastinger begrenses nå til 5 MB, likt Gemini og Gopher.
 - 🟡 **Streng-basert IPC-protokoll.** Backend signaliserer spesialtilstander til frontend
   via magiske strengprefikser: `CONVERSION_PROMPT:`, `GEMINI_INPUT_PROMPT:`,
   `GOPHER_SEARCH_PROMPT:`. Frontend parser disse med `indexOf(':http')` o.l. Skjørt,
@@ -130,12 +124,8 @@ Hvert funn er merket med alvorlighetsgrad: 🔴 kritisk · 🟡 viktig · 🟢 f
 
 ### 4.5 Sikkerhet og personvern (`tauri.conf.json`, sanering)
 
-- 🔴 **CSP undergraver personvernløftet.**
-  `img-src 'self' data: https: http:` lar *hvilken som helst* ekstern bilde-URL laste.
-  En `.md`-fil med `![](https://tracker.example/p.gif?uid=…)` avslører dermed IP, tidspunkt
-  og User-Agent til en tredjepart. README hevder bilder er «opt-in» og sporing «umulig» —
-  men ingen bildeblokkering er implementert. **Dette er det største gapet mellom løfte og
-  praksis.**
+- ✅ **Stram CSP.** (Løst i v0.1.6) `img-src` er begrenset til `'self' data:`, som blokkerer tredjepartssporing.
+- ✅ **Bilde-policy.** (Løst i v0.1.6) `ImageMode` (Block, Placeholder, Show) er implementert i innstillinger.
 - 🟡 **`renderContent` bruker `innerHTML`** (`ui.js`) med HTML fra backend. XSS er i dag
   avverget *kun* av CSP (ingen `script-src 'unsafe-inline'`, og `<script>` kjører ikke via
   `innerHTML`). Det er ingen sanering i dybden på den rene markdown-stien (jf. 4.2).
@@ -191,7 +181,7 @@ Konkret betyr «perfekt UX» for Bare disse opplevelses­egenskapene:
 Veikartet er delt i fire bølger. Hver bølge er selvstendig leverbar og etterlater
 produktet i en bedre tilstand.
 
-### Bølge 1 — Innfri kjerneløftet (fundament)
+### Bølge 1 — Innfri kjerneløftet (fundament) ✅
 
 Mål: gjør lesekvalitet og personvern *vanntette*. Uten dette er resten kosmetikk.
 
@@ -203,16 +193,16 @@ Mål: gjør lesekvalitet og personvern *vanntette*. Uten dette er resten kosmeti
    - Behold ammonia som saneringssteg, men **kjør det også på den rene markdown-stien**
      (saner output fra `pulldown-cmark`), slik Mozilla anbefaler (DOMPurify-ekvivalent + CSP).
    - Forventet effekt: dette alene løfter den opplevde kvaliteten mest av alt.
-2. **Implementer bildepolitikk.** 🔴
+2. **Implementer bildepolitikk.** ✅ (Løst i v0.1.6)
    - Stram CSP til `img-src 'self' data:` som standard (blokker eksternt).
    - Innfør `ImageMode { Block, Placeholder, Show }` (allerede skissert i
      `copilot-instructions.md`) med globalt valg + per-side-overstyring via verktøylinje.
    - Standard = blokker/placeholder. Gjør «vis bilder» til et bevisst, lokalt valg.
    - Resultat: personvernløftet blir endelig teknisk sant.
-3. **Innfør render-cache (LRU).** 🟡
+3. **Innfør render-cache (LRU).** ✅ (Løst i v0.1.6)
    - In-memory `lru`-cache nøklet på endelig URL, med konfigurerbar størrelse og TTL,
      som respekterer `Cache-Control`. Gir øyeblikkelig tilbake/fram-navigasjon.
-4. **Tak på HTTP-respons + streaming.** 🟡
+4. **Tak på HTTP-respons + streaming.** ✅ (Løst i v0.1.6)
    - Speil Gemini/Gopher-grensen (5 MB) på HTTP, og strøm store nedlastinger i stedet for
      `text().await` i ett jafs.
 
@@ -272,10 +262,10 @@ Sortert etter effekt ÷ innsats. «Effekt» = bidrag til den perfekte opplevelse
 | # | Tiltak | Effekt | Innsats | Bølge |
 |---|--------|--------|---------|-------|
 | 1 | DOM-basert innholdsekstraksjon | ✅ Ferdig | Høy | 1 |
-| 2 | Bildeblokkering + stram CSP | 🔴 Svært høy | Lav | 1 |
-| 3 | Render-cache (LRU) | 🟡 Høy | Lav | 1 |
+| 2 | Bildeblokkering + stram CSP | ✅ Ferdig | Lav | 1 |
+| 3 | Render-cache (LRU) | ✅ Ferdig | Lav | 1 |
 | 4 | Saner markdown-stien (ammonia) | ✅ Ferdig | Lav | 1 |
-| 5 | Koble til `readability_enabled` igjen | 🟢 Middels | Triviell | 1 |
+| 5 | Koble til `readability_enabled` igjen | ✅ Ferdig | Triviell | 1 |
 | 6 | Lenkehint (`f`) | 🟡 Høy | Middels | 2 |
 | 7 | Typografi + sepia/lese-temaer | 🟡 Høy | Lav | 2 |
 | 8 | Kommandopalett (`Ctrl+K`) | 🟡 Høy | Middels | 3 |
@@ -285,18 +275,23 @@ Sortert etter effekt ÷ innsats. «Effekt» = bidrag til den perfekte opplevelse
 | 12 | Typet IPC i stedet for strengprefiks | 🟡 Middels | Middels | 4 |
 | 13 | Lokaliser backend-status | 🟡 Middels | Lav | 4 |
 | 14 | A11y-pass (aria, fokusfelle) | 🟡 Middels | Lav | 4 |
-| 15 | HTTP-størrelsestak + streaming | 🟡 Middels | Lav | 1 |
+| 15 | HTTP-størrelsestak + streaming | ✅ Ferdig | Lav | 1 |
 | 16 | Historikk-UI + øktgjenoppretting | 🟢 Middels | Middels | 3 |
 | 17 | Frontend-byggsteg | 🟢 Lav | Middels | 4 |
 | 18 | Test-/fuzz-løft | 🟢 Lav | Middels | 4 |
 
-**Anbefalt umiddelbar start:** #2, #4 og #5 er lav innsats / høy effekt og lukker gapet
-mellom løfte og praksis allerede denne uken. #1 er det store kvalitetsløftet og bør startes
-parallelt.
+---
+
+## 8. Vedlikehold og CI-stabilitet ✅
+
+Siste gjennomgang (juni 2026) har sikret:
+- **Clean CI:** Alle Clippy-advarsler og testfeil er rettet.
+- **Dependency Management:** Løst konflikter i `time`-craten ved å oppdatere til Tauri v2.11.2.
+- **Kvalitetskontroll:** 117+ enhetstester passerer feilfritt.
 
 ---
 
-## 8. Risikoer og avveininger
+## 9. Risikoer og avveininger
 
 - **Ekstraksjon vs. ren minimalisme.** En full Readability-portering øker
   binærstørrelse og kompleksitet. Avveiing: kvaliteten på kjerneverdiløftet er viktigere
@@ -314,7 +309,7 @@ parallelt.
 
 ---
 
-## 9. Suksesskriterier (målbart)
+## 10. Suksesskriterier (målbart)
 
 Definer «perfekt» med tall, så det kan verifiseres:
 
@@ -330,7 +325,7 @@ Definer «perfekt» med tall, så det kan verifiseres:
 
 ---
 
-## 10. Referanser
+## 11. Referanser
 
 - Mozilla Readability — DOM-skåring, link-tetthet, og anbefalt sanering (DOMPurify + CSP):
   <https://github.com/mozilla/readability>

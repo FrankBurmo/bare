@@ -51,6 +51,19 @@ pub enum ConversionMode {
     AskEverytime,
 }
 
+/// Bildevisningsmodus
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ImageMode {
+    /// Blokker alle eksterne bilder
+    #[default]
+    Block,
+    /// Vis ramme/placeholder for bilder
+    Placeholder,
+    /// Vis alle bilder
+    Show,
+}
+
 /// Brukerinnstillinger
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Settings {
@@ -85,6 +98,10 @@ pub struct Settings {
     /// Aktiver readability-modus for å ekstrahere hovedinnhold
     #[serde(default = "default_readability")]
     pub readability_enabled: bool,
+
+    /// Bildevisningsmodus
+    #[serde(default)]
+    pub image_mode: ImageMode,
 
     /// Om brukeren har fullført onboarding
     #[serde(default)]
@@ -126,6 +143,7 @@ impl Default for Settings {
             show_line_numbers: false,
             conversion_mode: ConversionMode::default(),
             readability_enabled: default_readability(),
+            image_mode: ImageMode::default(),
             onboarding_completed: false,
             language: default_language(),
         }
@@ -212,8 +230,10 @@ mod tests {
 
     #[test]
     fn test_zoom_limits() {
-        let mut settings = Settings::default();
-        settings.zoom = 200;
+        let mut settings = Settings {
+            zoom: 200,
+            ..Default::default()
+        };
         settings.zoom_in();
         assert_eq!(settings.zoom, 200); // Skal ikke gå over 200
 
@@ -227,9 +247,11 @@ mod tests {
         let dir = tempdir().unwrap();
         let path = dir.path().join("settings.json");
 
-        let mut settings = Settings::default();
-        settings.theme = Theme::Dark;
-        settings.zoom = 120;
+        let settings = Settings {
+            theme: Theme::Dark,
+            zoom: 120,
+            ..Default::default()
+        };
 
         settings.save(&path).unwrap();
 
