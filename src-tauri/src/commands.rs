@@ -11,7 +11,7 @@ use crate::gopher;
 use crate::gophermap;
 use crate::markdown;
 use crate::settings::{self, ConversionMode, FontFamily, Settings, Theme};
-use log::{debug, info, warn};
+use log::debug;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
