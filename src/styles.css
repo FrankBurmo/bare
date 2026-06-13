@@ -27,6 +27,7 @@
     --highlight-bg: #ff0;
     --highlight-current: #f60;
     --danger: #c33;
+    --progress-color: #7b99b8;
 
     /* Sizes */
     --toolbar-height: 44px;
@@ -73,6 +74,7 @@
     --highlight-bg: #33ff99;
     --highlight-current: #f33;
     --danger: #ff4444;
+    --progress-color: #2a7a55;
 }
 
 /* Sepia mode — warm paper-like feel */
@@ -101,6 +103,7 @@
     --highlight-bg: #ff0;
     --highlight-current: #f60;
     --danger: #b33;
+    --progress-color: #7b99b8;
 }
 
 /* High Contrast mode — pure black and white */
@@ -129,6 +132,7 @@
     --highlight-bg: #000;
     --highlight-current: #000;
     --danger: #000;
+    --progress-color: #666;
     --border-w: 3px;
     --shadow-offset: 4px;
 }
@@ -1110,7 +1114,7 @@ body {
 .footer-progress-bar {
     height: 100%;
     width: 0%;
-    background: var(--accent-color);
+    background: var(--progress-color);
     transition: width 0.1s linear;
 }
 
@@ -1118,8 +1122,8 @@ body {
 .footer-progress.active .footer-progress-bar {
     background: repeating-linear-gradient(
         -45deg,
-        var(--accent-color),
-        var(--accent-color) 4px,
+        var(--progress-color),
+        var(--progress-color) 4px,
         transparent 4px,
         transparent 8px
     );
@@ -1133,14 +1137,14 @@ body {
 }
 
 [data-theme="dark"] .footer-progress-bar {
-    background: var(--accent-color);
+    background: var(--progress-color);
 }
 
 [data-theme="dark"] .footer-progress.active .footer-progress-bar {
     background: repeating-linear-gradient(
         -45deg,
-        var(--accent-color),
-        var(--accent-color) 4px,
+        var(--progress-color),
+        var(--progress-color) 4px,
         rgba(0,0,0,0.3) 4px,
         rgba(0,0,0,0.3) 8px
     );

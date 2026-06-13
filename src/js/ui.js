@@ -84,7 +84,7 @@ function parseLoadingStep(msg) {
     if (cleanMsg.startsWith('Overfører data')) return 'transfer';
     if (cleanMsg.startsWith('Konverterer')) return 'convert';
     if (cleanMsg.startsWith('Rendrer')) return 'render';
-    if (cleanMsg.startsWith('Dokument: Ferdig')) return 'done';
+    if (cleanMsg.startsWith('Dokument: Ferdig') || cleanMsg.includes('Hentet fra cache')) return 'done';
     if (cleanMsg.startsWith('Feil')) return 'error';
     if (cleanMsg.startsWith('Venter')) return 'waiting';
     if (cleanMsg.startsWith('Stoppet')) return 'stopped';

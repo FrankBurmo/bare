@@ -15,6 +15,7 @@ function initEventListeners() {
     initGeminiInputEvents();
     initCommandPaletteEvents();
     initKeyboardShortcuts();
+    initMouseNavigation();
     initContentEvents();
 }
 
@@ -387,6 +388,23 @@ function initKeyboardShortcuts() {
                 closeAboutDialog();
                 closeGeminiInputDialog();
             }
+        }
+    });
+}
+
+// ===== Mouse Navigation =====
+
+function initMouseNavigation() {
+    document.addEventListener('mousedown', (e) => {
+        // Musknapp 4 (XBUTTON1): Tilbake
+        if (e.button === 3) {
+            e.preventDefault();
+            goBack();
+        }
+        // Musknapp 5 (XBUTTON2): Fremover
+        if (e.button === 4) {
+            e.preventDefault();
+            goForward();
         }
     });
 }
