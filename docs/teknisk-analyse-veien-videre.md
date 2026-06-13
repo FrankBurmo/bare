@@ -30,7 +30,7 @@ De tre viktigste tekniske hindringene akkurat nå:
    (`img-src ... https: http:`), så sporingspiksler *kan* lastes, stikk i strid med
    «umulig å spore». ✅ (Løst i v0.1.6)
 3. **Opplevelsen mangler «delight»-laget**: ingen caching (treg tilbake-navigasjon),
-    ingen adressefelt-forslag, ingen historikk-UI, begrenset tilgjengelighet. 🟡 (Delvis løst via render-cache + kommandopalett)
+     ingen adressefelt-forslag, ingen historikk-UI, begrenset tilgjengelighet. ✅ (Løst via render-cache + kommandopalett + smart adressefelt)
 
 ---
 
@@ -226,8 +226,10 @@ Mål: fjern all friksjon i å komme dit du vil.
 9. **Kommandopalett (`Ctrl+K`).** ✅ (Løst i v0.1.7) Fuzzy-søk på tvers av bokmerker, historikk og
    handlinger. Erstatter behovet for mange separate menyer. `Ctrl+K` åpner paletten med 14
    innbygde handlinger + søk i bokmerker og historikk. Tastaturnavigasjon med `↑↓EnterEscape`.
-10. **Smart adressefelt.** 🟡 Forslag fra historikk + bokmerker mens du skriver;
-    søkemotor-fallback for ikke-URL-input.
+10. **Smart adressefelt.** ✅ (Løst i v0.1.7) Forslag fra historikk + bokmerker mens du skriver
+    med fuzzy-matching og debounce (150ms). Søkemotor-fallback for ikke-URL-input med valgbar
+    søkemotor (DuckDuckGo, Google, Bing, Startpage). Tastaturnavigasjon (↑↓EnterEscape),
+    automatisk URL-gjenkjenning, og innstillingspanel for søkemotor-valg.
 11. **Historikk-UI + øktgjenoppretting.** 🟢 Vedvarende historikk (i dag kun 50 i minnet),
     en søkbar historikkvisning, og «gjenopprett forrige økt» ved oppstart.
 12. **Lese-liste / lagre-for-senere.** 🟢 Lokalt arkiv av sider (markdown på disk) —
@@ -270,7 +272,7 @@ Sortert etter effekt ÷ innsats. «Effekt» = bidrag til den perfekte opplevelse
 | 6 | Lenkehint (`f`) | ✅ Ferdig | Middels | 2 |
 | 7 | Typografi + sepia/lese-temaer | ✅ Ferdig | Lav | 2 |
 | 8 | Kommandopalett (`Ctrl+K`) | ✅ Ferdig | Middels | 3 |
-| 9 | Smart adressefelt med forslag | 🟡 Høy | Middels | 3 |
+| 9 | Smart adressefelt med forslag | ✅ Ferdig | Middels | 3 |
 | 10 | Auto-TOC + lesefremdrift | ✅ Ferdig | Middels | 2 |
 | 11 | Syntaksutheving (`syntect`) | ✅ Ferdig | Lav | 2 |
 | 12 | Typet IPC i stedet for strengprefiks | 🟡 Middels | Middels | 4 |

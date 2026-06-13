@@ -20,6 +20,11 @@ const state = {
     // Søk
     searchMatches: [],
     currentMatchIndex: -1,
+    
+    // Adressforslag
+    suggestions: [],
+    selectedSuggestionIndex: -1,
+    suggestionsVisible: false,
 };
 
 // ===== Getters =====

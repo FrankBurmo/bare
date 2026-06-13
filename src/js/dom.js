@@ -8,6 +8,7 @@
 const elements = {
     // Toolbar
     urlBar: document.getElementById('url-bar'),
+    urlSuggestions: document.getElementById('url-suggestions'),
     btnBack: document.getElementById('btn-back'),
     btnForward: document.getElementById('btn-forward'),
     btnHome: document.getElementById('btn-home'),
@@ -75,6 +76,7 @@ const elements = {
     settingConversionMode: document.getElementById('setting-conversion-mode'),
     settingReadability: document.getElementById('setting-readability'),
     settingLanguage: document.getElementById('setting-language'),
+    settingSearchEngine: document.getElementById('setting-search-engine'),
     
     // Gemini input-dialog
     geminiInputOverlay: document.getElementById('gemini-input-overlay'),

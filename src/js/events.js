@@ -44,6 +44,36 @@ function initToolbarEvents() {
         }
     });
     
+    // Smart adressefelt - input med debounce for forslag
+    elements.urlBar.addEventListener('input', handleUrlBarInput);
+    
+    // Smart adressefelt - tastaturnavigasjon i forslagsliste
+    elements.urlBar.addEventListener('keydown', (e) => {
+        if (handleSuggestionsKeydown(e)) {
+            return;
+        }
+        // Enter skal også lukke forslag
+        if (e.key === 'Enter' && state.suggestionsVisible) {
+            hideSuggestions();
+        }
+    });
+    
+    // Skjul forslag når URL-bar mister fokus
+    elements.urlBar.addEventListener('blur', () => {
+        // Forsinkelse slik at klikk på forslag rekker å registreres
+        setTimeout(() => {
+            hideSuggestions();
+        }, 200);
+    });
+    
+    // Vis forslag ved fokus hvis det er tekst i feltet
+    elements.urlBar.addEventListener('focus', () => {
+        const query = elements.urlBar.value.trim();
+        if (query.length > 0) {
+            updateSuggestions(query);
+        }
+    });
+    
     // Navigation buttons
     elements.btnBack.addEventListener('click', goBack);
     elements.btnForward.addEventListener('click', goForward);
@@ -151,6 +181,13 @@ function initSettingsEvents() {
             const langValue = e.target.value;
             setLanguage(langValue);
             updateSetting('language', langValue);
+        });
+    }
+    
+    // Søkemotor for smart adressefelt
+    if (elements.settingSearchEngine) {
+        elements.settingSearchEngine.addEventListener('change', (e) => {
+            updateSetting('search_engine', e.target.value);
         });
     }
 }
@@ -340,6 +377,8 @@ function initKeyboardShortcuts() {
             if (isCommandPaletteOpen()) {
                 e.preventDefault();
                 closeCommandPalette();
+            } else if (state.suggestionsVisible) {
+                hideSuggestions();
             } else {
                 elements.urlBar.blur();
                 closeAllPanels();

@@ -5,6 +5,7 @@
  */
 
 const { invoke: invokeNav } = window.__TAURI__.core;
+const { invoke: invokeSuggestions } = window.__TAURI__.core;
 const { open } = window.__TAURI__.dialog;
 
 // ===== PDF Helpers =====
@@ -525,6 +526,9 @@ async function openFileDialog() {
 
 // ===== URL Bar Handling =====
 
+/** Debounce-timer for adressforslag */
+let suggestionDebounceTimer = null;
+
 /**
  * Håndterer submit fra URL-bar
  */
@@ -533,6 +537,18 @@ async function handleUrlSubmit() {
     
     if (!input) {
         await goHome();
+        return;
+    }
+    
+    // Sjekk om brukeren har valgt et forslag
+    if (state.selectedSuggestionIndex >= 0 && state.suggestions[state.selectedSuggestionIndex]) {
+        const suggestion = state.suggestions[state.selectedSuggestionIndex];
+        hideSuggestions();
+        if (suggestion.url) {
+            await loadPath(suggestion.url);
+        } else if (suggestion.searchUrl) {
+            await loadUrl(suggestion.searchUrl);
+        }
         return;
     }
     
@@ -564,13 +580,283 @@ async function handleUrlSubmit() {
     } else if (input.startsWith('file://')) {
         const path = input.replace('file://', '');
         await loadPath(path);
-    } else {
-        // Anta HTTPS for alt annet
+    } else if (looksLikeUrl(input)) {
+        // Ser ut som en URL - legg til https://
         const urlWithScheme = 'https://' + input;
         if (isPdfUrl(urlWithScheme)) {
             await openExternally(urlWithScheme);
             return;
         }
         await loadUrl(urlWithScheme);
+    } else {
+        // Ikke en URL - bruk søkemotor
+        await searchWithEngine(input);
     }
+}
+
+/**
+ * Sjekker om en streng ser ut som en URL
+ * @param {string} input - Tastaturinput å sjekke
+ * @returns {boolean} True hvis det ser ut som en URL
+ */
+function looksLikeUrl(input) {
+    // Inneholder mellomrom = søkestreng
+    if (input.includes(' ')) return false;
+    // Inneholder protokoll
+    if (/^[a-zA-Z]+:\/\//.test(input)) return true;
+    // Inneholder domene med punktum (f.eks. example.com, example.co.uk)
+    if (/^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+/.test(input)) return true;
+    // Lokal filsti
+    if (input.startsWith('/') || /^[a-zA-Z]:\\/.test(input)) return true;
+    return false;
+}
+
+/**
+ * Søker med den valgte søkemotoren
+ * @param {string} query - Søkestreng
+ */
+async function searchWithEngine(query) {
+    const settings = getSettings();
+    const engineKey = (settings && settings.search_engine) || 'duckduckgo';
+    const engine = SEARCH_ENGINES[engineKey] || SEARCH_ENGINES.duckduckgo;
+    const searchUrl = engine.url + encodeURIComponent(query);
+    await loadUrl(searchUrl);
+}
+
+/**
+ * Oppdaterer adressforslag basert på input
+ * @param {string} query - Søkestreng fra bruker
+ */
+async function updateSuggestions(query) {
+    if (!query || query.length === 0) {
+        hideSuggestions();
+        return;
+    }
+    
+    const results = [];
+    const q = query.toLowerCase();
+    
+    // Søk i historikk
+    const history = state.history || [];
+    for (const entry of history) {
+        const { match, score, indices } = fuzzyMatch(query, entry);
+        if (match) {
+            results.push({
+                type: 'history',
+                icon: '\u231A',
+                label: entry,
+                url: entry,
+                score: score + 50, // Historikk får prioritet
+                indices,
+            });
+        }
+    }
+    
+    // Søk i bokmerker
+    try {
+        const bookmarks = await invokeSuggestions('get_bookmarks');
+        for (const bm of bookmarks) {
+            const search = bm.title + ' ' + bm.url;
+            const { match, score, indices } = fuzzyMatch(query, search);
+            if (match) {
+                // Unngå duplikater fra historikk
+                const isDuplicate = results.some(r => r.url === bm.url);
+                if (!isDuplicate) {
+                    results.push({
+                        type: 'bookmark',
+                        icon: '\u2605',
+                        label: bm.title,
+                        detail: bm.url,
+                        url: bm.url,
+                        score: score + 100, // Bokmerker får høyest prioritet
+                        indices,
+                    });
+                }
+            }
+        }
+    } catch (_) {}
+    
+    // Sorter etter score (høyest først)
+    results.sort((a, b) => b.score - a.score);
+    
+    // Begrens antall resultater
+    const limitedResults = results.slice(0, MAX_SUGGESTIONS);
+    
+    // Legg til søkemotor-forslag hvis input ikke er en URL
+    let searchSuggestion = null;
+    if (!looksLikeUrl(query) && !query.startsWith('/') && !/^[a-zA-Z]:\\/.test(query)) {
+        const settings = getSettings();
+        const engineKey = (settings && settings.search_engine) || 'duckduckgo';
+        const engine = SEARCH_ENGINES[engineKey] || SEARCH_ENGINES.duckduckgo;
+        searchSuggestion = {
+            type: 'search',
+            icon: '\u{1F50D}',
+            label: `Søk med ${engine.name}`,
+            searchUrl: engine.url + encodeURIComponent(query),
+        };
+    }
+    
+    state.suggestions = limitedResults;
+    state.selectedSuggestionIndex = -1;
+    
+    renderSuggestions(limitedResults, searchSuggestion, query);
+}
+
+/**
+ * Rendrer adressforslag i dropdown
+ * @param {Array} results - Forslagsresultater
+ * @param {Object|null} searchSuggestion - Søkemotor-forslag
+ * @param {string} query - Opprinnelig søkestreng
+ */
+function renderSuggestions(results, searchSuggestion, query) {
+    if (results.length === 0 && !searchSuggestion) {
+        hideSuggestions();
+        return;
+    }
+    
+    let html = '';
+    
+    for (let i = 0; i < results.length; i++) {
+        const item = results[i];
+        const selected = i === state.selectedSuggestionIndex ? ' url-suggestion-item-selected' : '';
+        const detail = item.detail ? `<span class="url-suggestion-detail">${escapeHtml(item.detail)}</span>` : '';
+        const label = highlightMatches(item.label, item.indices);
+        html += `<div class="url-suggestion-item${selected}" data-index="${i}" tabindex="-1">
+            <span class="url-suggestion-icon">${item.icon}</span>
+            <span class="url-suggestion-label">${label}</span>
+            ${detail}
+        </div>`;
+    }
+    
+    if (searchSuggestion) {
+        const searchSelected = state.selectedSuggestionIndex === results.length ? ' url-suggestion-search-selected' : '';
+        html += `<div class="url-suggestion-search${searchSelected}" data-index="${results.length}" tabindex="-1">
+            <span class="url-suggestion-search-icon">${searchSuggestion.icon}</span>
+            <span class="url-suggestion-label">${escapeHtml(searchSuggestion.label)}</span>
+        </div>`;
+    }
+    
+    elements.urlSuggestions.innerHTML = html;
+    elements.urlSuggestions.classList.remove('hidden');
+    state.suggestionsVisible = true;
+    
+    // Legg til klikk-handlere
+    const items = elements.urlSuggestions.querySelectorAll('.url-suggestion-item, .url-suggestion-search');
+    items.forEach((el) => {
+        el.addEventListener('click', () => {
+            const idx = parseInt(el.dataset.index);
+            selectSuggestion(idx);
+        });
+    });
+}
+
+/**
+ * Skjuler adressforslag-dropdown
+ */
+function hideSuggestions() {
+    elements.urlSuggestions.classList.add('hidden');
+    elements.urlSuggestions.innerHTML = '';
+    state.suggestions = [];
+    state.selectedSuggestionIndex = -1;
+    state.suggestionsVisible = false;
+}
+
+/**
+ * Velger et forslag
+ * @param {number} index - Indeks i forslagslisten
+ */
+function selectSuggestion(index) {
+    const allItems = [...state.suggestions];
+    
+    // Sjekk om det er søkemotor-forslag
+    const searchItem = allItems.length <= index ? {
+        type: 'search',
+        searchUrl: elements.urlSuggestions.querySelector('.url-suggestion-search')?.dataset?.searchUrl,
+    } : null;
+    
+    if (searchItem && searchItem.searchUrl) {
+        hideSuggestions();
+        loadUrl(searchItem.searchUrl);
+        return;
+    }
+    
+    if (index >= 0 && index < state.suggestions.length) {
+        const suggestion = state.suggestions[index];
+        hideSuggestions();
+        if (suggestion.url) {
+            loadPath(suggestion.url);
+        }
+    }
+}
+
+/**
+ * Håndterer tastatur navigasjon i adressforslag
+ * @param {KeyboardEvent} e - Tastaturhendelse
+ * @returns {boolean} True hvis hendelsen ble håndtert
+ */
+function handleSuggestionsKeydown(e) {
+    if (!state.suggestionsVisible) return false;
+    
+    const totalItems = state.suggestions.length + 
+        (elements.urlSuggestions.querySelector('.url-suggestion-search') ? 1 : 0);
+    
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        state.selectedSuggestionIndex = Math.min(
+            state.selectedSuggestionIndex + 1,
+            totalItems - 1
+        );
+        updateSuggestionSelection();
+        return true;
+    }
+    
+    if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        state.selectedSuggestionIndex = Math.max(
+            state.selectedSuggestionIndex - 1,
+            -1
+        );
+        updateSuggestionSelection();
+        return true;
+    }
+    
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        hideSuggestions();
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Oppdaterer visuelt valg av forslag
+ */
+function updateSuggestionSelection() {
+    const items = elements.urlSuggestions.querySelectorAll('.url-suggestion-item, .url-suggestion-search');
+    items.forEach((el, i) => {
+        el.classList.toggle('url-suggestion-item-selected', i === state.selectedSuggestionIndex);
+        el.classList.toggle('url-suggestion-search-selected', i === state.selectedSuggestionIndex);
+    });
+    
+    // Rull til valgt element
+    const selected = elements.urlSuggestions.querySelector('.url-suggestion-item-selected, .url-suggestion-search-selected');
+    if (selected) {
+        selected.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+/**
+ * Håndterer input-endringer i URL-bar med debounce
+ */
+function handleUrlBarInput() {
+    const query = elements.urlBar.value;
+    
+    if (suggestionDebounceTimer) {
+        clearTimeout(suggestionDebounceTimer);
+    }
+    
+    suggestionDebounceTimer = setTimeout(() => {
+        updateSuggestions(query);
+    }, SUGGESTION_DEBOUNCE_MS);
 }

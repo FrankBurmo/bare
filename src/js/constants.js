@@ -53,6 +53,20 @@ const GOPHER_SEARCH_PROMPT_PREFIX = 'GOPHER_SEARCH_PROMPT:';
 // Status bar timeout (ms)
 const STATUS_TIMEOUT = 3000;
 
+// Søkemotorer for smart adressefelt
+const SEARCH_ENGINES = {
+    duckduckgo: { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+    google: { name: 'Google', url: 'https://www.google.com/search?q=' },
+    bing: { name: 'Bing', url: 'https://www.bing.com/search?q=' },
+    startpage: { name: 'Startpage', url: 'https://www.startpage.com/sp/search?query=' },
+};
+
+// Maks antall adressforslag
+const MAX_SUGGESTIONS = 8;
+
+// Debounce-delay for adressforslag (ms)
+const SUGGESTION_DEBOUNCE_MS = 150;
+
 // Tema-alternativer
 const THEMES = ['light', 'dark', 'system'];
 
@@ -67,4 +81,5 @@ const DEFAULT_SETTINGS = {
     readability_enabled: true,
     onboarding_completed: false,
     language: 'system',
+    search_engine: 'duckduckgo',
 };

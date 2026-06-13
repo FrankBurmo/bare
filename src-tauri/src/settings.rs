@@ -110,6 +110,10 @@ pub struct Settings {
     /// Språkpreferanse (ISO 639-1 kode, f.eks. "nb", "en", "system")
     #[serde(default = "default_language")]
     pub language: String,
+
+    /// Søkemotor for smart adressefelt (f.eks. "duckduckgo", "google", "bing")
+    #[serde(default = "default_search_engine")]
+    pub search_engine: String,
 }
 
 fn default_font_size() -> u32 {
@@ -132,6 +136,10 @@ fn default_language() -> String {
     "system".to_string()
 }
 
+fn default_search_engine() -> String {
+    "duckduckgo".to_string()
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -146,6 +154,7 @@ impl Default for Settings {
             image_mode: ImageMode::default(),
             onboarding_completed: false,
             language: default_language(),
+            search_engine: default_search_engine(),
         }
     }
 }

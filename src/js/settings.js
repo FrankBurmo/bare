@@ -90,6 +90,9 @@ function updateSettingsPanel(settings) {
     if (elements.settingLanguage) {
         elements.settingLanguage.value = getSavedLanguagePreference();
     }
+    if (elements.settingSearchEngine) {
+        elements.settingSearchEngine.value = settings.search_engine || 'duckduckgo';
+    }
 }
 
 /**

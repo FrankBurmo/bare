@@ -39,6 +39,7 @@
                         autocomplete="off"
                     >
                 </div>
+                <div id="url-suggestions" class="url-suggestions hidden"></div>
             </div>
             
             <div class="toolbar-section toolbar-right">
@@ -212,6 +213,18 @@
                         <input type="checkbox" id="setting-readability" checked>
                         <span data-i18n="settings.readability">Readability-modus (ekstraher hovedinnhold)</span>
                     </label>
+                </div>
+                
+                <!-- Smart adressefelt innstillinger -->
+                <h4 class="setting-section-title" data-i18n="settings.smartAddressBar">Smart adressefelt</h4>
+                <div class="setting-group">
+                    <label for="setting-search-engine" data-i18n="settings.searchEngine">Søkemotor</label>
+                    <select id="setting-search-engine" class="setting-select">
+                        <option value="duckduckgo" data-i18n="settings.searchEngineDuckDuckGo">DuckDuckGo</option>
+                        <option value="google" data-i18n="settings.searchEngineGoogle">Google</option>
+                        <option value="bing" data-i18n="settings.searchEngineBing">Bing</option>
+                        <option value="startpage" data-i18n="settings.searchEngineStartpage">Startpage</option>
+                    </select>
                 </div>
             </div>
         </div>

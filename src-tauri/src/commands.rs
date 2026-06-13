@@ -478,6 +478,7 @@ pub struct SettingsInfo {
     pub image_mode: String,
     pub onboarding_completed: bool,
     pub language: String,
+    pub search_engine: String,
 }
 
 impl From<&Settings> for SettingsInfo {
@@ -511,6 +512,7 @@ impl From<&Settings> for SettingsInfo {
             },
             onboarding_completed: s.onboarding_completed,
             language: s.language.clone(),
+            search_engine: s.search_engine.clone(),
         }
     }
 }
@@ -536,6 +538,7 @@ pub struct UpdateSettingsParams {
     pub image_mode: Option<String>,
     pub onboarding_completed: Option<bool>,
     pub language: Option<String>,
+    pub search_engine: Option<String>,
 }
 
 /// Oppdater innstillinger
@@ -602,6 +605,10 @@ pub fn update_settings(params: UpdateSettingsParams) -> Result<SettingsInfo, Str
 
     if let Some(lang) = params.language {
         settings.language = lang;
+    }
+
+    if let Some(se) = params.search_engine {
+        settings.search_engine = se;
     }
 
     // Lagre til fil

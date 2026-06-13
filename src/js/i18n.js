@@ -89,6 +89,14 @@ const TRANSLATIONS = {
         'settings.askEverytime': 'Spør hver gang',
         'settings.readability': 'Readability-modus (ekstraher hovedinnhold)',
         
+        // Smart adressefelt
+        'settings.smartAddressBar': 'Smart adressefelt',
+        'settings.searchEngine': 'Søkemotor',
+        'settings.searchEngineDuckDuckGo': 'DuckDuckGo',
+        'settings.searchEngineGoogle': 'Google',
+        'settings.searchEngineBing': 'Bing',
+        'settings.searchEngineStartpage': 'Startpage',
+        
         // Om-dialog
         'about.title': 'Om Bare',
         'about.description': 'En eksperimentell markdown-nettleser med fokus på personvern, hastighet og rent innhold.',
@@ -727,6 +735,15 @@ const TRANSLATIONS = {
         'settings.markdownOnly': 'Markdown only',
         'settings.askEverytime': 'Ask every time',
         'settings.readability': 'Readability mode (extract main content)',
+        
+        // Smart address bar
+        'settings.smartAddressBar': 'Smart address bar',
+        'settings.searchEngine': 'Search engine',
+        'settings.searchEngineDuckDuckGo': 'DuckDuckGo',
+        'settings.searchEngineGoogle': 'Google',
+        'settings.searchEngineBing': 'Bing',
+        'settings.searchEngineStartpage': 'Startpage',
+        
         'about.title': 'About Bare',
         'about.description': 'An experimental markdown browser focused on privacy, speed and clean content.',
         'about.feature1': '> Clean markdown rendering',
