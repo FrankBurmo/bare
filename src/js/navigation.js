@@ -287,6 +287,12 @@ async function resolveAndNavigate(href) {
         return;
     }
     
+    // Mailto-lenker - åpne i ekstern epostklient
+    if (href.startsWith('mailto:')) {
+        await openExternally(href);
+        return;
+    }
+    
     // File URLs
     if (href.startsWith('file://')) {
         const path = href.replace('file://', '');
@@ -322,6 +328,8 @@ async function resolveAndNavigate(href) {
             if (resolvedUrl.startsWith('file://')) {
                 const path = resolvedUrl.replace('file://', '');
                 await loadPath(path);
+            } else if (resolvedUrl.startsWith('mailto:')) {
+                await openExternally(resolvedUrl);
             } else if (resolvedUrl.startsWith(GEMINI_SCHEME)) {
                 await loadGeminiUrl(resolvedUrl);
             } else if (resolvedUrl.startsWith(GOPHER_SCHEME)) {
@@ -571,6 +579,12 @@ async function handleUrlSubmit() {
     // Gopher-URLer
     if (input.startsWith(GOPHER_SCHEME)) {
         await loadGopherUrl(input);
+        return;
+    }
+    
+    // Mailto-lenker
+    if (input.startsWith('mailto:')) {
+        await openExternally(input);
         return;
     }
     
