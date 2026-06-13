@@ -53,7 +53,7 @@ function initToolbarEvents() {
         if (handleSuggestionsKeydown(e)) {
             return;
         }
-        // Enter skal også lukke forslag
+        // Enter skal lukke forslag
         if (e.key === 'Enter' && state.suggestionsVisible) {
             hideSuggestions();
         }

@@ -534,6 +534,7 @@ let suggestionDebounceTimer = null;
  */
 async function handleUrlSubmit() {
     const input = elements.urlBar.value.trim();
+    hideSuggestions();
     
     if (!input) {
         await goHome();
@@ -543,7 +544,6 @@ async function handleUrlSubmit() {
     // Sjekk om brukeren har valgt et forslag
     if (state.selectedSuggestionIndex >= 0 && state.suggestions[state.selectedSuggestionIndex]) {
         const suggestion = state.suggestions[state.selectedSuggestionIndex];
-        hideSuggestions();
         if (suggestion.url) {
             await loadPath(suggestion.url);
         } else if (suggestion.searchUrl) {

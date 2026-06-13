@@ -183,6 +183,7 @@ body {
     align-items: center;
     padding: 0 var(--space-sm);
     position: relative;
+    width: 100%;
 }
 
 /* Brutalist flat button with hard offset shadow */
@@ -265,11 +266,11 @@ body {
     display: flex;
     align-items: center;
     flex: 1;
+    width: 100%;
     position: relative;
 }
 
 .url-bar-wrapper .url-bar {
-    max-width: none;
     padding-left: 28px;
 }
 
@@ -645,7 +646,6 @@ body {
 @media (max-width: 768px) {
     :root { --content-max-width: 100%; }
     .toolbar { padding: 0 var(--space-xs); }
-    .url-bar { max-width: none; }
     .content { padding: var(--space-md); }
     .markdown-body h1 { font-size: 1.6rem; }
     .markdown-body h2 { font-size: 1.3rem; }
