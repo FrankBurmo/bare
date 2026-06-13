@@ -265,7 +265,6 @@ body {
     display: flex;
     align-items: center;
     flex: 1;
-    max-width: 640px;
     position: relative;
 }
 
@@ -285,7 +284,6 @@ body {
 
 .url-bar {
     width: 100%;
-    max-width: 640px;
     height: 30px;
     padding: 4px var(--space-sm);
     border: var(--border-w) solid var(--border-color);
@@ -317,7 +315,6 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 668px;
     background: var(--bg-primary);
     border: var(--border-w) solid var(--border-color);
     border-top: none;
