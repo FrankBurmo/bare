@@ -83,6 +83,11 @@ const elements = {
     btnGeminiInputSend: document.getElementById('btn-gemini-input-send'),
     btnGeminiInputCancel: document.getElementById('btn-gemini-input-cancel'),
     btnCloseGeminiInput: document.getElementById('btn-close-gemini-input'),
+
+    // Command Palette
+    commandPaletteOverlay: document.getElementById('command-palette-overlay'),
+    commandPaletteInput: document.getElementById('command-palette-input'),
+    commandPaletteResults: document.getElementById('command-palette-results'),
 };
 
 // ===== Utility Functions =====

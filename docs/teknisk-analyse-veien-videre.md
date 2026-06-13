@@ -30,7 +30,7 @@ De tre viktigste tekniske hindringene akkurat nå:
    (`img-src ... https: http:`), så sporingspiksler *kan* lastes, stikk i strid med
    «umulig å spore». ✅ (Løst i v0.1.6)
 3. **Opplevelsen mangler «delight»-laget**: ingen caching (treg tilbake-navigasjon),
-   ingen kommandopalett/adressefelt-forslag, ingen historikk-UI, begrenset tilgjengelighet. 🟡 (Delvis løst via render-cache)
+    ingen adressefelt-forslag, ingen historikk-UI, begrenset tilgjengelighet. 🟡 (Delvis løst via render-cache + kommandopalett)
 
 ---
 
@@ -223,8 +223,9 @@ Mål: gjør selve lesingen åpenbart bedre enn i en vanlig nettleser.
 
 Mål: fjern all friksjon i å komme dit du vil.
 
-9. **Kommandopalett (`Ctrl+K`).** 🟡 Fuzzy-søk på tvers av bokmerker, historikk og
-   handlinger. Erstatter behovet for mange separate menyer.
+9. **Kommandopalett (`Ctrl+K`).** ✅ (Løst i v0.1.7) Fuzzy-søk på tvers av bokmerker, historikk og
+   handlinger. Erstatter behovet for mange separate menyer. `Ctrl+K` åpner paletten med 14
+   innbygde handlinger + søk i bokmerker og historikk. Tastaturnavigasjon med `↑↓EnterEscape`.
 10. **Smart adressefelt.** 🟡 Forslag fra historikk + bokmerker mens du skriver;
     søkemotor-fallback for ikke-URL-input.
 11. **Historikk-UI + øktgjenoppretting.** 🟢 Vedvarende historikk (i dag kun 50 i minnet),
@@ -268,7 +269,7 @@ Sortert etter effekt ÷ innsats. «Effekt» = bidrag til den perfekte opplevelse
 | 5 | Koble til `readability_enabled` igjen | ✅ Ferdig | Triviell | 1 |
 | 6 | Lenkehint (`f`) | ✅ Ferdig | Middels | 2 |
 | 7 | Typografi + sepia/lese-temaer | ✅ Ferdig | Lav | 2 |
-| 8 | Kommandopalett (`Ctrl+K`) | 🟡 Høy | Middels | 3 |
+| 8 | Kommandopalett (`Ctrl+K`) | ✅ Ferdig | Middels | 3 |
 | 9 | Smart adressefelt med forslag | 🟡 Høy | Middels | 3 |
 | 10 | Auto-TOC + lesefremdrift | ✅ Ferdig | Middels | 2 |
 | 11 | Syntaksutheving (`syntect`) | ✅ Ferdig | Lav | 2 |

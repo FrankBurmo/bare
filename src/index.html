@@ -105,6 +105,28 @@
         <div id="status-bar" class="status-bar hidden">
             <span id="status-message"></span>
         </div>
+
+        <!-- Command Palette -->
+        <div id="command-palette-overlay" class="modal-overlay hidden">
+            <div class="modal-dialog command-palette-dialog">
+                <div class="command-palette-header">
+                    <label for="command-palette-input" class="command-palette-label" data-i18n="commandPalette.label">Kommando</label>
+                    <kbd class="command-palette-shortcut">Ctrl+K</kbd>
+                </div>
+                <input 
+                    type="text" 
+                    id="command-palette-input" 
+                    class="command-palette-input" 
+                    placeholder="Søk kommandoer, bokmerker, historikk..."
+                    data-i18n-placeholder="commandPalette.placeholder"
+                    spellcheck="false"
+                    autocomplete="off"
+                >
+                <div id="command-palette-results" class="command-palette-results">
+                    <div class="command-palette-empty" data-i18n="commandPalette.empty">Ingen treff</div>
+                </div>
+            </div>
+        </div>
         
         <!-- Bokmerke-panel -->
         <div id="bookmarks-panel" class="side-panel hidden">
@@ -349,6 +371,7 @@
     <script src="js/bookmarks.js"></script>
     <script src="js/search.js"></script>
     <script src="js/hints.js"></script>
+    <script src="js/command-palette.js"></script>
     <script src="js/navigation.js"></script>
     <script src="js/events.js"></script>
     <script src="js/main.js"></script>

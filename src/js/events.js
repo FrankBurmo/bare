@@ -13,11 +13,28 @@ function initEventListeners() {
     initSettingsEvents();
     initSearchEvents();
     initGeminiInputEvents();
+    initCommandPaletteEvents();
     initKeyboardShortcuts();
     initContentEvents();
 }
 
 // ===== Toolbar Events =====
+
+function initCommandPaletteEvents() {
+    elements.commandPaletteInput.addEventListener('input', () => {
+        loadCommandPaletteResults(elements.commandPaletteInput.value);
+    });
+    
+    elements.commandPaletteInput.addEventListener('keydown', (e) => {
+        handleCommandPaletteKeydown(e);
+    });
+    
+    elements.commandPaletteOverlay.addEventListener('click', (e) => {
+        if (e.target === elements.commandPaletteOverlay) {
+            closeCommandPalette();
+        }
+    });
+}
 
 function initToolbarEvents() {
     // URL bar
@@ -266,6 +283,16 @@ function initKeyboardShortcuts() {
             goForward();
         }
         
+        // Ctrl+K: Command Palette
+        if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            if (isCommandPaletteOpen()) {
+                closeCommandPalette();
+            } else {
+                openCommandPalette();
+            }
+        }
+        
         // Ctrl+L: Fokuser URL-bar
         if (e.ctrlKey && e.key === 'l') {
             e.preventDefault();
@@ -310,12 +337,17 @@ function initKeyboardShortcuts() {
         
         // Escape: Lukk paneler, søk, meny og dialoger
         if (e.key === 'Escape') {
-            elements.urlBar.blur();
-            closeAllPanels();
-            closeSearch();
-            closeDropdownMenu();
-            closeAboutDialog();
-            closeGeminiInputDialog();
+            if (isCommandPaletteOpen()) {
+                e.preventDefault();
+                closeCommandPalette();
+            } else {
+                elements.urlBar.blur();
+                closeAllPanels();
+                closeSearch();
+                closeDropdownMenu();
+                closeAboutDialog();
+                closeGeminiInputDialog();
+            }
         }
     });
 }
