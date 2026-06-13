@@ -251,6 +251,24 @@ function updateZoomDisplay(zoomLevel) {
     updateMenuZoomLevel(zoomLevel);
 }
 
+/**
+ * Oppdaterer lesefremdrift basert på scroll (Wave 2 #6)
+ */
+function updateReadingProgress() {
+    if (!elements.readingProgressBar) return;
+    
+    const content = elements.content;
+    const totalHeight = content.scrollHeight - content.clientHeight;
+    
+    if (totalHeight <= 0) {
+        elements.readingProgressBar.style.width = '0%';
+        return;
+    }
+    
+    const progress = (content.scrollTop / totalHeight) * 100;
+    elements.readingProgressBar.style.width = `${progress}%`;
+}
+
 // ===== Navigation Buttons =====
 
 /**

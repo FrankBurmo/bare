@@ -1203,7 +1203,7 @@ mod tests {
     #[test]
     fn test_render_markdown_command() {
         let result = render_markdown("# Test".to_string());
-        assert!(result.html.contains("<h1>"));
+        assert!(result.html.contains("<h1"));
         assert_eq!(result.title, Some("Test".to_string()));
         assert!(!result.is_remote);
     }

@@ -206,17 +206,17 @@ Mål: gjør lesekvalitet og personvern *vanntette*. Uten dette er resten kosmeti
    - Speil Gemini/Gopher-grensen (5 MB) på HTTP, og strøm store nedlastinger i stedet for
      `text().await` i ett jafs.
 
-### Bølge 2 — Polér leseopplevelsen (delight)
+### Bølge 2 — Polér leseopplevelsen (delight) ✅
 
 Mål: gjør selve lesingen åpenbart bedre enn i en vanlig nettleser.
 
-5. **Typografi-pass.** 🟡 Korrekt målelengde (~60–75 tegn), forbedret vertikal rytme,
+5. **Typografi-pass.** ✅ (Løst i v0.1.7) Korrekt målelengde (~60–75 tegn), forbedret vertikal rytme,
    sepia + «høykontrast» i tillegg til lys/mørk, valgfri font-paring (serif for brødtekst).
-6. **Auto-innholdsfortegnelse + lesefremdrift.** 🟢 Generér `id` på overskrifter, vis en
+6. **Auto-innholdsfortegnelse + lesefremdrift.** ✅ (Løst i v0.1.7) Generér `id` på overskrifter, vis en
    sammleggbar TOC i margen for lange dokumenter, pluss en tynn lesefremdrifts­indikator og
    estimert lesetid.
-7. **Syntaksutheving.** 🟢 Integrér `syntect` (server-side, ingen JS) som lovet i planen.
-8. **Lenkehint (Vimium-stil).** 🟡 Trykk `f` for å få tastetips på alle synlige lenker —
+7. **Syntaksutheving.** ✅ (Løst i v0.1.7) Integrér `syntect` (server-side, ingen JS) som lovet i planen.
+8. **Lenkehint (Vimium-stil).** ✅ (Løst i v0.1.7) Trykk `f` for å få tastetips på alle synlige lenker —
    den enkeltfunksjonen som mest overbeviser tastaturbrukere om at Bare er «deres» nettleser.
 
 ### Bølge 3 — Navigasjon og flyt (kraftbruker)
@@ -266,12 +266,12 @@ Sortert etter effekt ÷ innsats. «Effekt» = bidrag til den perfekte opplevelse
 | 3 | Render-cache (LRU) | ✅ Ferdig | Lav | 1 |
 | 4 | Saner markdown-stien (ammonia) | ✅ Ferdig | Lav | 1 |
 | 5 | Koble til `readability_enabled` igjen | ✅ Ferdig | Triviell | 1 |
-| 6 | Lenkehint (`f`) | 🟡 Høy | Middels | 2 |
-| 7 | Typografi + sepia/lese-temaer | 🟡 Høy | Lav | 2 |
+| 6 | Lenkehint (`f`) | ✅ Ferdig | Middels | 2 |
+| 7 | Typografi + sepia/lese-temaer | ✅ Ferdig | Lav | 2 |
 | 8 | Kommandopalett (`Ctrl+K`) | 🟡 Høy | Middels | 3 |
 | 9 | Smart adressefelt med forslag | 🟡 Høy | Middels | 3 |
-| 10 | Auto-TOC + lesefremdrift | 🟢 Middels | Middels | 2 |
-| 11 | Syntaksutheving (`syntect`) | 🟢 Middels | Lav | 2 |
+| 10 | Auto-TOC + lesefremdrift | ✅ Ferdig | Middels | 2 |
+| 11 | Syntaksutheving (`syntect`) | ✅ Ferdig | Lav | 2 |
 | 12 | Typet IPC i stedet for strengprefiks | 🟡 Middels | Middels | 4 |
 | 13 | Lokaliser backend-status | 🟡 Middels | Lav | 4 |
 | 14 | A11y-pass (aria, fokusfelle) | 🟡 Middels | Lav | 4 |

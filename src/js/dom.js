@@ -36,6 +36,8 @@ const elements = {
     
     // Hovedinnhold
     content: document.getElementById('content'),
+    readingProgress: document.getElementById('reading-progress'),
+    readingProgressBar: document.getElementById('reading-progress-bar'),
     
     // Status og footer
     statusBar: document.getElementById('status-bar'),

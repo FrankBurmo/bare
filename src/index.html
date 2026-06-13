@@ -80,6 +80,11 @@
             </div>
         </header>
         
+        <!-- Lesefremdrift (Wave 2 #6) -->
+        <div id="reading-progress" class="reading-progress-container">
+            <div id="reading-progress-bar" class="reading-progress-bar"></div>
+        </div>
+
         <!-- Søkefelt -->
         <div id="search-bar" class="search-bar hidden">
             <input 
@@ -143,6 +148,8 @@
                     <select id="setting-theme" class="setting-select">
                         <option value="light" data-i18n="settings.themeLight">Lys</option>
                         <option value="dark" data-i18n="settings.themeDark">Mørk</option>
+                        <option value="sepia" data-i18n="settings.themeSepia">Sepia</option>
+                        <option value="high-contrast" data-i18n="settings.themeHighContrast">Høykontrast</option>
                         <option value="system" data-i18n="settings.themeSystem">System</option>
                     </select>
                 </div>
@@ -341,6 +348,7 @@
     <script src="js/settings.js"></script>
     <script src="js/bookmarks.js"></script>
     <script src="js/search.js"></script>
+    <script src="js/hints.js"></script>
     <script src="js/navigation.js"></script>
     <script src="js/events.js"></script>
     <script src="js/main.js"></script>

@@ -192,6 +192,14 @@ function initGeminiInputEvents() {
 
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
+        // Håndter Hint Mode (Vimium-stil lenkenavigasjon)
+        if (typeof isHintMode === 'function' && isHintMode()) {
+            if (handleHintKey(e.key)) {
+                e.preventDefault();
+                return;
+            }
+        }
+
         // F5: Last siden på nytt
         if (e.key === 'F5') {
             e.preventDefault();
@@ -267,6 +275,12 @@ function initKeyboardShortcuts() {
         
         // Vim-lignende navigasjon (kun når ikke i input)
         if (!isInputFocused()) {
+            // f: Hint mode
+            if (e.key === 'f') {
+                e.preventDefault();
+                enterHintMode();
+            }
+            
             // g: Gå hjem
             if (e.key === 'g') {
                 e.preventDefault();
@@ -309,6 +323,10 @@ function initKeyboardShortcuts() {
 // ===== Content Events =====
 
 function initContentEvents() {
+    // Lesefremdrift (Wave 2 #6)
+    elements.content.addEventListener('scroll', updateReadingProgress);
+    updateReadingProgress(); // Initialisering
+
     // Handle links in content
     elements.content.addEventListener('click', async (e) => {
         const link = e.target.closest('a');

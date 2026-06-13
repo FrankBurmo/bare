@@ -75,6 +75,64 @@
     --danger: #ff4444;
 }
 
+/* Sepia mode — warm paper-like feel */
+[data-theme="sepia"] {
+    --bg-primary: #f4ecd8;
+    --bg-secondary: #e8dfc4;
+    --bg-toolbar: #e8dfc4;
+    --text-primary: #5b4636;
+    --text-secondary: #705e52;
+    --text-muted: #a69182;
+    --border-color: #5b4636;
+    --border-light: #dcd0b0;
+    --accent-color: #0000ee;
+    --accent-hover: #0000cc;
+    --accent-bg: #5b4636;
+    --code-bg: #e8dfc4;
+    --blockquote-border: #5b4636;
+    --link-color: #0000ee;
+    --link-visited: #551a8b;
+    --btn-bg: #f4ecd8;
+    --btn-hover: #e8dfc4;
+    --btn-active: #dcd0b0;
+    --shadow-color: #5b4636;
+    --url-bg: #fffdfa;
+    --panel-bg: #f4ecd8;
+    --highlight-bg: #ff0;
+    --highlight-current: #f60;
+    --danger: #b33;
+}
+
+/* High Contrast mode — pure black and white */
+[data-theme="high-contrast"] {
+    --bg-primary: #fff;
+    --bg-secondary: #fff;
+    --bg-toolbar: #fff;
+    --text-primary: #000;
+    --text-secondary: #000;
+    --text-muted: #444;
+    --border-color: #000;
+    --border-light: #000;
+    --accent-color: #000;
+    --accent-hover: #000;
+    --accent-bg: #000;
+    --code-bg: #fff;
+    --blockquote-border: #000;
+    --link-color: #000;
+    --link-visited: #000;
+    --btn-bg: #fff;
+    --btn-hover: #eee;
+    --btn-active: #ddd;
+    --shadow-color: #000;
+    --url-bg: #fff;
+    --panel-bg: #fff;
+    --highlight-bg: #000;
+    --highlight-current: #000;
+    --danger: #000;
+    --border-w: 3px;
+    --shadow-offset: 4px;
+}
+
 /* ===== Reset ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -567,6 +625,103 @@ body {
 
 [data-theme="dark"] .search-highlight { background: #33ff99; color: #000; }
 [data-theme="dark"] .search-highlight.current { background: #f33; color: #fff; }
+
+/* ===== TOC Styling ===== */
+.toc-container {
+    margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--bg-secondary);
+    border: var(--border-w) solid var(--border-color);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow-color);
+}
+
+.toc-container summary {
+    font-weight: 700;
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    padding: var(--space-xs) 0;
+    list-style: none;
+}
+
+.toc-container summary::-webkit-details-marker {
+    display: none;
+}
+
+.toc-container summary::before {
+    content: "[+] ";
+    font-family: var(--font-mono);
+}
+
+.toc-container[open] summary::before {
+    content: "[-] ";
+}
+
+.toc-list {
+    list-style: none;
+    padding: var(--space-sm) 0 0 0;
+    margin: 0;
+    border-top: 1px dashed var(--border-color);
+    margin-top: var(--space-xs);
+}
+
+.toc-list li {
+    margin-bottom: var(--space-xs);
+}
+
+.toc-list a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-family: var(--font-body);
+}
+
+.toc-list a:hover {
+    background: var(--accent-color);
+    color: var(--bg-primary);
+}
+
+/* ===== Reading Progress (Wave 2 #6) ===== */
+.reading-progress-container {
+    position: fixed;
+    top: var(--toolbar-height);
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.reading-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent-color);
+    transition: width 0.1s ease;
+}
+
+/* ===== Link Hints (Wave 2 #8) ===== */
+.link-hint {
+    position: absolute;
+    background: #ff0;
+    color: #000;
+    border: 1px solid #000;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0 2px;
+    z-index: 10000;
+    box-shadow: 1px 1px 0 #000;
+    text-transform: uppercase;
+    line-height: 1;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .link-hint {
+    background: var(--accent-color);
+    color: #000;
+}
 
 /* ===== Side Panels — Brutalist floating window ===== */
 .side-panel {
