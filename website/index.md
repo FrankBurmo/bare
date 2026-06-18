@@ -7,8 +7,6 @@ Bare renders Markdown directly — no JavaScript, no cookies, no tracking. Just 
 - [Download (GitHub Releases)](https://github.com/FrankBurmo/bare/releases/latest)
 - [View on GitHub](https://github.com/FrankBurmo/bare)
 
-> ⚠️ Early development — build from source or watch releases.
-
 ---
 
 ## Why Bare?
@@ -93,6 +91,15 @@ Bare is free and open source under the **GPL-3.0** license. Contributions, bug r
 - [GPL-3.0 License](https://github.com/FrankBurmo/bare/blob/main/LICENSE)
 
 Built with **Rust** + **Tauri**. Tiny binary, no Electron bloat.
+
+---
+
+## Learn More
+
+- [About Bare](./sider/about.md) – What makes Bare different and who it's for
+- [Philosophy](./sider/philosophy.md) – Our vision for a simpler, more private internet
+- [Technology](./sider/technology.md) – How Bare is built with Tauri and Rust
+- [History](./sider/history.md) – The background and inspiration for text-based browsing
 
 ---
 

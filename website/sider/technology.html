@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technology &mdash; How Bare is built</title>
+  <meta name="description" content="Bare is built with modern, lightweight technology. Learn about Tauri, Rust, and how Bare delivers fast, secure browser experience.">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Technology &mdash; How Bare is built">
+  <meta property="og:description" content="Bare is built with modern, lightweight technology. Learn about Tauri, Rust, and the architecture behind the browser.">
+  <meta property="og:url" content="https://frankburmo.github.io/bare/sider/technology.html">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Technology &mdash; How Bare is built">
+  <meta name="twitter:description" content="Bare is built with modern, lightweight technology. Learn about Tauri, Rust, and the architecture behind the browser.">
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://frankburmo.github.io/bare/sider/technology.html">
+  
+  <!-- SEO -->
+  <meta name="keywords" content="Bare, technology, Tauri, Rust, pulldown-cmark, reqwest, browser, architecture, performance, security">
+  <meta name="author" content="Bare Contributors">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="../styles.css">
+  
+  <!-- Preload -->
+  <link rel="preload" href="../styles.css" as="style">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="breadcrumbs" aria-label="Breadcrumbs">
+        <a href="../index.html">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="about.html">About Bare</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>Technology</span>
+      </nav>
+      
+      <div class="header-content">
+        <a href="../index.html" class="logo-link" aria-label="Bare Home">
+          <img src="../assets/logo.svg" alt="Bare" class="logo" width="60" height="60">
+        </a>
+        <div class="header-text">
+          <h1>Technology</h1>
+          <p class="subtitle">"Technology is best when it disappears."</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="page-content">
+    <div class="container">
+      <article>
+        <section class="intro">
+          <blockquote class="pull-quote">
+            <p>"Technology is best when it disappears."</p>
+            <cite>&mdash; Adapted from Alan Kay</cite>
+          </blockquote>
+          
+          <p>
+            Bare is built with modern, lightweight technology to deliver a fast, secure 
+            and efficient browsing experience. Unlike heavy, resource-intensive 
+            browsers like Chrome or Electron-based applications, Bare is designed to be 
+            <strong>minimal, secure, and performance-optimized</strong>.
+          </p>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="architecture" class="content-section">
+          <h2>🏗️ Architecture</h2>
+          
+          <p>
+            Bare uses a <strong>client-server architecture</strong> where:
+          </p>
+          
+          <div class="architecture-grid">
+            <div class="arch-component">
+              <span class="arch-icon">🎨</span>
+              <h3>Frontend</h3>
+              <p>Vanilla HTML/CSS/JavaScript for user interface</p>
+            </div>
+            
+            <div class="arch-arrow">&rarr;</div>
+            
+            <div class="arch-component">
+              <span class="arch-icon">🌉</span>
+              <h3>Bridge</h3>
+              <p>Tauri for communication between frontend and backend</p>
+            </div>
+            
+            <div class="arch-arrow">&rarr;</div>
+            
+            <div class="arch-component">
+              <span class="arch-icon">⚙️</span>
+              <h3>Backend</h3>
+              <p>Rust for logic and fetching</p>
+            </div>
+          </div>
+          
+          <p>
+            This separation provides:
+          </p>
+          <ul>
+            <li><strong>Security</strong>: Rust backend handles all external communication</li>
+            <li><strong>Performance</strong>: Native Rust code for network operations</li>
+            <li><strong>Flexibility</strong>: Web technologies for user interface</li>
+          </ul>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="main-components" class="content-section">
+          <h2>🛠️ Main Components</h2>
+          
+          <div class="component-grid">
+            <div class="component-card">
+              <div class="component-header">
+                <span class="component-icon">🦀</span>
+                <h3>Rust</h3>
+              </div>
+              <p>
+                <a href="https://www.rust-lang.org/">Rust</a> is the programming language 
+                powering Bare's backend.
+              </p>
+              <h4>Why Rust?</h4>
+              <ol>
+                <li><strong>Memory safety</strong>: Rust's ownership rules prevent memory errors like buffer overflows</li>
+                <li><strong>Performance</strong>: Compiled to native code, as fast as C/C++</li>
+                <li><strong>Security</strong>: No garbage collection, no runtime overhead</li>
+                <li><strong>Concurrency</strong>: Excellent support for asynchronous programming</li>
+                <li><strong>Ecosystem</strong>: Rich package ecosystem (crates.io)</li>
+              </ol>
+              
+              <h4>Rust libraries used in Bare:</h4>
+              <ul>
+                <li><a href="https://crates.io/crates/pulldown-cmark">pulldown-cmark</a> &mdash; Fast CommonMark + GFM Markdown parser</li>
+                <li><a href="https://crates.io/crates/reqwest">reqwest</a> &mdash; Async HTTP client</li>
+                <li><a href="https://crates.io/crates/tauri">tauri</a> &mdash; Tauri Rust library</li>
+              </ul>
+            </div>
+            
+            <div class="component-card">
+              <div class="component-header">
+                <span class="component-icon">🪶</span>
+                <h3>Tauri 2.0</h3>
+              </div>
+              <p>
+                <a href="https://tauri.app/">Tauri</a> is the foundational framework that 
+                makes Bare possible.
+              </p>
+              
+              <h4>Why Tauri?</h4>
+              
+              <div class="table-wrapper">
+                <table class="comparison-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Tauri</th>
+                      <th>Electron</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>App size</td>
+                      <td><strong>~2-5 MB</strong></td>
+                      <td>~100-200 MB</td>
+                    </tr>
+                    <tr>
+                      <td>Memory usage</td>
+                      <td><strong>Low</strong></td>
+                      <td>High</td>
+                    </tr>
+                    <tr>
+                      <td>Security</td>
+                      <td><strong>High (Rust)</strong></td>
+                      <td>Medium (JS)</td>
+                    </tr>
+                    <tr>
+                      <td>Performance</td>
+                      <td><strong>High</strong></td>
+                      <td>Medium</td>
+                    </tr>
+                    <tr>
+                      <td>Platform support</td>
+                      <td>Windows, macOS, Linux</td>
+                      <td>Windows, macOS, Linux</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <p>
+                <strong>Tauri advantage:</strong> 20-100x smaller, 5x less RAM, memory safety, native speed.
+              </p>
+            </div>
+            
+            <div class="component-card">
+              <div class="component-header">
+                <span class="component-icon">🌐</span>
+                <h3>Vanilla Web Technologies</h3>
+              </div>
+              <p>
+                Bare's frontend is built with <strong>pure web technologies</strong>:
+              </p>
+              <ul>
+                <li><strong>HTML5</strong>: Semantic markup for structure</li>
+                <li><strong>CSS3</strong>: Minimal styling, focused on readability</li>
+                <li><strong>JavaScript (ES6+)</strong>: Clean, efficient code without frameworks</li>
+              </ul>
+              
+              <h4>Advantages of this approach:</h4>
+              <ol>
+                <li><strong>No dependencies</strong>: No npm packages, no build steps</li>
+                <li><strong>Fast loading</strong>: No frameworks to load</li>
+                <li><strong>Easy maintenance</strong>: No version conflicts</li>
+                <li><strong>Long lifespan</strong>: Standards that don't change radically</li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="protocols" class="content-section">
+          <h2>🌐 Protocol Support</h2>
+          
+          <p>
+            Bare supports a range of protocols to offer a rich text-based browsing experience.
+          </p>
+          
+          <div class="protocol-grid">
+            <div class="protocol-card">
+              <span class="protocol-icon">🌍</span>
+              <h3>HTTP/HTTPS</h3>
+              <p>Standard web protocols with full support for GET, HEAD, redirects, SSL/TLS.</p>
+              <p>
+                <strong>Special for Markdown:</strong> Bare sends an Accept header that signals 
+                preference for Markdown:
+              </p>
+              <pre><code>Accept: text/markdown, text/plain;q=0.9, text/html;q=0.5</code></pre>
+            </div>
+            
+            <div class="protocol-card">
+              <span class="protocol-icon">🪐</span>
+              <h3>Gemini</h3>
+              <p>
+                <a href="https://geminiprotocol.net/">Gemini</a> is a modern, text-based 
+                protocol with mandatory TLS encryption.
+              </p>
+              <h4>Bare's Gemini support includes:</h4>
+              <ul>
+                <li>Full protocol implementation (RFC)</li>
+                <li>TOFU (Trust On First Use) certificate handling</li>
+                <li>Gemtext to Markdown conversion</li>
+                <li>Interactive pages (input dialog)</li>
+              </ul>
+              <h4>Gemtext format:</h4>
+              <pre><code># Heading 1
+## Heading 2
+
+This is a paragraph.
+
+=> https://example.com Link description</code></pre>
+            </div>
+            
+            <div class="protocol-card">
+              <span class="protocol-icon">🐿️</span>
+              <h3>Gopher</h3>
+              <p>
+                <a href="https://en.wikipedia.org/wiki/Gopher_(protocol)">Gopher</a> 
+                is the classic protocol from 1991.
+              </p>
+              <h4>Bare's Gopher support includes:</h4>
+              <ul>
+                <li>Full RFC 1436 implementation</li>
+                <li>Gophermap to Markdown conversion</li>
+                <li>Support for text files, menus, and search</li>
+                <li>Emoji icons for different content types</li>
+                <li>Search dialog for interactive Gopher queries</li>
+              </ul>
+            </div>
+            
+            <div class="protocol-card">
+              <span class="protocol-icon">📁</span>
+              <h3>Local files</h3>
+              <p>
+                Bare can open Markdown files directly from your computer via <code>file://</code> 
+                protocol.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="features" class="content-section">
+          <h2>🔧 Key Features</h2>
+          
+          <div class="feature-category">
+            <h3>Markdown Rendering</h3>
+            <p>Bare's Markdown rendering engine handles:</p>
+            <ul class="feature-list">
+              <li>Basic formatting: Bold, italic, headings, lists</li>
+              <li>Links: Inline and reference-style links</li>
+              <li>Images: Optional display (can be disabled for privacy)</li>
+              <li>Code blocks: Syntax highlighting (optional)</li>
+              <li>Tables: Full support</li>
+              <li>Footnotes: Supported</li>
+              <li>HTML: HTML in Markdown is escaped (security)</li>
+            </ul>
+          </div>
+          
+          <div class="feature-category">
+            <h3>HTML to Markdown Conversion</h3>
+            <p>For HTML pages, Bare offers <strong>Readability mode</strong>:</p>
+            <ul class="feature-list">
+              <li>Extracts main content from article pages</li>
+              <li>Removes ads, navigation, sidebars</li>
+              <li>Converts to clean Markdown</li>
+              <li>Preserves structure and formatting</li>
+            </ul>
+          </div>
+          
+          <div class="feature-category">
+            <h3>Navigation</h3>
+            <ul class="feature-list">
+              <li>Full back/forward navigation with history</li>
+              <li>Bookmarks with persistent storage</li>
+              <li>URL autocomplete with smart address bar</li>
+              <li>Automatic protocol detection</li>
+            </ul>
+          </div>
+          
+          <div class="feature-category">
+            <h3>User Experience</h3>
+            <ul class="feature-list">
+              <li>Theme: Light, dark, sepia, high-contrast</li>
+              <li>Font family: System, serif, sans-serif, monospace</li>
+              <li>Font size: Adjustable (70%-150%)</li>
+              <li>Content width: Adjustable (400-1200px)</li>
+              <li>Zoom: Ctrl+/Ctrl- for zoom in/out</li>
+            </ul>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="performance" class="content-section">
+          <h2>📊 Performance Optimizations</h2>
+          
+          <div class="perf-grid">
+            <div class="perf-card">
+              <span class="perf-icon">🧠</span>
+              <h3>Memory Usage</h3>
+              <ul>
+                <li>Small footprint: ~10-20 MB RAM</li>
+                <li>Efficient caching of recently visited pages</li>
+                <li>Minimal state: Only necessary data stored</li>
+              </ul>
+            </div>
+            
+            <div class="perf-card">
+              <span class="perf-icon">⚡</span>
+              <h3>Load Time</h3>
+              <ul>
+                <li>Instant startup: &lt;1 second</li>
+                <li>Fast page switching: Markdown loads immediately</li>
+                <li>Async loading: No blocking operations</li>
+              </ul>
+            </div>
+            
+            <div class="perf-card">
+              <span class="perf-icon">🌐</span>
+              <h3>Network</h3>
+              <ul>
+                <li>HTTP/2 support: Multiplexed requests</li>
+                <li>Keep-alive: Reuses connections</li>
+                <li>Compression: Supports gzip, deflate, brotli</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="security" class="content-section">
+          <h2>🔒 Security</h2>
+          
+          <div class="security-grid">
+            <div class="security-card">
+              <span class="security-icon">🛡️</span>
+              <h3>Architectural Security</h3>
+              <ul>
+                <li><strong>No JavaScript</strong>: No way to run malicious code</li>
+                <li><strong>No plugins</strong>: No extension API that can be abused</li>
+                <li><strong>Sandboxed WebView</strong>: WebView runs in a restricted context</li>
+                <li><strong>Rust Backend</strong>: Memory safety prevents many vulnerabilities</li>
+              </ul>
+            </div>
+            
+            <div class="security-card">
+              <span class="security-icon">🔒</span>
+              <h3>Network Security</h3>
+              <ul>
+                <li><strong>TLS verification</strong>: All HTTPS and Gemini connections verified</li>
+                <li><strong>TOFU for Gemini</strong>: Trust On First Use for Gemini certificates</li>
+                <li><strong>No mixed content</strong>: Blocks insecure resources on secure pages</li>
+                <li><strong>CSP</strong>: Content Security Policy protection against XSS</li>
+              </ul>
+            </div>
+            
+            <div class="security-card">
+              <span class="security-icon">🔐</span>
+              <h3>Data Protection</h3>
+              <ul>
+                <li><strong>No telemetry</strong>: No data sent to developers</li>
+                <li><strong>Local storage</strong>: All data stored locally</li>
+                <li><strong>No cloud sync</strong>: No external storage</li>
+                <li><strong>Encrypted storage</strong>: Sensitive data can be encrypted</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="build" class="content-section">
+          <h2>🛠️ Build Process</h2>
+          
+          <div class="build-grid">
+            <div class="build-card">
+              <h3>Development Environment</h3>
+              <pre><code># Clone repository
+git clone https://github.com/FrankBurmo/bare.git
+cd bare
+
+# Install Rust (if not already installed)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Install Tauri CLI
+cargo install tauri-cli
+
+# Start development server
+cargo tauri dev</code></pre>
+            </div>
+            
+            <div class="build-card">
+              <h3>Production Build</h3>
+              <pre><code># Build for current platform
+cargo tauri build
+
+# Build for specific platform
+cargo tauri build --target x86_64-pc-windows-msvc
+cargo tauri build --target x86_64-unknown-linux-gnu
+cargo tauri build --target universal2-apple-darwin</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="roadmap" class="content-section">
+          <h2>🚀 Technology Roadmap</h2>
+          
+          <div class="roadmap">
+            <div class="roadmap-phase">
+              <h3>Short-term (0-6 months)</h3>
+              <ul>
+                <li>✅ Basic Markdown rendering</li>
+                <li>✅ HTTP/HTTPS support</li>
+                <li>✅ Gemini protocol support</li>
+                <li>✅ Gopher protocol support</li>
+                <li>⬜ PDF export</li>
+                <li>⬜ Tabs support</li>
+              </ul>
+            </div>
+            
+            <div class="roadmap-phase">
+              <h3>Medium-term (6-18 months)</h3>
+              <ul>
+                <li>⬜ Plugin system</li>
+                <li>⬜ Custom CSS themes</li>
+                <li>⬜ Cross-device synchronization</li>
+                <li>⬜ Mobile platforms (Android, iOS)</li>
+              </ul>
+            </div>
+            
+            <div class="roadmap-phase">
+              <h3>Experimental (18+ months)</h3>
+              <ul>
+                <li>⬜ P2P protocol support (IPFS, DAT)</li>
+                <li>⬜ AI-based content filtering</li>
+                <li>⬜ Voice control</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="related" class="content-section">
+          <h2>📚 Related Reading</h2>
+          
+          <div class="related-links">
+            <a href="about.html" class="related-link">
+              <span class="related-icon">ℹ️</span>
+              <strong>About Bare</strong>
+              <span class="related-desc">What the browser is</span>
+            </a>
+            
+            <a href="philosophy.html" class="related-link">
+              <span class="related-icon">🧭</span>
+              <strong>Philosophy</strong>
+              <span class="related-desc">Why Bare was created</span>
+            </a>
+            
+            <a href="history.html" class="related-link">
+              <span class="related-icon">📜</span>
+              <strong>History</strong>
+              <span class="related-desc">The background of text-based protocols</span>
+            </a>
+          </div>
+        </section>
+        
+        <hr class="section-divider">
+
+        <section id="useful-links" class="content-section">
+          <h2>🔗 Useful Links</h2>
+          
+          <div class="link-grid">
+            <a href="https://tauri.app/v2/guides/" class="external-link">
+              <span class="link-icon">📚</span>
+              <strong>Tauri Documentation</strong>
+            </a>
+            <a href="https://doc.rust-lang.org/" class="external-link">
+              <span class="link-icon">📚</span>
+              <strong>Rust Documentation</strong>
+            </a>
+            <a href="https://docs.rs/pulldown-cmark/latest/pulldown_cmark/" class="external-link">
+              <span class="link-icon">📚</span>
+              <strong>pulldown-cmark</strong>
+            </a>
+            <a href="https://docs.rs/reqwest/latest/reqwest/" class="external-link">
+              <span class="link-icon">📚</span>
+              <strong>reqwest</strong>
+            </a>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <p>
+          <a href="../index.html">Bare</a> &mdash;
+          <a href="https://github.com/FrankBurmo/bare">GitHub</a> &mdash;
+          <a href="https://github.com/FrankBurmo/bare/blob/main/LICENSE">GPL-3.0</a>
+        </p>
+        <p class="footer-note">
+          No trackers on this site. Built with HTML &amp; CSS. 
+          <a href="technology.md">Markdown version</a>.
+        </p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

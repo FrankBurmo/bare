@@ -527,3 +527,1115 @@ th {
     padding: 3.5rem 0;
   }
 }
+
+/* ============================================================
+   Bare website — Learn More Section (for index.html)
+   ============================================================ */
+
+.learn-more {
+  padding: 5rem 0;
+  background: var(--surface);
+}
+
+.learn-more h2 {
+  margin-bottom: 1rem;
+}
+
+.learn-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.learn-card {
+  display: block;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.learn-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.learn-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.learn-card strong {
+  display: block;
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.learn-card > p {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   Bare website — Additional styles for sub-pages
+   ============================================================ */
+
+/* ----- Site Header (for sub-pages) ----- */
+.site-header {
+  padding: 2rem 0 1.5rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.header-text h1 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  margin-bottom: 0.25rem;
+}
+
+.header-text .subtitle {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.logo-link {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: block;
+}
+
+/* ----- Breadcrumbs ----- */
+.breadcrumbs {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.breadcrumb-sep {
+  margin: 0 0.5rem;
+  color: var(--border);
+}
+
+/* ----- Page Content ----- */
+.page-content {
+  padding: 2rem 0;
+}
+
+.page-content .container {
+  max-width: 800px;
+}
+
+/* ----- Intro Section ----- */
+.intro {
+  margin-bottom: 2.5rem;
+}
+
+.pull-quote {
+  border-left: 4px solid var(--accent);
+  padding-left: 1.25rem;
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.pull-quote p {
+  margin-bottom: 0.5rem;
+}
+
+.pull-quote cite {
+  display: block;
+  font-style: normal;
+  font-size: 0.85rem;
+  color: var(--border);
+}
+
+/* ----- Section Divider ----- */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+/* ----- Content Sections ----- */
+.content-section {
+  margin-bottom: 2.5rem;
+}
+
+.content-section h2 {
+  font-size: clamp(1.4rem, 3.5vw, 1.85rem);
+  margin-bottom: 1.25rem;
+}
+
+/* ----- Value Grid ----- */
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.value-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.value-number {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.value-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ----- Privacy Table (for filosofi page) ----- */
+.privacy-table {
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.privacy-table th,
+.privacy-table td {
+  padding: 0.75rem 1rem;
+}
+
+.badge-partial {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-optional {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+@media (prefers-color-scheme: dark) {
+  .badge-partial { background: #3a2708; color: #fcd34d; }
+  .badge-optional { background: #1e3a5f; color: #93c5fd; }
+}
+
+/* ----- Inspiration Grid ----- */
+.inspiration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.inspiration-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+.inspiration-card h3 {
+  margin-bottom: 0.75rem;
+}
+
+.inspiration-card ul {
+  margin: 0.75rem 0;
+}
+
+/* ----- Vision Timeline ----- */
+.vision-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.vision-phase {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.phase-label {
+  display: block;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.vision-phase ul {
+  margin-top: 0.75rem;
+}
+
+.vision-phase li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Action List ----- */
+.action-list {
+  margin: 1.5rem 0;
+}
+
+.action-list li {
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+/* ----- Related Links ----- */
+.related-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.related-link {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.related-link:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.related-icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.related-link strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.related-desc {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* ----- Architecture Grid ----- */
+.architecture-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.arch-component {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  min-width: 140px;
+  flex: 1;
+}
+
+.arch-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.arch-component h3 {
+  margin-bottom: 0.5rem;
+}
+
+.arch-arrow {
+  font-size: 1.5rem;
+  color: var(--muted);
+}
+
+/* ----- Component Grid ----- */
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.component-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
+.component-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.component-icon {
+  font-size: 1.5rem;
+}
+
+.component-header h3 {
+  margin-bottom: 0;
+}
+
+.component-card h4 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.component-card ul {
+  margin-bottom: 1rem;
+}
+
+.component-card li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Comparison Table ----- */
+.comparison-table th,
+.comparison-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.comparison-table th {
+  background: var(--surface);
+  font-size: 0.85rem;
+}
+
+.comparison-table strong {
+  color: var(--accent);
+}
+
+.comparison-table.large {
+  font-size: 0.9rem;
+}
+
+.comparison-table.large th,
+.comparison-table.large td {
+  padding: 0.6rem 0.8rem;
+}
+
+/* ----- Protocol Grid (for sub-pages) ----- */
+.protocol-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.protocol-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.protocol-card.large {
+  grid-column: span 2;
+}
+
+.protocol-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.protocol-card h3 {
+  margin-bottom: 0.75rem;
+}
+
+.protocol-card h4 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.protocol-card ul {
+  margin-bottom: 1rem;
+}
+
+.protocol-card li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.protocol-card pre {
+  margin: 1rem 0;
+  font-size: 0.85rem;
+}
+
+.protocol-card code {
+  font-size: 0.85rem;
+}
+
+/* ----- Feature Categories ----- */
+.feature-category {
+  margin-bottom: 2rem;
+}
+
+.feature-category h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.feature-category > p {
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.feature-list {
+  margin-left: 1.25rem;
+}
+
+.feature-list li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Performance Grid ----- */
+.perf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.perf-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+}
+
+.perf-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.perf-card h3 {
+  margin-bottom: 0.75rem;
+}
+
+.perf-card ul {
+  margin-bottom: 0;
+}
+
+.perf-card li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Security Grid ----- */
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.security-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.security-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.security-card h3 {
+  margin-bottom: 0.75rem;
+}
+
+.security-card ul {
+  margin-bottom: 0;
+}
+
+.security-card li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Build Grid ----- */
+.build-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.build-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.build-card h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.build-card pre {
+  margin: 0.5rem 0;
+}
+
+.build-card code {
+  font-size: 0.85rem;
+}
+
+/* ----- Roadmap ----- */
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.roadmap-phase {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.roadmap-phase h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.roadmap-phase ul {
+  margin-top: 0.75rem;
+}
+
+.roadmap-phase li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Timeline ----- */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin-top: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-event {
+  position: relative;
+  margin-bottom: 2.5rem;
+}
+
+.timeline-event::before {
+  content: '';
+  position: absolute;
+  left: -1.5rem;
+  top: 0.25rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+
+.event-date {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.event-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-left: 1rem;
+}
+
+.event-content h3 {
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.event-content p {
+  margin-bottom: 0.75rem;
+}
+
+.event-content ul {
+  margin: 0.75rem 0;
+}
+
+/* ----- Markdown Story ----- */
+.markdown-story {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.story-column {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.story-column h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.markdown-philosophy,
+.markdown-impact {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.markdown-philosophy h3,
+.markdown-impact h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.markdown-philosophy ol,
+.markdown-impact ol,
+.markdown-philosophy ul,
+.markdown-impact ul {
+  margin: 0.75rem 0;
+}
+
+/* ----- Protocol Story ----- */
+.protocol-story {
+  display: grid;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* ----- Browser Grid ----- */
+.browser-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.browser-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.browser-icon {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.browser-card h3 {
+  margin-bottom: 0.75rem;
+}
+
+.browser-card p {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.browser-card ul {
+  margin: 0.75rem 0;
+}
+
+.browser-card li {
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Evolution Timeline ----- */
+.evolution-timeline {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.evolution-era {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.era-label {
+  display: block;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.era-content h4 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--text);
+}
+
+.era-content ul {
+  margin: 0.5rem 0;
+}
+
+.era-content li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Why Section ----- */
+.why-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.why-section h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.why-section ol {
+  margin: 0.75rem 0;
+}
+
+.why-section li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Project Table ----- */
+.project-table {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.project-table th,
+.project-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.project-table th {
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+
+.project-table a {
+  color: var(--accent);
+}
+
+/* ----- Future Grid ----- */
+.future-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.future-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.future-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.future-card h3 {
+  margin-bottom: 0.75rem;
+}
+
+.future-card h4 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--accent);
+}
+
+.future-card ul {
+  margin: 0.5rem 0;
+}
+
+.future-card li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.future-card ol {
+  margin: 0.75rem 0;
+}
+
+.future-card ol li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Resource Grid ----- */
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.resource-category {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.resource-category h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.resource-category ul {
+  margin: 0.75rem 0;
+}
+
+.resource-category li {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ----- Link Grid (for external links) ----- */
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.external-link {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  text-align: center;
+  transition: border-color 0.15s ease;
+}
+
+.external-link:hover {
+  border-color: var(--accent);
+}
+
+.link-icon {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.external-link strong {
+  display: block;
+  font-size: 1rem;
+}
+
+/* ----- Large List ----- */
+.large-list {
+  margin: 1.5rem 0;
+}
+
+.large-list li {
+  font-size: 1.05rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ----- Not List ----- */
+.not-list {
+  margin: 1.5rem 0;
+}
+
+.not-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.not-icon {
+  font-size: 1.25rem;
+  margin-top: 0.1rem;
+}
+
+.not-item strong {
+  margin-right: 0.5rem;
+}
+
+/* ----- Principle List ----- */
+.principle-list {
+  margin: 1.5rem 0;
+}
+
+.principle-list li {
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ----- Getting Started Grid (for om page) ----- */
+.getting-started-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* ----- Footer for sub-pages ----- */
+.site-footer .footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.site-footer p {
+  margin: 0.25rem 0;
+}
+
+/* ----- Responsive for sub-pages ----- */
+@media (max-width: 640px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .site-header {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .page-content {
+    padding: 1.5rem 0;
+  }
+
+  .value-grid,
+  .component-grid,
+  .protocol-grid,
+  .perf-grid,
+  .security-grid,
+  .roadmap,
+  .browser-grid,
+  .future-grid,
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .markdown-story,
+  .protocol-story,
+  .evolution-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .architecture-grid {
+    flex-direction: column;
+  }
+
+  .arch-arrow {
+    transform: rotate(90deg);
+  }
+
+  .timeline::before {
+    left: 1rem;
+  }
+
+  .timeline-event::before {
+    left: -1rem;
+  }
+
+  .event-content {
+    margin-left: 1.5rem;
+  }
+
+  .related-links {
+    grid-template-columns: 1fr;
+  }
+
+  .link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-table.large {
+    font-size: 0.75rem;
+  }
+
+  .comparison-table.large th,
+  .comparison-table.large td {
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .protocol-card.large {
+    grid-column: span 1;
+  }
+}
+
