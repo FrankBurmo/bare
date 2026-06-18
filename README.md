@@ -13,18 +13,7 @@ It ignores traditional web pages and renders only `.md` files directly from HTTP
 
 <img width="1027" height="802" alt="image" src="https://github.com/user-attachments/assets/bdcebf4b-de99-4e33-8cad-c7a790ee5985" />
 
-## Status
-
-✅ **Version 0.1.4** — Core functionality is implemented! The application is fully functional for daily use.
-
-**Completed phases:**
-- ✅ Phase 1: Proof of Concept
-- ✅ Phase 2: Network support
-- ✅ Phase 3: HTML conversion
-- ✅ Phase 4: User experience
-- ✅ Phase 5 (part 1): Gemini protocol + Gopher protocol
-
-See [PLAN.md](docs/PLAN.md) for the detailed development plan and future extensions.
+###
 
 ![Netscape_inspirert_B_animasjon_med_jord](https://github.com/user-attachments/assets/29ca95b2-d09b-4ba4-8293-752f4df8624c)
 
