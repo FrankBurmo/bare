@@ -3,26 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>History &mdash; The background of Bare and text-based internet</title>
-  <meta name="description" content="Learn about the history of Bare, Markdown, text-based protocols, and how the internet evolved from simple text to complex multimedia.">
+  <title>History &mdash; From MultiTorg to Gemini</title>
+  <meta name="description" content="One long argument about who controls a document — the author or the reader. From Norway's 1993 MultiTorg and Telektronikk, through Markdown and Gopher, to Gemini.">
   
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="History &mdash; The background of Bare and text-based internet">
-  <meta property="og:description" content="Learn about the history of Bare, Markdown, text-based protocols, and the web's evolution.">
+  <meta property="og:title" content="History &mdash; From MultiTorg to Gemini">
+  <meta property="og:description" content="Who controls a document, the author or the reader? A history from the 1993 insight that 'HTML champions the recipient' to the Gemini protocol.">
   <meta property="og:url" content="https://frankburmo.github.io/bare/sider/history.html">
   <meta property="og:locale" content="en_US">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="History &mdash; The background of Bare and text-based internet">
-  <meta name="twitter:description" content="Learn about the history of Bare, Markdown, text-based protocols, and the web's evolution.">
+  <meta name="twitter:title" content="History &mdash; From MultiTorg to Gemini">
+  <meta name="twitter:description" content="Who controls a document, the author or the reader? A history from 1993's MultiTorg to the Gemini protocol.">
   
   <!-- Canonical -->
   <link rel="canonical" href="https://frankburmo.github.io/bare/sider/history.html">
   
   <!-- SEO -->
-  <meta name="keywords" content="Bare, history, internet, ARPANET, World Wide Web, Markdown, John Gruber, Aaron Swartz, Gopher, Gemini, text-based">
+  <meta name="keywords" content="Bare, history, MultiTorg, Telektronikk, Håkon Wium Lie, CSS, World Wide Web, Markdown, Gopher, Gemini, Solderpunk, text-based">
   <meta name="author" content="Bare Contributors">
   
   <!-- Favicon -->
@@ -52,7 +52,7 @@
         </a>
         <div class="header-text">
           <h1>History</h1>
-          <p class="subtitle">"Those who cannot remember the past are condemned to repeat it."</p>
+          <p class="subtitle">Who controls a document &mdash; the author, or the reader?</p>
         </div>
       </div>
     </div>
@@ -64,15 +64,59 @@
       <article>
         <section class="intro">
           <blockquote class="pull-quote">
-            <p>"Those who cannot remember the past are condemned to repeat it."</p>
-            <cite>&mdash; George Santayana</cite>
+            <p>"There is an unresolved tension between the sender and recipient of information &mdash; who is to be in charge of the final form presentation? HTML clearly champions the recipient."</p>
+            <cite>&mdash; <em>Telektronikk</em> 4/93</cite>
           </blockquote>
           
           <p>
-            The history of Bare is not just the history of a browser, but also the history 
-            of <strong>the internet itself</strong> &mdash; how it started as an open, text-based 
-            platform, became commercialized and complex, and how a new movement is now 
-            trying to revive the original spirit.
+            Bare's story is really one long argument about a single question: <strong>when 
+            you read a document, who decides how it looks &mdash; the author, or you?</strong> 
+            The web has answered that question differently in different decades. Bare exists 
+            to give one particular answer &mdash; <em>you do</em> &mdash; and this page traces 
+            how that question was first asked, gradually lost, and is now being asked again.
+          </p>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="norwegian-thread" class="content-section">
+          <h2>🇳🇴 A Norwegian thread (1993)</h2>
+          
+          <p>
+            Before the web was commercial, it was an experiment &mdash; and some of that 
+            experiment happened in Norway.
+          </p>
+          <p>
+            In 1993, researchers at <strong>Norwegian Telecom Research</strong> (Televerkets 
+            Forskningsinstitutt) were building <strong>MultiTorg</strong>, an early 
+            "distributed electronic information marketplace." Their account of it appeared in 
+            the journal <strong><em>Telektronikk</em> 4/93</strong>, which became <em>one of 
+            the first journals in the world published in full on the World Wide Web</em> and 
+            went on to win a <strong>"Best of the Web '94"</strong> award.
+          </p>
+          <p>
+            The problem they described is the one the internet has never fully solved: a 
+            <strong>"Tower of Babel"</strong> of incompatible document formats. Their survey 
+            ran through the contenders &mdash; the rich and complex <strong>ODA</strong> 
+            (Office Document Architecture), the flexible <strong>SGML</strong>, and SGML's 
+            small, pragmatic offspring, <strong>HTML</strong> &mdash; and reached a conclusion 
+            that still defines Bare:
+          </p>
+          <blockquote class="pull-quote">
+            <p>"There is an unresolved tension between the sender and recipient of information &mdash; who is to be in charge of the final form presentation? HTML clearly champions the recipient."</p>
+          </blockquote>
+          <p>
+            On the early web, in other words, <strong>the reader was in charge.</strong> The 
+            author marked up <em>meaning</em>; the reader's software decided the 
+            <em>appearance</em>.
+          </p>
+          <p>
+            One of the article's co-authors was <strong>Håkon Wium Lie</strong>. Two years 
+            later, in 1994, he proposed <strong>Cascading Style Sheets (CSS)</strong> &mdash; 
+            handing a measure of presentational control back to authors. It was a reasonable 
+            idea that, over three decades, helped tilt the balance all the way to today's web, 
+            where the author (and the advertiser) controls nearly everything and the reader 
+            controls almost nothing. Bare is, in a sense, a vote for the 1993 position.
           </p>
         </section>
 
@@ -280,22 +324,34 @@
               
               <h4>Background:</h4>
               <p>
-                Solderpunk was part of the <strong>Gopherspace community</strong> and had 
-                become frustrated with:
+                Solderpunk was active in the <strong>Gopherspace community</strong> and had 
+                grown frustrated with the modern web's complexity, its surveillance, and the 
+                way even "simple" pages had become heavy and hostile. Gemini was an attempt to 
+                build something deliberately in between &mdash; and to make it impossible to 
+                grow into another web.
               </p>
-              <ul>
-                <li>Complexity of the modern Web</li>
-                <li>Privacy issues</li>
-                <li>Lack of simple, text-based communication</li>
-              </ul>
               
-              <h4>Gemini's design goals:</h4>
+              <h4>Why "Gemini"?</h4>
+              <p>
+                The name references NASA's <strong>Gemini space program</strong> &mdash; the 
+                "middle child" between <strong>Mercury</strong> and <strong>Apollo</strong>. 
+                Gemini the protocol sees itself the same way: more capable than 
+                <strong>Gopher</strong> (Mercury) but far simpler than the <strong>web</strong> 
+                (Apollo), doing more with less rather than trying to do everything.
+              </p>
+              
+              <h4>Design principles:</h4>
               <ol>
-                <li>Simpler than Web, but more powerful than Gopher</li>
-                <li><strong>Mandatory TLS encryption</strong> (no insecure connections)</li>
-                <li><strong>Text-based</strong> (but with support for binary files)</li>
-                <li><strong>Client-driven</strong> (the client decides how content is displayed)</li>
+                <li><strong>Privacy</strong> &mdash; minimal metadata, no cookies, no tracking; "break all loops"</li>
+                <li><strong>User autonomy</strong> &mdash; the client decides how content is presented, not the author</li>
+                <li><strong>Non-extensibility</strong> &mdash; intentionally hard to extend, so it cannot bloat</li>
+                <li><strong>Simplicity</strong> &mdash; a complete client can be written by one person in a weekend</li>
               </ol>
+              <p>
+                Every request uses <strong>mandatory TLS</strong> and follows a strict "one 
+                network transaction per click" rule &mdash; fetching a page never drags in 
+                fonts, scripts, or trackers.
+              </p>
               
               <h4>Gemtext format:</h4>
               <pre><code># Heading
@@ -305,13 +361,22 @@ This is a paragraph.
 
 => https://example.com Link description</code></pre>
               
-              <h4>Gemini today (2026):</h4>
+              <h4>A small but real network:</h4>
+              <p>
+                After a surge of attention on Hacker News in <strong>May 2020</strong>, 
+                Geminispace grew into a modest, deliberately non-commercial community. A 
+                mid-2023 crawl counted roughly:
+              </p>
               <ul>
-                <li><strong>~3,900 known servers</strong> ("capsules")</li>
-                <li><strong>~600,000+ URIs</strong> in "Geminispace"</li>
-                <li><strong>Growing community</strong> of developers and users</li>
-                <li><strong>Many clients</strong> (browsers) available</li>
+                <li><strong>~425,000</strong> URLs</li>
+                <li><strong>~2,500</strong> capsules (sites)</li>
+                <li><strong>~1,700</strong> domains across <strong>~1,200</strong> hosts</li>
               </ul>
+              <p>
+                Small by web standards &mdash; and that is exactly the point. Gemini is, in 
+                its own words, more like browsing a library than wandering through a shopping 
+                mall or a casino.
+              </p>
             </div>
           </div>
         </section>

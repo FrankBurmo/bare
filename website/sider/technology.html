@@ -4,25 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Technology &mdash; How Bare is built</title>
-  <meta name="description" content="Bare is built with modern, lightweight technology. Learn about Tauri, Rust, and how Bare delivers fast, secure browser experience.">
+  <meta name="description" content="Bare is a reading instrument, not a small web browser. How its Rust core fetches, extracts, sanitizes and renders text — and the privacy it enforces in code.">
   
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Technology &mdash; How Bare is built">
-  <meta property="og:description" content="Bare is built with modern, lightweight technology. Learn about Tauri, Rust, and the architecture behind the browser.">
+  <meta property="og:description" content="The four-stage reading pipeline, structural image blocking, TOFU, and speed by subtraction — the engineering behind Bare.">
   <meta property="og:url" content="https://frankburmo.github.io/bare/sider/technology.html">
   <meta property="og:locale" content="en_US">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Technology &mdash; How Bare is built">
-  <meta name="twitter:description" content="Bare is built with modern, lightweight technology. Learn about Tauri, Rust, and the architecture behind the browser.">
+  <meta name="twitter:description" content="The four-stage reading pipeline, structural image blocking, TOFU, and speed by subtraction — the engineering behind Bare.">
   
   <!-- Canonical -->
   <link rel="canonical" href="https://frankburmo.github.io/bare/sider/technology.html">
   
   <!-- SEO -->
-  <meta name="keywords" content="Bare, technology, Tauri, Rust, pulldown-cmark, reqwest, browser, architecture, performance, security">
+  <meta name="keywords" content="Bare, technology, Tauri, Rust, readability, dom-extraction, ammonia, pulldown-cmark, TOFU, privacy, performance">
   <meta name="author" content="Bare Contributors">
   
   <!-- Favicon -->
@@ -52,7 +52,7 @@
         </a>
         <div class="header-text">
           <h1>Technology</h1>
-          <p class="subtitle">"Technology is best when it disappears."</p>
+          <p class="subtitle">A reading instrument, not a small web browser.</p>
         </div>
       </div>
     </div>
@@ -65,31 +65,37 @@
         <section class="intro">
           <blockquote class="pull-quote">
             <p>"Technology is best when it disappears."</p>
-            <cite>&mdash; Adapted from Alan Kay</cite>
+            <cite>&mdash; adapted from Mark Weiser</cite>
           </blockquote>
           
           <p>
-            Bare is built with modern, lightweight technology to deliver a fast, secure 
-            and efficient browsing experience. Unlike heavy, resource-intensive 
-            browsers like Chrome or Electron-based applications, Bare is designed to be 
-            <strong>minimal, secure, and performance-optimized</strong>.
+            Bare is not a small web browser. It is a <strong>reading instrument</strong> 
+            that happens to speak HTTP, Gemini and Gopher. Every engineering decision serves 
+            a single goal: turn whatever a server sends into clean, consistent, private text 
+            &mdash; and then get out of your way.
+          </p>
+          <p>
+            This page explains how that is built, honestly, including the things Bare 
+            deliberately does <em>not</em> do.
           </p>
         </section>
 
         <hr class="section-divider">
 
         <section id="architecture" class="content-section">
-          <h2>🏗️ Architecture</h2>
+          <h2>🏗️ The shape of the program</h2>
           
           <p>
-            Bare uses a <strong>client-server architecture</strong> where:
+            Bare is a <a href="https://tauri.app/">Tauri 2</a> application: a Rust core 
+            wrapped in the operating system's own WebView, with <strong>no bundled browser 
+            engine</strong>.
           </p>
           
           <div class="architecture-grid">
             <div class="arch-component">
               <span class="arch-icon">🎨</span>
               <h3>Frontend</h3>
-              <p>Vanilla HTML/CSS/JavaScript for user interface</p>
+              <p>Vanilla HTML/CSS/JavaScript &mdash; renders finished, sanitized HTML</p>
             </div>
             
             <div class="arch-arrow">&rarr;</div>
@@ -97,25 +103,25 @@
             <div class="arch-component">
               <span class="arch-icon">🌉</span>
               <h3>Bridge</h3>
-              <p>Tauri for communication between frontend and backend</p>
+              <p>Tauri IPC &mdash; message passing only, no shared network access</p>
             </div>
             
             <div class="arch-arrow">&rarr;</div>
             
             <div class="arch-component">
               <span class="arch-icon">⚙️</span>
-              <h3>Backend</h3>
-              <p>Rust for logic and fetching</p>
+              <h3>Rust core</h3>
+              <p>fetch &middot; extract &middot; sanitize &middot; render</p>
             </div>
           </div>
           
           <p>
-            This separation provides:
+            Why this split matters:
           </p>
           <ul>
-            <li><strong>Security</strong>: Rust backend handles all external communication</li>
-            <li><strong>Performance</strong>: Native Rust code for network operations</li>
-            <li><strong>Flexibility</strong>: Web technologies for user interface</li>
+            <li>All networking, parsing and sanitization happen in <strong>Rust</strong> &mdash; never inside the page.</li>
+            <li>The WebView only ever receives finished, already-sanitized HTML. <strong>It never talks to the network itself.</strong></li>
+            <li>There is no Chromium to ship, so the entire application is a few megabytes instead of a few hundred.</li>
           </ul>
         </section>
 
@@ -307,132 +313,158 @@ This is a paragraph.
         <hr class="section-divider">
 
         <section id="features" class="content-section">
-          <h2>🔧 Key Features</h2>
+          <h2>� The reading pipeline</h2>
+          
+          <p>
+            The heart of Bare is what happens between <em>"you click a link"</em> and 
+            <em>"you see text."</em> For an ordinary HTML page it is four stages, all in Rust:
+          </p>
           
           <div class="feature-category">
-            <h3>Markdown Rendering</h3>
-            <p>Bare's Markdown rendering engine handles:</p>
-            <ul class="feature-list">
-              <li>Basic formatting: Bold, italic, headings, lists</li>
-              <li>Links: Inline and reference-style links</li>
-              <li>Images: Optional display (can be disabled for privacy)</li>
-              <li>Code blocks: Syntax highlighting (optional)</li>
-              <li>Tables: Full support</li>
-              <li>Footnotes: Supported</li>
-              <li>HTML: HTML in Markdown is escaped (security)</li>
-            </ul>
+            <h3>1. Fetch</h3>
+            <p>
+              <a href="https://crates.io/crates/reqwest">reqwest</a> over <code>rustls</code> 
+              + <code>ring</code> (no OpenSSL, no native-tls), capped at 5 MB, sending an 
+              <code>Accept</code> header that politely asks the server for Markdown first:
+            </p>
+            <pre><code>Accept: text/markdown, text/plain;q=0.9, text/html;q=0.5</code></pre>
           </div>
           
           <div class="feature-category">
-            <h3>HTML to Markdown Conversion</h3>
-            <p>For HTML pages, Bare offers <strong>Readability mode</strong>:</p>
-            <ul class="feature-list">
-              <li>Extracts main content from article pages</li>
-              <li>Removes ads, navigation, sidebars</li>
-              <li>Converts to clean Markdown</li>
-              <li>Preserves structure and formatting</li>
-            </ul>
+            <h3>2. Extract</h3>
+            <p>
+              A real <strong>DOM-based readability</strong> pass scores the document tree, 
+              lifts out the article, and discards navigation, sidebars, ad slots and comment 
+              threads. This replaced an earlier naive string-search method in v0.1.6 &mdash; 
+              content extraction <em>is</em> the core promise, so it had to be done properly, 
+              not approximated.
+            </p>
           </div>
           
           <div class="feature-category">
-            <h3>Navigation</h3>
-            <ul class="feature-list">
-              <li>Full back/forward navigation with history</li>
-              <li>Bookmarks with persistent storage</li>
-              <li>URL autocomplete with smart address bar</li>
-              <li>Automatic protocol detection</li>
-            </ul>
+            <h3>3. Sanitize</h3>
+            <p>
+              The result is run through <a href="https://crates.io/crates/ammonia">ammonia</a>, 
+              an allowlist-based Rust HTML sanitizer, stripping scripts, event handlers and 
+              anything that could carry a payload. This runs on the Markdown path too, so 
+              untrusted content is cleaned in depth, not only fenced off by policy.
+            </p>
           </div>
           
           <div class="feature-category">
-            <h3>User Experience</h3>
-            <ul class="feature-list">
-              <li>Theme: Light, dark, sepia, high-contrast</li>
-              <li>Font family: System, serif, sans-serif, monospace</li>
-              <li>Font size: Adjustable (70%-150%)</li>
-              <li>Content width: Adjustable (400-1200px)</li>
-              <li>Zoom: Ctrl+/Ctrl- for zoom in/out</li>
-            </ul>
+            <h3>4. Render</h3>
+            <p>
+              <a href="https://crates.io/crates/pulldown-cmark">pulldown-cmark</a> turns the 
+              cleaned Markdown into HTML with CommonMark + GitHub extensions (tables, task 
+              lists, strikethrough), and <code>syntect</code> adds syntax highlighting to code 
+              blocks.
+            </p>
+            <p>
+              Gemtext and gophermaps skip the extraction stage entirely &mdash; they are 
+              already clean by design and go straight to dedicated converters.
+            </p>
           </div>
         </section>
 
         <hr class="section-divider">
 
         <section id="performance" class="content-section">
-          <h2>📊 Performance Optimizations</h2>
+          <h2>⚡ Speed by subtraction</h2>
           
-          <div class="perf-grid">
-            <div class="perf-card">
-              <span class="perf-icon">🧠</span>
-              <h3>Memory Usage</h3>
-              <ul>
-                <li>Small footprint: ~10-20 MB RAM</li>
-                <li>Efficient caching of recently visited pages</li>
-                <li>Minimal state: Only necessary data stored</li>
-              </ul>
-            </div>
-            
-            <div class="perf-card">
-              <span class="perf-icon">⚡</span>
-              <h3>Load Time</h3>
-              <ul>
-                <li>Instant startup: &lt;1 second</li>
-                <li>Fast page switching: Markdown loads immediately</li>
-                <li>Async loading: No blocking operations</li>
-              </ul>
-            </div>
-            
-            <div class="perf-card">
-              <span class="perf-icon">🌐</span>
-              <h3>Network</h3>
-              <ul>
-                <li>HTTP/2 support: Multiplexed requests</li>
-                <li>Keep-alive: Reuses connections</li>
-                <li>Compression: Supports gzip, deflate, brotli</li>
-              </ul>
-            </div>
+          <p>
+            Bare is fast because it does less, not because it works harder. An 
+            <strong>LRU render cache</strong> in the Rust core makes returning to a recently 
+            visited page instant; typical pages stripped to their content are 
+            <strong>5&ndash;50 KB</strong> rather than multi-megabyte payloads; and async I/O 
+            (<code>tokio</code>) means fetching never blocks the interface.
+          </p>
+          
+          <p>Design targets the project measures itself against:</p>
+          
+          <div class="table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cached re-render</td>
+                  <td><strong>&asymp; one frame (~16 ms)</strong></td>
+                </tr>
+                <tr>
+                  <td>Typical page, fetch &rarr; readable</td>
+                  <td><strong>well under half a second</strong></td>
+                </tr>
+                <tr>
+                  <td>External network calls beyond the document</td>
+                  <td><strong>zero</strong></td>
+                </tr>
+                <tr>
+                  <td>Application binary</td>
+                  <td><strong>single-digit megabytes</strong></td>
+                </tr>
+                <tr>
+                  <td>Resident memory</td>
+                  <td><strong>~10&ndash;20 MB</strong></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
         <hr class="section-divider">
 
         <section id="security" class="content-section">
-          <h2>🔒 Security</h2>
+          <h2>🔒 Privacy the code actually enforces</h2>
+          
+          <p>
+            Privacy in Bare is not a preference panel; it is a property of the architecture. 
+            Three mechanisms make it real rather than aspirational:
+          </p>
           
           <div class="security-grid">
             <div class="security-card">
-              <span class="security-icon">🛡️</span>
-              <h3>Architectural Security</h3>
-              <ul>
-                <li><strong>No JavaScript</strong>: No way to run malicious code</li>
-                <li><strong>No plugins</strong>: No extension API that can be abused</li>
-                <li><strong>Sandboxed WebView</strong>: WebView runs in a restricted context</li>
-                <li><strong>Rust Backend</strong>: Memory safety prevents many vulnerabilities</li>
-              </ul>
+              <span class="security-icon">🖼️</span>
+              <h3>Structural image blocking</h3>
+              <p>
+                The WebView ships with a strict <code>Content-Security-Policy</code> of 
+                <code>img-src 'self' data:</code>. The page is forbidden <em>at the engine 
+                level</em> from loading a remote image, so a tracking pixel cannot fire even 
+                if one survives extraction. The <code>ImageMode</code> setting 
+                (<strong>Block &middot; Placeholder &middot; Show</strong>) puts that choice 
+                in your hands.
+              </p>
             </div>
             
             <div class="security-card">
-              <span class="security-icon">🔒</span>
-              <h3>Network Security</h3>
-              <ul>
-                <li><strong>TLS verification</strong>: All HTTPS and Gemini connections verified</li>
-                <li><strong>TOFU for Gemini</strong>: Trust On First Use for Gemini certificates</li>
-                <li><strong>No mixed content</strong>: Blocks insecure resources on secure pages</li>
-                <li><strong>CSP</strong>: Content Security Policy protection against XSS</li>
-              </ul>
+              <span class="security-icon">1️⃣</span>
+              <h3>One click, one request</h3>
+              <p>
+                The WebView never originates network traffic. Only the Rust core fetches, and 
+                it fetches exactly the document you asked for &mdash; no fonts, analytics 
+                beacons, or third-party assets load in the background to leak your visit.
+              </p>
             </div>
             
             <div class="security-card">
-              <span class="security-icon">🔐</span>
-              <h3>Data Protection</h3>
-              <ul>
-                <li><strong>No telemetry</strong>: No data sent to developers</li>
-                <li><strong>Local storage</strong>: All data stored locally</li>
-                <li><strong>No cloud sync</strong>: No external storage</li>
-                <li><strong>Encrypted storage</strong>: Sensitive data can be encrypted</li>
-              </ul>
+              <span class="security-icon">🔑</span>
+              <h3>TOFU for Gemini</h3>
+              <p>
+                Gemini connections are verified Trust-On-First-Use: a SHA-256 fingerprint of 
+                each server's certificate is stored in <code>known_hosts.json</code>, and a 
+                later mismatch is flagged as a possible machine-in-the-middle attack &mdash; 
+                the same model SSH uses.
+              </p>
             </div>
           </div>
+          
+          <p>
+            No JavaScript, no cookies, no telemetry. The most private data is the data that is 
+            never collected.
+          </p>
         </section>
 
         <hr class="section-divider">
@@ -472,41 +504,39 @@ cargo tauri build --target universal2-apple-darwin</code></pre>
 
         <hr class="section-divider">
 
+        <section id="quality" class="content-section">
+          <h2>✅ Quality and trust</h2>
+          <p>Bare is small, but it is not casual about correctness:</p>
+          <ul class="feature-list">
+            <li><strong>117+ unit tests</strong> across the core logic &mdash; extraction, protocol clients, converters, settings.</li>
+            <li><strong>Idiomatic Rust:</strong> <code>Result</code> + <code>thiserror</code> everywhere, <code>?</code> propagation, almost no <code>unwrap()</code> outside tests, per-module error types.</li>
+            <li><strong>A safe stack:</strong> <code>rustls</code> with <code>ring</code> (no OpenSSL), clamped numeric settings, allowlist sanitization.</li>
+            <li><strong>13 interface languages</strong>, in place unusually early for a project this size.</li>
+          </ul>
+        </section>
+
+        <hr class="section-divider">
+
         <section id="roadmap" class="content-section">
-          <h2>🚀 Technology Roadmap</h2>
+          <h2>🚫 What Bare will deliberately never build</h2>
           
-          <div class="roadmap">
-            <div class="roadmap-phase">
-              <h3>Short-term (0-6 months)</h3>
-              <ul>
-                <li>✅ Basic Markdown rendering</li>
-                <li>✅ HTTP/HTTPS support</li>
-                <li>✅ Gemini protocol support</li>
-                <li>✅ Gopher protocol support</li>
-                <li>⬜ PDF export</li>
-                <li>⬜ Tabs support</li>
-              </ul>
-            </div>
-            
-            <div class="roadmap-phase">
-              <h3>Medium-term (6-18 months)</h3>
-              <ul>
-                <li>⬜ Plugin system</li>
-                <li>⬜ Custom CSS themes</li>
-                <li>⬜ Cross-device synchronization</li>
-                <li>⬜ Mobile platforms (Android, iOS)</li>
-              </ul>
-            </div>
-            
-            <div class="roadmap-phase">
-              <h3>Experimental (18+ months)</h3>
-              <ul>
-                <li>⬜ P2P protocol support (IPFS, DAT)</li>
-                <li>⬜ AI-based content filtering</li>
-                <li>⬜ Voice control</li>
-              </ul>
-            </div>
-          </div>
+          <p>
+            A roadmap is also a list of refusals. These are not missing features &mdash; 
+            they are guarantees:
+          </p>
+          
+          <ul class="action-list">
+            <li><strong>No plugin or extension system.</strong> Non-extensibility is the central promise; a tool that cannot be extended cannot be quietly corrupted.</li>
+            <li><strong>No JavaScript engine.</strong> Ever. It is the largest source of tracking and attack surface on the web.</li>
+            <li><strong>No telemetry, no cloud sync, no accounts.</strong> Your reading is yours.</li>
+            <li><strong>No author-controlled styling.</strong> Presentation belongs to the reader.</li>
+          </ul>
+          
+          <p>
+            What <em>is</em> genuinely on the table stays in character &mdash; improvements to 
+            <em>reading</em>, never to <em>running code</em>: PDF export, heading anchors and a 
+            table of contents, and richer reading-typography controls.
+          </p>
         </section>
 
         <hr class="section-divider">
