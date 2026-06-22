@@ -1,142 +1,99 @@
 # Philosophy
 
-> "Simplicity is the ultimate sophistication." – Leonardo da Vinci
+> *"There is an unresolved tension between the sender and recipient of information — who is to be in charge of the final form presentation? HTML clearly champions the recipient."*
+> — Solvoll, Ivarsøy, Lie & Dybvik, *Telektronikk* 4/93
 
-Bare is more than just a browser – it's a **philosophy** about how the internet should be. In an age where websites have become increasingly heavy, complex, and intrusive, Bare represents a radical alternative: a return to the fundamentals.
+Bare is the answer to a question the web has spent thirty years trying to forget: **when you open a document, who is in charge — the person who wrote it, or the person reading it?**
 
----
+In 1993, four researchers at Norwegian Telecom Research wrote that the young World Wide Web "championed the recipient." The reader decided how a page looked. One of those researchers, Håkon Wium Lie, would propose CSS two years later — and the balance began tilting back toward the author. Three decades on, it has tilted so far that the reader has all but disappeared beneath layout, scripts, pop-ups, and surveillance.
 
-## 🧭 Core Values
-
-### 1. Content is King
-
-On the original internet, content was paramount. Websites were simple HTML documents, and users could view the source and understand how everything worked.
-
-Today, websites are often cluttered with:
-- Megabytes of JavaScript for simple functionality
-- Complex CSS frameworks that make sites heavy
-- Ads that disrupt the reading experience
-- Tracking scripts that collect data about you
-
-Bare removes all this noise and displays only what truly matters: **the content**.
-
-### 2. Privacy is Not a Setting – It's the Architecture
-
-Most browsers have privacy settings that you can turn on or off. The problem is that these settings often:
-- Are complex to configure
-- Can be forgotten
-- Don't provide full protection
-- Are overridden by websites
-
-In Bare, privacy is **built into the design itself**:
-
-| Feature | Status in Bare | Privacy Benefit |
-|----------|---------------|------------------|
-| JavaScript | ❌ Not supported | Zero tracking, no malware |
-| Cookies | ❌ Not supported | No third-party tracking |
-| CSS | ⚠️ Minimal | No CSS fingerprinting |
-| Images | ⚠️ Optional | Prevents tracking pixels |
-| Tracking | ❌ Impossible | Full protection |
-
-This means you **never** need to worry about whether your privacy is enabled – it always is.
-
-### 3. Simplicity Over Complexity
-
-Modern browsers have become extremely complex:
-- They support countless standards and protocols
-- They have hundreds of settings
-- They consume large amounts of memory and CPU
-
-Bare takes the opposite approach:
-- **Fewer features** = fewer bugs = more stability
-- **Less code** = faster performance = better experience
-- **Simpler design** = easier to understand = better user control
-
-### 4. User Control Over Platform Control
-
-Most browsers today are designed to:
-- Collect data about you (Chrome, Edge)
-- Lock you into an ecosystem (Safari, Firefox)
-- Force you to use certain services (OS integrations)
-
-Bare gives **you** control back:
-- **Open source**: You can see how everything works
-- **Local files**: You own your data
-- **No telemetry**: No data is ever sent
-- **Configurable**: You decide how the browser behaves
+Bare takes the 1993 position and refuses to compromise on it: **the reader is sovereign.**
 
 ---
 
-## 🌱 Inspiration
+## The reader is sovereign
 
-Bare is inspired by several movements and projects:
+The author supplies meaning. *You* supply the presentation.
 
-### Text-Based Browsers
+Theme, typography, line width, zoom level, whether images load at all — these are your decisions, made once and honored on every page you visit. A document author can tell you what they mean, but they cannot dictate the font you read it in, hijack your scroll, or decide that you must see their advertising to reach their words.
 
-The earliest browsers were text-based, and they continue to inspire:
-
-- **[Lynx](https://lynx.invisible-island.net/)** (1992) – The oldest browser still maintained
-- **[Links](http://links.twibright.com/)** – Text-based with optional graphical mode
-- **[w3m](https://w3m.sourceforge.net/)** (1995) – Supports colors, SSL, and inline images
-
-These browsers prove that you can have a full web experience **without** graphics, JavaScript, or complex layouts.
-
-### Minimalist Protocols
-
-- **[Gemini](https://geminiprotocol.net/)** – A modern, text-based protocol with mandatory encryption
-- **[Gopher](https://en.wikipedia.org/wiki/Gopher_(protocol))** – The classic, menu-driven protocol from 1991
-
-These protocols show that there are alternatives to the heavy, complex web.
-
-### Markdown Movement
-
-Markdown, created by [John Gruber](https://daringfireball.net/) in 2004 with contributions from [Aaron Swartz](https://en.wikipedia.org/wiki/Aaron_Swartz), represents a philosophy of simple, readable formatting:
-
-- **Readable as plain text**: Markdown files look good even without formatting
-- **Easy to learn**: The syntax is intuitive and similar to existing conventions
-- **Machine-readable**: Easy to parse and convert to other formats
+This is not a "reader mode" you toggle on for the rare unbearable page. In Bare it is the *only* mode. Every document, from every source, arrives in one consistent, legible form that you control.
 
 ---
 
-## 🎯 Vision
+## Simplicity is the winning strategy, not a sacrifice
 
-Bare has a long-term vision:
+The history of document formats is a history of simplicity defeating power.
 
-### Short-term (0-2 years)
-- Full Markdown rendering support
-- Stable support for Gemini and Gopher
-- Good performance and usability
+In the early 1990s, the rich and ambitious **ODA** (Office Document Architecture) standard competed with the humble **SGML**, and SGML's simplest application — **HTML** — won the web outright. It won precisely *because* it was easy to implement and easy to read. As the 1993 paper concluded: the simplest format that is "good enough" wins, every time.
 
-### Medium-term (2-5 years)
-- A full ecosystem for text-based browsing
-- Integration with other open source projects
-- A sustainable maintenance model
+```
+ODA  →  SGML  →  HTML  →  Markdown
+(rich, complex)        (simple, human-readable)
+```
 
-### Long-term (5+ years)
-- To inspire a new generation of text-based browsers
-- To contribute to a more open, private, and simple web experience
-- To preserve the original spirit of the internet
+Bare bets that the same evolution is happening again. HTML has become the new ODA: technically universal, but bloated past the point of usefulness. **Markdown is the next "good enough" format** — readable as plain text, trivial to parse, impossible to weaponize. Bare is built on that bet.
 
----
+Fewer moving parts is itself the feature:
 
-## 🤝 Join the Movement
-
-Bare is not just a browser – it's a **movement** towards a better internet. You can join by:
-
-- **Using Bare**: Download and use the browser
-- **Contributing to development**: Help with code, documentation, or testing
-- **Spreading the word**: Tell others about Bare
-- **Creating content**: Publish Markdown content that can be read in Bare
-
-Together, we can recreate an internet that is **simpler, more private, and more focused on content**.
+- **Fewer features** → fewer bugs → more stability
+- **Less code** → faster rendering → a calmer experience
+- **A smaller surface** → less to attack, less to track, less to break
 
 ---
 
-## 📚 Related Reading
+## Privacy is the architecture, not a checkbox
 
-- [About Bare](./about.md) – What the browser is
-- [Technology](./technology.md) – How Bare is built
-- [History](./history.md) – The background of text-based protocols
+Most browsers treat privacy as a setting — something you can enable, forget, misconfigure, or have silently overridden by a website. Bare treats it as a structural property that cannot be switched off, because the capabilities that enable tracking simply do not exist.
+
+| Capability | Status in Bare | Why it matters |
+|------------|----------------|----------------|
+| JavaScript | Not supported | No scripts means no behavioral tracking and no malware execution |
+| Cookies | Not supported | Nothing can persist a unique identifier between visits |
+| Remote CSS / fonts | Not loaded | Closes the door on CSS fingerprinting and font enumeration |
+| Images | Blocked by default | Tracking pixels never fire unless *you* choose to load them |
+| External requests | Zero by default | One click fetches one document — and nothing else |
+
+The Gemini protocol community calls this principle **"break all loops"**: a design where nothing a server sends can ever make its way back to that server to re-identify you. Bare applies the same logic to the whole browsing experience. There is no round trip to close, because there is no loop to begin with.
+
+You never have to wonder whether your privacy is on. It is the only state the program can be in.
+
+---
+
+## Non-extensibility is a promise
+
+The web became a surveillance platform not through any single decision, but through *extensibility*. HTML and HTTP were designed to be easy to add to, and so — feature by reasonable-sounding feature — they grew until the document-reading tool became a general-purpose computing platform that runs untrusted code on your machine by default.
+
+Bare makes the opposite promise. There is deliberately **no plugin system, no scripting hook, no mechanism for a page to extend what the browser can do.** A document cannot ask Bare to connect somewhere else, run a computation, or store state. This is not a missing feature; it is the central guarantee. A tool that cannot be extended cannot be slowly corrupted into something that works against you.
+
+---
+
+## What Bare refuses — and why
+
+Saying "no" clearly is how Bare stays true to its purpose:
+
+- **No JavaScript.** The single largest source of tracking, fingerprinting, and attack surface on the web. Removing it removes the problem at the root.
+- **No author-controlled styling.** Presentation belongs to the reader. A document with bad contrast or a hostile layout is the author's failure to impose, not yours to suffer.
+- **No editing or publishing.** Bare is a reading instrument. It does one thing and gets out of the way.
+- **No telemetry, ever.** Bare does not phone home. There is no "anonymized usage data," because the most private data is the data that is never collected.
+
+These refusals are not limitations to apologize for. They are the entire point — the things that make Bare *Bare*.
+
+---
+
+## A different kind of internet
+
+The Gemini FAQ puts it well: browsing should feel "more like browsing a library than wandering through a shopping mall or a casino." A library makes a world of material available and then leaves you alone with it. Nobody follows you between the shelves. Nobody redecorates the book while you read. Nobody reports your borrowing habits to a marketing department.
+
+That is the internet Bare is trying to give back to you — one document at a time, on your terms.
+
+---
+
+## Related reading
+
+- [About Bare](./about.md) — what the browser is and who it's for
+- [Technology](./technology.md) — how these principles are enforced in code
+- [History](./history.md) — the lineage Bare belongs to, from MultiTorg to Gemini
 
 ---
 
