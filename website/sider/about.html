@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About Bare &mdash; A minimal Markdown browser</title>
-  <meta name="description" content="Bare is an experimental browser with a radical focus on content. No JavaScript, no cookies, no tracking. Just fast, private, content-focused browsing.">
+  <title>About Bare &mdash; A reading instrument for the text internet</title>
+  <meta name="description" content="Bare is an experimental, open-source reading instrument. It fetches one document, strips everything that isn't the content, and renders it the way you choose.">
   
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="About Bare &mdash; A minimal Markdown browser">
-  <meta property="og:description" content="Bare is an experimental browser with a radical focus on content. No JavaScript, no cookies, no tracking.">
+  <meta property="og:title" content="About Bare &mdash; A reading instrument for the text internet">
+  <meta property="og:description" content="Not a smaller Chrome. Bare fetches one document, removes everything that isn't the content, and renders it the way you choose.">
   <meta property="og:url" content="https://frankburmo.github.io/bare/sider/about.html">
   <meta property="og:locale" content="en_US">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="About Bare &mdash; A minimal Markdown browser">
-  <meta name="twitter:description" content="Bare is an experimental browser with a radical focus on content. No JavaScript, no cookies, no tracking.">
+  <meta name="twitter:title" content="About Bare &mdash; A reading instrument for the text internet">
+  <meta name="twitter:description" content="Not a smaller Chrome. Bare fetches one document, removes everything that isn't the content, and renders it the way you choose.">
   
   <!-- Canonical -->
   <link rel="canonical" href="https://frankburmo.github.io/bare/sider/about.html">
@@ -69,83 +69,85 @@
           </blockquote>
           
           <p>
-            Bare is an experimental browser with a radical focus on what truly matters: 
-            <strong>the content</strong>. In an era where websites have become bloated, 
-            overflowing with scripts, ads, and tracking, Bare offers a future where you 
-            only see what you came to read.
+            Bare is an experimental, open-source <strong>reading instrument</strong> for the 
+            text internet. It is not a smaller version of Chrome &mdash; it is a different kind 
+            of tool that does one thing deliberately: take whatever a server sends and turn it 
+            into clean, consistent, private text that <em>you</em> control.
           </p>
         </section>
 
         <hr class="section-divider">
 
-        <section id="what-makes-different" class="content-section">
-          <h2>What Makes Bare Different?</h2>
+        <section id="what-reading-is-like" class="content-section">
+          <h2>What reading in Bare is actually like</h2>
           
-          <div class="feature-grid">
-            <div class="feature-card">
-              <span class="feature-icon" aria-hidden="true">📄</span>
-              <h3>Pure Markdown Rendering</h3>
-              <p>
-                Bare is designed to display Markdown files directly. When you visit a URL 
-                pointing to a <code>.md</code> file, it is fetched and displayed immediately 
-                in a clean, readable format. No HTML chaos, no distracting CSS, no JavaScript 
-                loading.
-              </p>
-            </div>
-            
-            <div class="feature-card">
-              <span class="feature-icon" aria-hidden="true">🚫</span>
-              <h3>Zero Tracking. Ever.</h3>
-              <p>
-                Bare does <strong>not</strong> support JavaScript, cookies, or any tracking 
-                technology. This isn't a setting you can forget to enable &mdash; it's built into 
-                the architecture. Your browsing remains private, by design.
-              </p>
-            </div>
-            
-            <div class="feature-card">
-              <span class="feature-icon" aria-hidden="true">⚡</span>
-              <h3>Blazing Fast Performance</h3>
-              <p>
-                Without heavy frameworks, scripts, or ads, pages load in milliseconds rather 
-                than seconds. Bare fetches and displays only what matters: the content.
-              </p>
-            </div>
-            
-            <div class="feature-card">
-              <span class="feature-icon" aria-hidden="true">🌐</span>
-              <h3>Multi-Protocol Support</h3>
-              <p>
-                In addition to standard HTTP/HTTPS, Bare supports Gemini, Gopher, and local 
-                files. Explore the text-based internet as it was meant to be.
-              </p>
-            </div>
-          </div>
+          <p>The difference is easiest to feel in a single click.</p>
+          <p>
+            You type an address &mdash; or open a local <code>.md</code> file, a 
+            <code>gemini://</code> capsule, or an old <code>gopher://</code> menu. Bare's Rust 
+            core fetches <strong>that one document and nothing else</strong>. If it's an 
+            ordinary web page, Bare reads the underlying HTML, scores it to find the actual 
+            article, and throws away the navigation bars, the cookie wall, the newsletter 
+            pop-up, the share buttons, the comment section, and the ad slots. What's left is 
+            converted to Markdown, sanitized, and rendered.
+          </p>
+          <p>
+            You then read it in <strong>your</strong> theme, <strong>your</strong> font, 
+            <strong>your</strong> line width, <strong>your</strong> zoom level &mdash; the same 
+            way every page looks, because presentation is your decision, not the author's. 
+            Click a link and the whole calm process repeats. No layout shift, no scripts 
+            spinning up, no fonts or beacons loading in the background. Just the next document.
+          </p>
+          <p>
+            That is the entire product: the web, minus everything that isn't what you came to 
+            read.
+          </p>
+        </section>
+
+        <hr class="section-divider">
+
+        <section id="problem" class="content-section">
+          <h2>The problem it solves</h2>
+          
+          <p>
+            Reading something online has quietly become one of the most hostile experiences in 
+            computing. A short article can pull in megabytes of JavaScript, a dozen 
+            third-party trackers, autoplaying video, and several interruptions before you reach 
+            the first sentence &mdash; and the page often reflows under your eyes while it loads.
+          </p>
+          <p>
+            Bare assumes you opened the link to <strong>read the thing</strong>, and removes 
+            everything standing between you and that goal. The result is faster, quieter, and 
+            private not because you configured it to be, but because the parts that make pages 
+            slow and invasive are simply absent.
+          </p>
         </section>
 
         <hr class="section-divider">
 
         <section id="who-is-for" class="content-section">
-          <h2>Who is Bare For?</h2>
-          
-          <p>Bare is perfect for:</p>
+          <h2>Who Bare is for</h2>
           
           <ul class="large-list">
             <li>
-              <strong>Writers and researchers</strong> who want to read and write without 
+              <strong>Writers and researchers</strong> who want to read long-form text without 
               distractions
             </li>
             <li>
-              <strong>Privacy-conscious users</strong> who don't want to be tracked
+              <strong>Privacy-conscious people</strong> who would rather not be measured, 
+              profiled, and followed
             </li>
             <li>
-              <strong>Minimalists</strong> who prefer simplicity over complexity
+              <strong>Minimalists</strong> who prefer one calm format to a thousand competing 
+              designs
             </li>
             <li>
-              <strong>Technology enthusiasts</strong> curious about alternative web experiences
+              <strong>Tinkerers and the curious</strong> exploring Gemini, Gopher, and the 
+              text internet
             </li>
             <li>
-              <strong>Anyone who misses the original, text-based internet</strong>
+              <strong>Anyone who remembers</strong> when the web was mostly documents, and 
+              misses it
             </li>
           </ul>
         </section>
@@ -155,47 +157,55 @@
         <section id="what-not" class="content-section">
           <h2>What Bare is NOT</h2>
           
+          <p>Being clear about the boundaries is part of the design:</p>
+          
           <div class="not-list">
             <div class="not-item">
               <span class="not-icon">❌</span>
-              <strong>A full-featured browser</strong> &mdash; We will never support JavaScript
+              <strong>A full-featured web browser</strong> &mdash; it will never run JavaScript
             </div>
             <div class="not-item">
               <span class="not-icon">❌</span>
-              <strong>An HTML renderer</strong> &mdash; Only Markdown is first-class
+              <strong>A faithful HTML renderer</strong> &mdash; only the readable text is first-class; pixel-perfect layouts are not the goal
             </div>
             <div class="not-item">
               <span class="not-icon">❌</span>
-              <strong>A text editor</strong> &mdash; View only, not editing
+              <strong>An editor or publishing tool</strong> &mdash; Bare reads; it does not write
             </div>
             <div class="not-item">
               <span class="not-icon">❌</span>
-              <strong>A social media tool</strong> &mdash; No integration with social platforms
+              <strong>A social or "platform" app</strong> &mdash; no accounts, no feeds, no sharing widgets
             </div>
           </div>
+          
+          <p>
+            If you need any of those, a conventional browser is the right tool. Bare is 
+            intentionally not trying to be one.
+          </p>
         </section>
 
         <hr class="section-divider">
 
-        <section id="why" class="content-section">
-          <h2>Why Create Such a Browser?</h2>
+        <section id="status" class="content-section">
+          <h2>An honest status</h2>
           
           <p>
-            The internet has changed dramatically since its inception. Where it was once 
-            an open, text-based platform for sharing information, it's now a commercial 
-            arena filled with tracking, ads, and distracting elements.
-          </p>
-          
-          <p>
-            Bare is an attempt to <strong>revive the original spirit</strong> of the internet:
+            Bare is <strong>early and experimental</strong>, released under the 
+            <strong>GPL-3.0</strong> license and developed in the open. What works today:
           </p>
           
           <ul class="principle-list">
-            <li><strong>Content over presentation</strong></li>
-            <li><strong>Privacy over surveillance</strong></li>
-            <li><strong>Simplicity over complexity</strong></li>
-            <li><strong>User control over platform control</strong></li>
+            <li>Reading over <strong>HTTP/HTTPS</strong> with readability extraction</li>
+            <li>The <strong>Gemini</strong> protocol (with TOFU certificate trust)</li>
+            <li>The <strong>Gopher</strong> protocol (RFC 1436)</li>
+            <li>Local Markdown files via <code>file://</code></li>
+            <li>Themes, typography, zoom, bookmarks, in-page search, and a command palette &mdash; in 13 languages</li>
           </ul>
+          
+          <p>
+            It is small, it is opinionated, and it is honest about what it does not do. If that 
+            resonates, you are exactly who it was built for.
+          </p>
         </section>
 
         <hr class="section-divider">

@@ -1,8 +1,27 @@
 # History
 
-> "Those who cannot remember the past are condemned to repeat it." – George Santayana
+> *"There is an unresolved tension between the sender and recipient of information — who is to be in charge of the final form presentation? HTML clearly champions the recipient."*
+> — *Telektronikk* 4/93
 
-The history of Bare is not just the history of a browser, but also the history of **the internet itself** – how it started as an open, text-based platform, became commercialized and complex, and how a new movement is now trying to revive the original spirit.
+Bare's story is really one long argument about a single question: **when you read a document, who decides how it looks — the author, or you?** The web has answered that question differently in different decades. Bare exists to give one particular answer — *you do* — and this page traces how that question was first asked, gradually lost, and is now being asked again.
+
+---
+
+## 🇳🇴 A Norwegian thread (1993)
+
+Before the web was commercial, it was an experiment — and some of that experiment happened in Norway.
+
+In 1993, researchers at **Norwegian Telecom Research** (Televerkets Forskningsinstitutt) were building **MultiTorg**, an early "distributed electronic information marketplace." Their account of it appeared in the journal **_Telektronikk_ 4/93**, which became *one of the first journals in the world published in full on the World Wide Web* and went on to win a **"Best of the Web '94"** award.
+
+The problem they described is the one the internet has never fully solved: a **"Tower of Babel"** of incompatible document formats. Their survey ran through the contenders — the rich and complex **ODA** (Office Document Architecture), the flexible **SGML**, and SGML's small, pragmatic offspring, **HTML** — and reached a conclusion that still defines Bare:
+
+> *"There is an unresolved tension between the sender and recipient of information — who is to be in charge of the final form presentation? HTML clearly champions the recipient."*
+
+On the early web, in other words, **the reader was in charge.** The author marked up *meaning*; the reader's software decided the *appearance*.
+
+One of the article's co-authors was **Håkon Wium Lie**. Two years later, in 1994, he proposed **Cascading Style Sheets (CSS)** — handing a measure of presentational control back to authors. It was a reasonable idea that, over three decades, helped tilt the balance all the way to today's web, where the author (and the advertiser) controls nearly everything and the reader controls almost nothing.
+
+Bare is, in a sense, a vote for the 1993 position.
 
 ---
 
@@ -118,17 +137,20 @@ In **June 2019**, a developer under the pseudonym [Solderpunk](https://geminipro
 
 **Background:**
 
-Solderpunk was part of the **Gopherspace community** and had become frustrated with:
-- The complexity of the modern Web
-- Privacy issues
-- Lack of simple, text-based communication
+Solderpunk was active in the **Gopherspace community** and had grown frustrated with the modern web's complexity, its surveillance, and the way even "simple" pages had become heavy and hostile. Gemini was an attempt to build something deliberately in between — and to make it impossible to grow into another web.
 
-**Gemini's design goals:**
+**Why "Gemini"?**
 
-1. Simpler than Web, but more powerful than Gopher
-2. **Mandatory TLS encryption** (no insecure connections)
-3. **Text-based** (but with support for binary files)
-4. **Client-driven** (the client decides how content is displayed)
+The name is a reference to NASA's **Gemini space program** — the "middle child" between **Mercury** and **Apollo**. Gemini the protocol sees itself the same way: more capable than **Gopher** (Mercury) but far simpler than the **web** (Apollo), doing more with less rather than trying to do everything.
+
+**Design principles:**
+
+1. **Privacy** — minimal metadata, no cookies, no user-tracking; "break all loops"
+2. **User autonomy** — the *client* decides how content is presented, not the author
+3. **Non-extensibility** — the protocol is intentionally hard to extend, so it cannot bloat
+4. **Simplicity** — a complete client can be written by one person in a weekend
+
+Every request uses **mandatory TLS** and follows a strict "one network transaction per click" rule — fetching a page never drags in fonts, scripts, or trackers.
 
 **Gemtext format:**
 ```gemini
@@ -140,11 +162,15 @@ This is a paragraph.
 => https://example.com Link description
 ```
 
-**Gemini today (2026):**
-- **~3,900 known servers** ("capsules")
-- **~600,000+ URIs** in "Geminispace"
-- **Growing community** of developers and users
-- **Many clients** (browsers) available
+**A small but real network:**
+
+After a surge of attention on Hacker News in **May 2020**, Geminispace grew into a modest, deliberately non-commercial community. A mid-2023 crawl counted roughly:
+
+- **~425,000** URLs
+- **~2,500** capsules (sites)
+- **~1,700** domains across **~1,200** hosts
+
+Small by web standards — and that is exactly the point. Gemini is, in its own words, more like browsing a library than wandering through a shopping mall or a casino.
 
 ---
 
