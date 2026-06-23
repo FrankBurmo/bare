@@ -1109,90 +1109,112 @@ pub fn resolve_gopher_url(base_url: String, relative_url: String) -> Result<Stri
     gopher::resolve_gopher_url(&base_url, &relative_url).map_err(|e| e.to_string())
 }
 
-/// Returnerer velkomst-innhold for når appen starter
+/// Returnerer filosofi-innhold for når appen starter
 #[tauri::command]
 pub fn get_welcome_content() -> RenderedPage {
-    let welcome_md = r#"# Velkommen til Bare
+    let philosophy_md = r#"# Philosophy
 
-> "The internet doesn't have to be heavy."
+> *"There is an unresolved tension between the sender and recipient of information — who is to be in charge of the final form presentation? HTML clearly champions the recipient."*
+> — Solvoll, Ivarsøy, Lie & Dybvik, *Telektronikk* 4/93
 
-**Bare** er en eksperimentell markdown-nettleser med fokus på:
+Bare is the answer to a question the web has spent thirty years trying to forget: **when you open a document, who is in charge — the person who wrote it, or the person reading it?**
 
-- **Personvern** — Ingen cookies, ingen JavaScript, ingen sporing
-- **Hastighet** — Lynrask lasting av rent innhold
-- **Fokus** — Innholdet er i sentrum, ikke designet
+In 1993, four researchers at Norwegian Telecom Research wrote that the young World Wide Web "championed the recipient." The reader decided how a page looked.
+ One of those researchers, Håkon Wium Lie, would propose CSS two years later — and the balance began tilting back toward the author. Three decades on, it has tilted so far that the reader has all but disappeared beneath layout, scripts, pop-ups, and surveillance.
 
-## Kom i gang
-
-### Åpne en lokal fil
-
-Klikk på **Åpne fil** i verktøylinjen for å velge en `.md`-fil fra datamaskinen din.
-
-### Skriv inn en URL
-
-Skriv inn en URL til en markdown-fil i adressefeltet og trykk Enter.
-
-### Gemini-protokollen
-
-Bare støtter **Gemini-protokollen** — et enkelt og personvernvennlig alternativ til HTTP.
-
-Prøv en av disse adressene:
-
-- [gemini://geminiprotocol.net/](gemini://geminiprotocol.net/)
-- [gemini://gemini.circumlunar.space/](gemini://gemini.circumlunar.space/)
-- [gemini://geminiquickst.art/](gemini://geminiquickst.art/)
-
-Gemini-sider bruker et enkelt format kalt gemtext, som automatisk konverteres til markdown.
-
-## Eksempel på markdown
-
-Her er noen eksempler på hva Bare kan vise:
-
-### Tekst-formatering
-
-- **Fet tekst** for viktige ting
-- *Kursiv tekst* for vektlegging
-- ~~Gjennomstreket~~ for ting som ikke gjelder lenger
-- `Kode` for tekniske termer
-
-### Lister
-
-1. Nummererte lister
-2. Fungerer også
-3. Automatisk nummerering
-
-### Oppgavelister
-
-- [x] Sett opp Tauri-prosjekt
-- [x] Implementer markdown-rendering
-- [ ] Legg til nettverksstøtte
-- [ ] Lag HTML-til-markdown konvertering
-
-### Tabeller
-
-| Funksjon | Status |
-|----------|--------|
-| Markdown-rendering | ✅ Ferdig |
-| Lokale filer | ✅ Ferdig |
-| Nettverksforespørsler | 🚧 Kommer |
-
-### Kodeblokker
-
-```rust
-fn main() {
-    println!("Hello, Bare!");
-}
-```
+Bare takes the 1993 position and refuses to compromise on it: **the reader is sovereign.**
 
 ---
 
-*Bare v{} — Laget med ❤️ for et enklere internett*
-"#;
+## The reader is sovereign
 
-    let welcome_md = welcome_md.replace("{}", env!("CARGO_PKG_VERSION"));
+The author supplies meaning. *You* supply the presentation.
 
-    let html = markdown::render(&welcome_md);
-    let title = markdown::extract_title(&welcome_md);
+Theme, typography, line width, zoom level, whether images load at all — these are your decisions, made once and honored on every page you visit. A document author can tell you what they mean, but they cannot dictate the font you read it in, hijack your scroll, or decide that you must see their advertising to reach their words.
+
+This is not a "reader mode" you toggle on for the rare unbearable page. In Bare it is the *only* mode. Every document, from every source, arrives in one consistent, legible form that you control.
+
+---
+
+## Simplicity is the winning strategy, not a sacrifice
+
+The history of document formats is a history of simplicity defeating power.
+
+In the early 1990s, the rich and ambitious **ODA** (Office Document Architecture) standard competed with the humble **SGML**, and SGML's simplest application — **HTML** — won the web outright. It won precisely *because* it was easy to implement and easy to read. As the 1993 paper concluded: the simplest format that is "good enough" wins, every time.
+
+```
+ODA  →  SGML  →  HTML  →  Markdown
+(rich, complex)        (simple, human-readable)
+```
+
+Bare bets that the same evolution is happening again. HTML has become the new ODA: technically universal, but bloated past the point of usefulness. **Markdown is the next "good enough" format** — readable as plain text, trivial to parse, impossible to weaponize. Bare is built on that bet.
+
+Fewer moving parts is itself the feature:
+
+- **Fewer features** → fewer bugs → more stability
+- **Less code** → faster rendering → a calmer experience
+- **A smaller surface** → less to attack, less to track, less to break
+
+---
+
+## Privacy is the architecture, not a checkbox
+
+Most browsers treat privacy as a setting — something you can enable, forget, misconfigure, or have silently overridden by a website. Bare treats it as a structural property that cannot be switched off, because the capabilities that enable tracking simply do not exist.
+
+| Capability | Status in Bare | Why it matters |
+| JavaScript | Not supported | No scripts means no behavioral tracking and no malware execution |
+| Cookies | Not supported | Nothing can persist a unique identifier between visits |
+| Remote CSS / fonts | Not loaded | Closes the door on CSS fingerprinting and font enumeration |
+| Images | Blocked by default | Tracking pixels never fire unless *you* choose to load them |
+| External requests | Zero by default | One click fetches one document — and nothing else |
+
+The Gemini protocol community calls this principle **"break all loops"**: a design where nothing a server sends can ever make its way back to that server to re-identify you. Bare applies the same logic to the whole browsing experience.
+
+You never have to wonder whether your privacy is on. It is the only state the program can be in.
+
+---
+
+## Non-extensibility is a promise
+
+The web became a surveillance platform not through any single decision, but through *extensibility*. HTML and HTTP were designed to be easy to add to, and so — feature by reasonable-sounding feature — they grew until the document-reading tool became a general-purpose computing platform that runs untrusted code on your machine by default.
+
+Bare makes the opposite promise. There is deliberately **no plugin system, no scripting hook, no mechanism for a page to extend what the browser can do.** A document cannot ask Bare to connect somewhere else, run a computation, or store state. This is not a missing feature; it is the central guarantee. A tool that cannot be extended cannot be slowly corrupted into something that works against you.
+
+---
+
+## What Bare refuses — and why
+
+Saying "no" clearly is how Bare stays true to its purpose:
+
+- **No JavaScript.** The single largest source of tracking, fingerprinting, and attack surface on the web. Removing it removes the problem at the root.
+- **No author-controlled styling.** Presentation belongs to the reader. A document with bad contrast or a hostile layout is the author's failure to impose, not yours to suffer.
+- **No editing or publishing.** Bare is a reading instrument. It does one thing and gets out of the way.
+- **No telemetry, ever.** Bare does not phone home. There is no "anonymized usage data," because the most private data is the data that is never collected.
+
+These refusals are not limitations to apologize for. They are the entire point — the things that make Bare *Bare*.
+
+---
+
+## A different kind of internet
+
+The Gemini FAQ puts it well: browsing should feel "more like browsing a library than wandering through a shopping mall or a casino." A library makes a world of material available and then leaves you alone with it. Nobody follows you between the shelves. Nobody redecorates the book while you read. Nobody reports your borrowing habits to a marketing department.
+
+That is the internet Bare is trying to give back to you — one document at a time, on your terms.
+
+---
+
+## Related reading
+
+- [About Bare](https://frankburmo.github.io/bare/sider/about.md) — what the browser is and who it's for
+- [Technology](https://frankburmo.github.io/bare/sider/technology.md) — how these principles are enforced in code
+- [History](https://frankburmo.github.io/bare/sider/history.md) — the lineage Bare belongs to, from MultiTorg to Gemini
+
+---
+
+[Back to Home](https://frankburmo.github.io/bare/index.md)"#;
+
+    let html = markdown::render(philosophy_md);
+    let title = markdown::extract_title(philosophy_md);
 
     RenderedPage {
         html,
@@ -1218,7 +1240,7 @@ mod tests {
     #[test]
     fn test_get_welcome_content() {
         let result = get_welcome_content();
-        assert!(result.html.contains("Velkommen til Bare"));
+        assert!(result.html.contains("Philosophy"));
         assert!(result.title.is_some());
         assert!(!result.is_remote);
     }
