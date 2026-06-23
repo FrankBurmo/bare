@@ -562,6 +562,7 @@ th {
 .learn-card:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
+  text-decoration: none;
 }
 
 .learn-icon {
