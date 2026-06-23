@@ -225,14 +225,14 @@ pre code {
   background: var(--bg);
 }
 
-.protocol-grid {
+.protocols .protocol-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   margin-top: 2rem;
 }
 
-.protocol-card {
+.protocols .protocol-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -244,16 +244,16 @@ pre code {
   text-align: center;
 }
 
-.protocol-icon {
+.protocols .protocol-icon {
   font-size: 2rem;
   margin-bottom: 0.25rem;
 }
 
-.protocol-card strong {
+.protocols .protocol-card strong {
   font-size: 0.95rem;
 }
 
-.protocol-card code {
+.protocols .protocol-card code {
   font-size: 0.82rem;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -967,7 +967,7 @@ th {
 }
 
 .protocol-card.large {
-  grid-column: span 2;
+  grid-column: 1 / -1;
 }
 
 .protocol-icon {
@@ -1264,6 +1264,7 @@ th {
 /* ----- Protocol Story ----- */
 .protocol-story {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   margin-top: 1.5rem;
 }
