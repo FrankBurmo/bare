@@ -15,8 +15,9 @@ use log::debug;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{LazyLock, Mutex};
-use tauri::Emitter;
+use tauri::{Emitter, WebviewUrl, WebviewWindowBuilder};
 
 // Emoji-konstanter for protokollidentifikasjon
 const EMOJI_HTTPS: &str = "🔒";
@@ -43,6 +44,9 @@ static SETTINGS: LazyLock<Mutex<Settings>> = LazyLock::new(|| {
     Mutex::new(Settings::load(&path).unwrap_or_default())
 });
 
+/// Løpenummer som sikrer unike etiketter for nye vinduer.
+static NEXT_WINDOW_ID: AtomicU64 = AtomicU64::new(1);
+
 /// Global cache for rendrede sider (LRU - Least Recently Used)
 /// Lagrer opptil 50 sider for å øke hastigheten på navigasjon.
 static RENDER_CACHE: LazyLock<Mutex<lru::LruCache<String, RenderedPage>>> =
@@ -60,6 +64,29 @@ fn extract_host(url: &str) -> String {
 #[tauri::command]
 pub fn get_app_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
+}
+
+/// Oppretter et nytt nettleservindu på startsiden.
+#[tauri::command]
+pub fn new_window(app: tauri::AppHandle) -> Result<(), String> {
+    let window_id = NEXT_WINDOW_ID.fetch_add(1, Ordering::Relaxed);
+    let label = format!("browser-{window_id}");
+
+    WebviewWindowBuilder::new(&app, label, WebviewUrl::App("index.html".into()))
+        .title("Bare")
+        .inner_size(1024.0, 768.0)
+        .min_inner_size(400.0, 300.0)
+        .build()
+        .map(|_| ())
+        .map_err(|error| format!("Kunne ikke opprette nytt vindu: {error}"))
+}
+
+/// Lukker nettleservinduet som sendte kommandoen.
+#[tauri::command]
+pub fn close_window(window: tauri::Window) -> Result<(), String> {
+    window
+        .close()
+        .map_err(|error| format!("Kunne ikke lukke vinduet: {error}"))
 }
 
 /// Resultat fra markdown-rendering

@@ -266,6 +266,22 @@ function initKeyboardShortcuts() {
             e.preventDefault();
             reloadPage();
         }
+
+        // Ctrl+T: Åpne nytt vindu
+        if (e.ctrlKey && e.key === 't') {
+            e.preventDefault();
+            window.__TAURI__.core.invoke('new_window').catch((error) => {
+                console.error('Kunne ikke opprette nytt vindu:', error);
+            });
+        }
+
+        // Ctrl+W: Lukk gjeldende vindu
+        if (e.ctrlKey && e.key === 'w') {
+            e.preventDefault();
+            window.__TAURI__.core.invoke('close_window').catch((error) => {
+                console.error('Kunne ikke lukke vinduet:', error);
+            });
+        }
         
         // Ctrl+O: Åpne fil
         if (e.ctrlKey && e.key === 'o') {
