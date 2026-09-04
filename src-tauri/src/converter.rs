@@ -4,9 +4,9 @@
 //! Inkluderer readability-modus for å ekstrahere hovedinnhold.
 
 use ammonia::Builder;
-use dom_smoothie::{Config, Readability, TextMode};
+use dom_smoothie::{Config, Readability};
 use log::{debug, info, warn};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 // Disse importene brukes av decode_html som er tilgjengelig for fremtidig bruk
 #[allow(unused_imports)]
@@ -54,11 +54,7 @@ pub fn html_to_markdown(
     info!("Konverterer HTML til markdown ({} bytes)", html.len());
 
     if readability_enabled {
-        // Konfigurer dom_smoothie for markdown-output
-        let cfg = Config {
-            text_mode: TextMode::Markdown,
-            ..Default::default()
-        };
+        let cfg = Config::default();
 
         // Prøv Readability-ekstraksjon
         match Readability::new(html, url, Some(cfg)) {
@@ -68,8 +64,10 @@ pub fn html_to_markdown(
                         "Readability ekstraherte {} bytes",
                         article.text_content.len()
                     );
+                    let clean_html = sanitize_html(&article.content);
+                    let markdown = convert_html_to_markdown(&clean_html);
                     return ConversionResult {
-                        markdown: article.text_content.to_string(),
+                        markdown: clean_markdown(&markdown),
                         title: if article.title.is_empty() {
                             None
                         } else {
@@ -97,7 +95,7 @@ pub fn html_to_markdown(
     // Fallback: Bruk den gamle metoden hvis Readability feiler eller er deaktivert
     let title = extract_title(html);
     let clean_html = sanitize_html(html);
-    let markdown = html2md::parse_html(&clean_html);
+    let markdown = convert_html_to_markdown(&clean_html);
     let cleaned_markdown = clean_markdown(&markdown);
 
     ConversionResult {
@@ -105,6 +103,155 @@ pub fn html_to_markdown(
         title,
         used_readability: false,
     }
+}
+
+struct BlockSafeAnchorFactory;
+
+impl html2md::TagHandlerFactory for BlockSafeAnchorFactory {
+    fn instantiate(&self) -> Box<dyn html2md::TagHandler> {
+        Box::new(BlockSafeAnchorHandler::default())
+    }
+}
+
+#[derive(Default)]
+struct BlockSafeAnchorHandler {
+    inline_handler: Option<html2md::anchors::AnchorHandler>,
+    skip_children: bool,
+}
+
+impl html2md::TagHandler for BlockSafeAnchorHandler {
+    fn handle(&mut self, tag: &html2md::Handle, printer: &mut html2md::StructuredPrinter) {
+        if !contains_block_element(tag) {
+            let mut inline_handler = html2md::anchors::AnchorHandler::default();
+            inline_handler.handle(tag, printer);
+            self.inline_handler = Some(inline_handler);
+            return;
+        }
+
+        self.skip_children = true;
+        let text = extract_link_text(tag);
+        if let Some(href) = extract_href(tag) {
+            for (source, alt_text) in extract_images(tag) {
+                printer.append_str(&format!(
+                    "[![{}]({})]({})\n\n",
+                    escape_link_text(&alt_text),
+                    source,
+                    href
+                ));
+            }
+            if !text.is_empty() {
+                printer.append_str(&format!("[{}]({})", escape_link_text(&text), href));
+            }
+        }
+    }
+
+    fn after_handle(&mut self, printer: &mut html2md::StructuredPrinter) {
+        if let Some(inline_handler) = &mut self.inline_handler {
+            inline_handler.after_handle(printer);
+        }
+    }
+
+    fn skip_descendants(&self) -> bool {
+        self.skip_children
+    }
+}
+
+fn convert_html_to_markdown(html: &str) -> String {
+    let mut custom_handlers: HashMap<String, Box<dyn html2md::TagHandlerFactory>> = HashMap::new();
+    custom_handlers.insert("a".to_string(), Box::new(BlockSafeAnchorFactory));
+    html2md::parse_html_custom(html, &custom_handlers)
+}
+
+fn contains_block_element(node: &html2md::Handle) -> bool {
+    const BLOCK_ELEMENTS: &[&str] = &[
+        "article",
+        "aside",
+        "div",
+        "figure",
+        "figcaption",
+        "footer",
+        "header",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "li",
+        "main",
+        "p",
+        "section",
+    ];
+
+    node.children.borrow().iter().any(|child| {
+        matches!(
+            &child.data,
+            html2md::NodeData::Element { name, .. } if BLOCK_ELEMENTS.contains(&name.local.as_ref())
+        ) || contains_block_element(child)
+    })
+}
+
+fn extract_href(node: &html2md::Handle) -> Option<String> {
+    match &node.data {
+        html2md::NodeData::Element { attrs, .. } => attrs.borrow().iter().find_map(|attribute| {
+            (attribute.name.local.as_ref() == "href").then(|| attribute.value.to_string())
+        }),
+        _ => None,
+    }
+}
+
+fn extract_link_text(node: &html2md::Handle) -> String {
+    let mut text = String::new();
+    collect_text(node, &mut text);
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn collect_text(node: &html2md::Handle, text: &mut String) {
+    if let html2md::NodeData::Text { contents } = &node.data {
+        text.push_str(&contents.borrow());
+        text.push(' ');
+    }
+
+    for child in node.children.borrow().iter() {
+        collect_text(child, text);
+    }
+}
+
+fn extract_images(node: &html2md::Handle) -> Vec<(String, String)> {
+    let mut images = Vec::new();
+    collect_images(node, &mut images);
+    images
+}
+
+fn collect_images(node: &html2md::Handle, images: &mut Vec<(String, String)>) {
+    if let html2md::NodeData::Element { name, attrs, .. } = &node.data {
+        if name.local.as_ref() == "img" {
+            let attributes = attrs.borrow();
+            let source = attributes.iter().find_map(|attribute| {
+                (attribute.name.local.as_ref() == "src").then(|| attribute.value.to_string())
+            });
+            let alt_text = attributes
+                .iter()
+                .find_map(|attribute| {
+                    (attribute.name.local.as_ref() == "alt").then(|| attribute.value.to_string())
+                })
+                .unwrap_or_default();
+
+            if let Some(source) = source {
+                images.push((source, alt_text));
+            }
+        }
+    }
+
+    for child in node.children.borrow().iter() {
+        collect_images(child, images);
+    }
+}
+
+fn escape_link_text(text: &str) -> String {
+    text.replace('\\', "\\\\")
+        .replace('[', "\\[")
+        .replace(']', "\\]")
 }
 
 /// Konverter HTML-bytes med riktig encoding
@@ -392,6 +539,52 @@ mod tests {
         let result = html_to_markdown(html, None, true);
         assert!(result.markdown.contains("Hovedinnhold"));
         assert!(result.used_readability);
+    }
+
+    #[test]
+    fn test_readability_preserves_links() {
+        let html = r#"
+            <html><body><article>
+                <h1>Nyheter</h1>
+                <p><a href="/nyheter/sak">Intern nyhet</a></p>
+                <p><a href="https://example.com/annen-sak">Ekstern nyhet</a></p>
+            </article></body></html>
+        "#;
+
+        let result = html_to_markdown(html, Some("https://www.tek.no/"), true);
+
+        assert!(result.used_readability);
+        assert!(result
+            .markdown
+            .contains("[Intern nyhet](https://www.tek.no/nyheter/sak)"));
+        assert!(result
+            .markdown
+            .contains("[Ekstern nyhet](https://example.com/annen-sak)"));
+    }
+
+    #[test]
+    fn test_html_to_markdown_preserves_block_link() {
+        let html = r#"
+            <a href="https://www.tek.no/nyheter/sak">
+                <article>
+                    <img src="https://example.com/image.jpg" alt="Bil">
+                    <h2>Teslas rattløse robottaxi er lansert</h2>
+                    <p>Cybercab er klar for tur.</p>
+                </article>
+            </a>
+        "#;
+
+        let result = html_to_markdown(html, None, false);
+
+        assert!(result
+            .markdown
+            .contains("[Teslas rattløse robottaxi er lansert Cybercab er klar for tur.](https://www.tek.no/nyheter/sak)"));
+        assert!(result
+            .markdown
+            .contains("[![Bil](https://example.com/image.jpg)](https://www.tek.no/nyheter/sak)"));
+        assert!(!result
+            .markdown
+            .contains("\n](https://www.tek.no/nyheter/sak)"));
     }
 
     #[test]
