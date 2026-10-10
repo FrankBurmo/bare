@@ -312,12 +312,12 @@ fn image_source(node: &Handle) -> Option<String> {
     };
 
     for attribute_name in [
+        "data-srcset",
+        "srcset",
         "data-src",
         "data-lazy-src",
         "data-original",
         "data-image",
-        "data-srcset",
-        "srcset",
         "src",
     ] {
         if let Some(value) = attributes.iter().find_map(|attribute| {
@@ -334,13 +334,36 @@ fn image_source(node: &Handle) -> Option<String> {
     None
 }
 
+/// Picks the highest-resolution candidate from a srcset value (or the plain URL
+/// when the value is not a srcset). Candidates without descriptors count as 1x.
 fn first_srcset_candidate(value: &str) -> Option<String> {
-    value
-        .split(',')
-        .next()
-        .and_then(|candidate| candidate.split_whitespace().next())
-        .filter(|source| !source.is_empty())
-        .map(str::to_string)
+    let mut best: Option<(f64, String)> = None;
+    let mut tokens = value.split_whitespace().peekable();
+
+    while let Some(token) = tokens.next() {
+        let url = token.trim_end_matches(',');
+        if url.is_empty() {
+            continue;
+        }
+        let mut weight = 1.0;
+        if !token.ends_with(',') {
+            if let Some(next) = tokens.peek() {
+                let descriptor = next.trim_end_matches(',');
+                let number = descriptor.trim_end_matches(['w', 'x']);
+                if descriptor.ends_with(['w', 'x']) {
+                    if let Ok(parsed) = number.parse::<f64>() {
+                        weight = parsed;
+                        tokens.next();
+                    }
+                }
+            }
+        }
+        if best.as_ref().is_none_or(|(w, _)| weight > *w) {
+            best = Some((weight, url.to_string()));
+        }
+    }
+
+    best.map(|(_, url)| url)
 }
 
 fn is_placeholder_image(source: &str) -> bool {
@@ -760,8 +783,27 @@ mod tests {
             .contains("![Et bilde](https://www.tek.no/images/real-image.webp)"));
         assert!(result
             .markdown
-            .contains("![Et annet bilde](https://www.tek.no/images/small.webp)"));
+            .contains("![Et annet bilde](https://www.tek.no/images/large.webp)"));
         assert!(!result.markdown.contains("placeholder.gif"));
+    }
+
+    #[test]
+    fn test_srcset_picks_largest_candidate() {
+        assert_eq!(
+            first_srcset_candidate("a.jpg 320w, b.jpg 1200w, c.jpg 800w").as_deref(),
+            Some("b.jpg")
+        );
+        assert_eq!(
+            first_srcset_candidate(
+                "https://x/w_100,h_100/a.jpg 1x, https://x/w_200,h_200/a.jpg 2x"
+            )
+            .as_deref(),
+            Some("https://x/w_200,h_200/a.jpg")
+        );
+        assert_eq!(
+            first_srcset_candidate("only.jpg").as_deref(),
+            Some("only.jpg")
+        );
     }
 
     #[test]
