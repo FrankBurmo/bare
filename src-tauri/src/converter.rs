@@ -384,7 +384,24 @@ fn resolve_image_url(source: &str, base_url: Option<&Url>) -> Option<String> {
         None => Url::parse(source).ok()?,
     };
 
-    matches!(resolved.scheme(), "http" | "https").then(|| resolved.to_string())
+    if !matches!(resolved.scheme(), "http" | "https") {
+        return None;
+    }
+
+    Some(upscale_image_url(resolved).to_string())
+}
+
+/// Aller Media image servers (`/images/?imageId=...`) return a 100px thumbnail
+/// unless a width is requested.
+fn upscale_image_url(mut url: Url) -> Url {
+    const TARGET_WIDTH: &str = "1200";
+    let is_image_endpoint = url.path().starts_with("/images/")
+        && url.query_pairs().any(|(key, _)| key == "imageId")
+        && !url.query_pairs().any(|(key, _)| key == "width");
+    if is_image_endpoint {
+        url.query_pairs_mut().append_pair("width", TARGET_WIDTH);
+    }
+    url
 }
 
 fn escape_link_text(text: &str) -> String {
@@ -785,6 +802,17 @@ mod tests {
             .markdown
             .contains("![Et annet bilde](https://www.tek.no/images/large.webp)"));
         assert!(!result.markdown.contains("placeholder.gif"));
+    }
+
+    #[test]
+    fn test_aller_image_endpoint_requests_larger_width() {
+        let base = Url::parse("https://dinside.dagbladet.no/").unwrap();
+        let url = resolve_image_url("/images/?imageId=1&panow=100", Some(&base)).unwrap();
+        assert!(url.ends_with("&width=1200"));
+        let url = resolve_image_url("/images/?imageId=1&width=300", Some(&base)).unwrap();
+        assert!(!url.contains("1200"));
+        let url = resolve_image_url("/img/a.jpg", Some(&base)).unwrap();
+        assert!(!url.contains("width"));
     }
 
     #[test]
