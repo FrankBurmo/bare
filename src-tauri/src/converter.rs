@@ -429,6 +429,8 @@ fn detect_charset_from_html(bytes: &[u8]) -> Option<String> {
 
 /// Sanitize HTML ved å fjerne potensielt farlige eller unødvendige elementer
 fn sanitize_html(html: &str) -> String {
+    let html = remove_escaped_iframes(html);
+
     // Definer hvilke tags vi vil beholde
     let mut allowed_tags: HashSet<&str> = HashSet::new();
     for tag in &[
@@ -516,9 +518,37 @@ fn sanitize_html(html: &str) -> String {
                 "data-srcset",
             ],
         )
+        .add_clean_content_tags(["iframe"])
         .link_rel(Some("noopener noreferrer"))
-        .clean(html)
+        .clean(&html)
         .to_string()
+}
+
+fn remove_escaped_iframes(html: &str) -> String {
+    let lower = html.to_ascii_lowercase();
+    let mut result = String::with_capacity(html.len());
+    let mut cursor = 0;
+
+    while let Some(relative_start) = lower[cursor..].find("&lt;iframe") {
+        let start = cursor + relative_start;
+        result.push_str(&html[cursor..start]);
+
+        let after_start = start + "&lt;iframe".len();
+        let end = lower[after_start..]
+            .find("&lt;/iframe&gt;")
+            .map(|relative_end| after_start + relative_end + "&lt;/iframe&gt;".len())
+            .or_else(|| {
+                lower[after_start..]
+                    .find("&gt;")
+                    .map(|relative_end| after_start + relative_end + "&gt;".len())
+            })
+            .unwrap_or(html.len());
+
+        cursor = end;
+    }
+
+    result.push_str(&html[cursor..]);
+    result
 }
 
 /// Ekstraher tittel fra HTML
@@ -760,6 +790,28 @@ mod tests {
         let html = "<div><p>Trygt</p></div>";
         let sanitized = sanitize_html(html);
         assert!(sanitized.contains("Trygt"));
+    }
+
+    #[test]
+    fn test_sanitize_removes_iframe_and_content() {
+        let html = r#"<p>Gamer.no</p><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TV2T4RTR">Sporing</iframe><p>Innhold</p>"#;
+        let sanitized = sanitize_html(html);
+
+        assert!(sanitized.contains("Gamer.no"));
+        assert!(sanitized.contains("Innhold"));
+        assert!(!sanitized.contains("iframe"));
+        assert!(!sanitized.contains("Sporing"));
+    }
+
+    #[test]
+    fn test_html_to_markdown_removes_escaped_iframe_markup() {
+        let html = r#"<p>Gamer.no &lt;iframe src=&quot;https://www.googletagmanager.com/ns.html?id=GTM-TV2T4RTR&quot; height=&quot;0&quot;&gt;&lt;/iframe&gt;</p><p>Innhold</p>"#;
+        let result = html_to_markdown(html, None, false);
+
+        assert!(result.markdown.contains("Gamer.no"));
+        assert!(result.markdown.contains("Innhold"));
+        assert!(!result.markdown.contains("iframe"));
+        assert!(!result.markdown.contains("googletagmanager"));
     }
 
     #[test]
