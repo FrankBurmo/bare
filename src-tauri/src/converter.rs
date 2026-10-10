@@ -5,8 +5,10 @@
 
 use ammonia::Builder;
 use dom_smoothie::{Config, Readability};
+use html2md::{Handle, StructuredPrinter, TagHandler, TagHandlerFactory};
 use log::{debug, info, warn};
 use std::collections::{HashMap, HashSet};
+use url::Url;
 
 // Disse importene brukes av decode_html som er tilgjengelig for fremtidig bruk
 #[allow(unused_imports)]
@@ -65,7 +67,7 @@ pub fn html_to_markdown(
                         article.text_content.len()
                     );
                     let clean_html = sanitize_html(&article.content);
-                    let markdown = convert_html_to_markdown(&clean_html);
+                    let markdown = convert_html_to_markdown(&clean_html, url);
                     return ConversionResult {
                         markdown: clean_markdown(&markdown),
                         title: if article.title.is_empty() {
@@ -95,7 +97,7 @@ pub fn html_to_markdown(
     // Fallback: Bruk den gamle metoden hvis Readability feiler eller er deaktivert
     let title = extract_title(html);
     let clean_html = sanitize_html(html);
-    let markdown = convert_html_to_markdown(&clean_html);
+    let markdown = convert_html_to_markdown(&clean_html, url);
     let cleaned_markdown = clean_markdown(&markdown);
 
     ConversionResult {
@@ -105,16 +107,22 @@ pub fn html_to_markdown(
     }
 }
 
-struct BlockSafeAnchorFactory;
+struct BlockSafeAnchorFactory {
+    base_url: Option<Url>,
+}
 
 impl html2md::TagHandlerFactory for BlockSafeAnchorFactory {
     fn instantiate(&self) -> Box<dyn html2md::TagHandler> {
-        Box::new(BlockSafeAnchorHandler::default())
+        Box::new(BlockSafeAnchorHandler {
+            base_url: self.base_url.clone(),
+            ..Default::default()
+        })
     }
 }
 
 #[derive(Default)]
 struct BlockSafeAnchorHandler {
+    base_url: Option<Url>,
     inline_handler: Option<html2md::anchors::AnchorHandler>,
     skip_children: bool,
 }
@@ -131,7 +139,7 @@ impl html2md::TagHandler for BlockSafeAnchorHandler {
         self.skip_children = true;
         let text = extract_link_text(tag);
         if let Some(href) = extract_href(tag) {
-            for (source, alt_text) in extract_images(tag) {
+            for (source, alt_text) in extract_images(tag, self.base_url.as_ref()) {
                 printer.append_str(&format!(
                     "[![{}]({})]({})\n\n",
                     escape_link_text(&alt_text),
@@ -156,9 +164,49 @@ impl html2md::TagHandler for BlockSafeAnchorHandler {
     }
 }
 
-fn convert_html_to_markdown(html: &str) -> String {
+struct ImageHandlerFactory {
+    base_url: Option<Url>,
+}
+
+impl TagHandlerFactory for ImageHandlerFactory {
+    fn instantiate(&self) -> Box<dyn TagHandler> {
+        Box::new(ImageHandler {
+            base_url: self.base_url.clone(),
+        })
+    }
+}
+
+struct ImageHandler {
+    base_url: Option<Url>,
+}
+
+impl TagHandler for ImageHandler {
+    fn handle(&mut self, tag: &Handle, printer: &mut StructuredPrinter) {
+        let Some(source) =
+            image_source(tag).and_then(|source| resolve_image_url(&source, self.base_url.as_ref()))
+        else {
+            return;
+        };
+        let alt = html2md::common::get_tag_attr(tag, "alt").unwrap_or_default();
+        printer.append_str(&format!("![{}]({})", alt, source));
+    }
+
+    fn after_handle(&mut self, _printer: &mut StructuredPrinter) {}
+}
+
+fn convert_html_to_markdown(html: &str, base_url: Option<&str>) -> String {
+    let base_url = base_url.and_then(|url| Url::parse(url).ok());
     let mut custom_handlers: HashMap<String, Box<dyn html2md::TagHandlerFactory>> = HashMap::new();
-    custom_handlers.insert("a".to_string(), Box::new(BlockSafeAnchorFactory));
+    custom_handlers.insert(
+        "a".to_string(),
+        Box::new(BlockSafeAnchorFactory {
+            base_url: base_url.clone(),
+        }),
+    );
+    custom_handlers.insert(
+        "img".to_string(),
+        Box::new(ImageHandlerFactory { base_url }),
+    );
     html2md::parse_html_custom(html, &custom_handlers)
 }
 
@@ -217,25 +265,27 @@ fn collect_text(node: &html2md::Handle, text: &mut String) {
     }
 }
 
-fn extract_images(node: &html2md::Handle) -> Vec<(String, String)> {
+fn extract_images(node: &html2md::Handle, base_url: Option<&Url>) -> Vec<(String, String)> {
     let mut images = Vec::new();
-    collect_images(node, &mut images);
+    collect_images(node, &mut images, base_url);
     images
 }
 
-fn collect_images(node: &html2md::Handle, images: &mut Vec<(String, String)>) {
+fn collect_images(
+    node: &html2md::Handle,
+    images: &mut Vec<(String, String)>,
+    base_url: Option<&Url>,
+) {
     if let html2md::NodeData::Element { name, attrs, .. } = &node.data {
         if name.local.as_ref() == "img" {
-            let attributes = attrs.borrow();
-            let source = attributes.iter().find_map(|attribute| {
-                (attribute.name.local.as_ref() == "src").then(|| attribute.value.to_string())
-            });
-            let alt_text = attributes
+            let alt_text = attrs
+                .borrow()
                 .iter()
                 .find_map(|attribute| {
                     (attribute.name.local.as_ref() == "alt").then(|| attribute.value.to_string())
                 })
                 .unwrap_or_default();
+            let source = image_source(node).and_then(|source| resolve_image_url(&source, base_url));
 
             if let Some(source) = source {
                 images.push((source, alt_text));
@@ -244,8 +294,67 @@ fn collect_images(node: &html2md::Handle, images: &mut Vec<(String, String)>) {
     }
 
     for child in node.children.borrow().iter() {
-        collect_images(child, images);
+        collect_images(child, images, base_url);
     }
+}
+
+fn image_source(node: &Handle) -> Option<String> {
+    let attributes = match &node.data {
+        html2md::NodeData::Element { attrs, .. } => attrs.borrow(),
+        _ => return None,
+    };
+
+    for attribute_name in [
+        "data-src",
+        "data-lazy-src",
+        "data-original",
+        "data-image",
+        "data-srcset",
+        "srcset",
+        "src",
+    ] {
+        if let Some(value) = attributes.iter().find_map(|attribute| {
+            (attribute.name.local.as_ref() == attribute_name).then(|| attribute.value.to_string())
+        }) {
+            if let Some(source) = first_srcset_candidate(&value) {
+                if !is_placeholder_image(&source) {
+                    return Some(source);
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn first_srcset_candidate(value: &str) -> Option<String> {
+    value
+        .split(',')
+        .next()
+        .and_then(|candidate| candidate.split_whitespace().next())
+        .filter(|source| !source.is_empty())
+        .map(str::to_string)
+}
+
+fn is_placeholder_image(source: &str) -> bool {
+    let source = source.trim().to_ascii_lowercase();
+    source.is_empty()
+        || source == "about:blank"
+        || (source.starts_with("data:image/") && source.len() < 256)
+}
+
+fn resolve_image_url(source: &str, base_url: Option<&Url>) -> Option<String> {
+    let source = source.trim();
+    if source.starts_with("data:image/") {
+        return Some(source.to_string());
+    }
+
+    let resolved = match base_url {
+        Some(base_url) => base_url.join(source).ok()?,
+        None => Url::parse(source).ok()?,
+    };
+
+    matches!(resolved.scheme(), "http" | "https").then(|| resolved.to_string())
 }
 
 fn escape_link_text(text: &str) -> String {
@@ -392,7 +501,21 @@ fn sanitize_html(html: &str) -> String {
         // Tillat href og target for lenker (rel settes automatisk av link_rel)
         .add_tag_attributes("a", &["href", "target"])
         // Tillat src og alt for bilder
-        .add_tag_attributes("img", &["src", "alt", "width", "height"])
+        .add_tag_attributes(
+            "img",
+            &[
+                "src",
+                "alt",
+                "width",
+                "height",
+                "srcset",
+                "data-src",
+                "data-lazy-src",
+                "data-original",
+                "data-image",
+                "data-srcset",
+            ],
+        )
         .link_rel(Some("noopener noreferrer"))
         .clean(html)
         .to_string()
@@ -560,6 +683,29 @@ mod tests {
         assert!(result
             .markdown
             .contains("[Ekstern nyhet](https://example.com/annen-sak)"));
+    }
+
+    #[test]
+    fn test_images_use_absolute_and_lazy_sources() {
+        let html = r#"
+            <article>
+                <img src="/images/placeholder.gif"
+                     data-src="/images/real-image.webp"
+                     alt="Et bilde">
+                <img srcset="/images/small.webp 480w, /images/large.webp 1200w"
+                     alt="Et annet bilde">
+            </article>
+        "#;
+
+        let result = html_to_markdown(html, Some("https://www.tek.no/"), false);
+
+        assert!(result
+            .markdown
+            .contains("![Et bilde](https://www.tek.no/images/real-image.webp)"));
+        assert!(result
+            .markdown
+            .contains("![Et annet bilde](https://www.tek.no/images/small.webp)"));
+        assert!(!result.markdown.contains("placeholder.gif"));
     }
 
     #[test]
