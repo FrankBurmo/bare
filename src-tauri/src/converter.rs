@@ -67,7 +67,9 @@ pub fn html_to_markdown(
                         article.text_content.len()
                     );
                     let clean_html = sanitize_html(&article.content);
-                    let markdown = convert_html_to_markdown(&clean_html, url);
+                    let markdown = remove_iframe_markup(&remove_escaped_iframes(
+                        &convert_html_to_markdown(&clean_html, url),
+                    ));
                     return ConversionResult {
                         markdown: clean_markdown(&markdown),
                         title: if article.title.is_empty() {
@@ -97,7 +99,10 @@ pub fn html_to_markdown(
     // Fallback: Bruk den gamle metoden hvis Readability feiler eller er deaktivert
     let title = extract_title(html);
     let clean_html = sanitize_html(html);
-    let markdown = convert_html_to_markdown(&clean_html, url);
+    let markdown = remove_iframe_markup(&remove_escaped_iframes(&convert_html_to_markdown(
+        &clean_html,
+        url,
+    )));
     let cleaned_markdown = clean_markdown(&markdown);
 
     ConversionResult {
@@ -267,13 +272,15 @@ fn collect_text(node: &html2md::Handle, text: &mut String) {
 
 fn extract_images(node: &html2md::Handle, base_url: Option<&Url>) -> Vec<(String, String)> {
     let mut images = Vec::new();
-    collect_images(node, &mut images, base_url);
+    let mut seen_sources = HashSet::new();
+    collect_images(node, &mut images, &mut seen_sources, base_url);
     images
 }
 
 fn collect_images(
     node: &html2md::Handle,
     images: &mut Vec<(String, String)>,
+    seen_sources: &mut HashSet<String>,
     base_url: Option<&Url>,
 ) {
     if let html2md::NodeData::Element { name, attrs, .. } = &node.data {
@@ -287,14 +294,14 @@ fn collect_images(
                 .unwrap_or_default();
             let source = image_source(node).and_then(|source| resolve_image_url(&source, base_url));
 
-            if let Some(source) = source {
+            if let Some(source) = source.filter(|source| seen_sources.insert(source.clone())) {
                 images.push((source, alt_text));
             }
         }
     }
 
     for child in node.children.borrow().iter() {
-        collect_images(child, images, base_url);
+        collect_images(child, images, seen_sources, base_url);
     }
 }
 
@@ -524,30 +531,49 @@ fn sanitize_html(html: &str) -> String {
         .to_string()
 }
 
+/// Fjerner iframe-tagger (åpning og avslutning) som er skrevet som entitetskodet tekst
 fn remove_escaped_iframes(html: &str) -> String {
-    let lower = html.to_ascii_lowercase();
-    let mut result = String::with_capacity(html.len());
+    remove_tag_markup(html, &["&lt;iframe", "&lt;/iframe"], "&gt;")
+}
+
+/// Fjerner iframe-tagger som har havnet som ren tekst i markdown, inkludert
+/// tagger der `<` er escapet med bakslash av html2md (`\</iframe>`)
+fn remove_iframe_markup(text: &str) -> String {
+    remove_tag_markup(text, &["<iframe", "</iframe"], ">")
+}
+
+/// Fjerner hver tag som starter med en av `openers` frem til og med `closer`.
+/// En eventuell bakslash rett før taggen fjernes også.
+fn remove_tag_markup(text: &str, openers: &[&str], closer: &str) -> String {
+    let lower = text.to_ascii_lowercase();
+    let mut result = String::with_capacity(text.len());
     let mut cursor = 0;
 
-    while let Some(relative_start) = lower[cursor..].find("&lt;iframe") {
-        let start = cursor + relative_start;
-        result.push_str(&html[cursor..start]);
-
-        let after_start = start + "&lt;iframe".len();
+    while let Some((start, opener)) = openers
+        .iter()
+        .filter_map(|opener| {
+            lower[cursor..]
+                .find(opener)
+                .map(|pos| (cursor + pos, *opener))
+        })
+        .min_by_key(|(pos, _)| *pos)
+    {
+        let after_start = start + opener.len();
         let end = lower[after_start..]
-            .find("&lt;/iframe&gt;")
-            .map(|relative_end| after_start + relative_end + "&lt;/iframe&gt;".len())
-            .or_else(|| {
-                lower[after_start..]
-                    .find("&gt;")
-                    .map(|relative_end| after_start + relative_end + "&gt;".len())
-            })
-            .unwrap_or(html.len());
+            .find(closer)
+            .map(|relative_end| after_start + relative_end + closer.len())
+            .unwrap_or(text.len());
 
+        let keep_until = if start > cursor && text[..start].ends_with('\\') {
+            start - 1
+        } else {
+            start
+        };
+        result.push_str(&text[cursor..keep_until]);
         cursor = end;
     }
 
-    result.push_str(&html[cursor..]);
+    result.push_str(&text[cursor..]);
     result
 }
 
@@ -764,6 +790,29 @@ mod tests {
     }
 
     #[test]
+    fn test_block_link_deduplicates_repeated_images() {
+        let html = r#"
+            <a href="https://example.com/story">
+                <div>
+                    <img src="https://example.com/image.jpg" alt="Bilde">
+                    <img src="https://example.com/image.jpg" alt="Bilde">
+                    <h2>En historie</h2>
+                </div>
+            </a>
+        "#;
+
+        let result = html_to_markdown(html, None, false);
+
+        assert_eq!(
+            result
+                .markdown
+                .matches("https://example.com/image.jpg")
+                .count(),
+            1
+        );
+    }
+
+    #[test]
     fn test_extract_title() {
         let html = "<html><head><title>Min side</title></head><body></body></html>";
         let title = extract_title(html);
@@ -812,6 +861,36 @@ mod tests {
         assert!(result.markdown.contains("Innhold"));
         assert!(!result.markdown.contains("iframe"));
         assert!(!result.markdown.contains("googletagmanager"));
+    }
+
+    #[test]
+    fn test_html_to_markdown_removes_entity_decoded_iframe_markup() {
+        let html = r#"<p>Gamer.no &amp;lt;iframe src=&amp;quot;https://www.googletagmanager.com/ns.html?id=GTM-TV2T4RTR&amp;quot; height=&amp;quot;0&amp;quot;&amp;gt;&amp;lt;/iframe&amp;gt;</p><p>Innhold</p>"#;
+        let result = html_to_markdown(html, None, false);
+
+        assert!(result.markdown.contains("Gamer.no"));
+        assert!(result.markdown.contains("Innhold"));
+        assert!(!result.markdown.contains("iframe"));
+        assert!(!result.markdown.contains("googletagmanager"));
+    }
+
+    #[test]
+    fn test_remove_iframe_markup_handles_backslash_escaped_tags() {
+        let text = r#"Gamer.no \<iframe src="https://www.googletagmanager.com/ns.html" height="0"\> \</iframe>"#;
+        let cleaned = remove_iframe_markup(text);
+
+        assert_eq!(cleaned.trim(), "Gamer.no");
+    }
+
+    #[test]
+    fn test_html_to_markdown_removes_stray_iframe_closing_tag() {
+        let html = r#"<p>Gamer.no &lt;/iframe&gt;</p><p>Innhold</p>"#;
+        let result = html_to_markdown(html, None, false);
+
+        assert!(result.markdown.contains("Gamer.no"));
+        assert!(result.markdown.contains("Innhold"));
+        assert!(!result.markdown.contains("iframe"));
+        assert!(!result.markdown.contains('\\'));
     }
 
     #[test]
