@@ -67,7 +67,9 @@ pub fn html_to_markdown(
                         article.text_content.len()
                     );
                     let clean_html = sanitize_html(&article.content);
-                    let markdown = convert_html_to_markdown(&clean_html, url);
+                    let markdown = remove_iframe_markup(&remove_escaped_iframes(
+                        &convert_html_to_markdown(&clean_html, url),
+                    ));
                     return ConversionResult {
                         markdown: clean_markdown(&markdown),
                         title: if article.title.is_empty() {
@@ -97,7 +99,10 @@ pub fn html_to_markdown(
     // Fallback: Bruk den gamle metoden hvis Readability feiler eller er deaktivert
     let title = extract_title(html);
     let clean_html = sanitize_html(html);
-    let markdown = convert_html_to_markdown(&clean_html, url);
+    let markdown = remove_iframe_markup(&remove_escaped_iframes(&convert_html_to_markdown(
+        &clean_html,
+        url,
+    )));
     let cleaned_markdown = clean_markdown(&markdown);
 
     ConversionResult {
@@ -267,13 +272,15 @@ fn collect_text(node: &html2md::Handle, text: &mut String) {
 
 fn extract_images(node: &html2md::Handle, base_url: Option<&Url>) -> Vec<(String, String)> {
     let mut images = Vec::new();
-    collect_images(node, &mut images, base_url);
+    let mut seen_sources = HashSet::new();
+    collect_images(node, &mut images, &mut seen_sources, base_url);
     images
 }
 
 fn collect_images(
     node: &html2md::Handle,
     images: &mut Vec<(String, String)>,
+    seen_sources: &mut HashSet<String>,
     base_url: Option<&Url>,
 ) {
     if let html2md::NodeData::Element { name, attrs, .. } = &node.data {
@@ -287,14 +294,14 @@ fn collect_images(
                 .unwrap_or_default();
             let source = image_source(node).and_then(|source| resolve_image_url(&source, base_url));
 
-            if let Some(source) = source {
+            if let Some(source) = source.filter(|source| seen_sources.insert(source.clone())) {
                 images.push((source, alt_text));
             }
         }
     }
 
     for child in node.children.borrow().iter() {
-        collect_images(child, images, base_url);
+        collect_images(child, images, seen_sources, base_url);
     }
 }
 
@@ -305,12 +312,12 @@ fn image_source(node: &Handle) -> Option<String> {
     };
 
     for attribute_name in [
+        "data-srcset",
+        "srcset",
         "data-src",
         "data-lazy-src",
         "data-original",
         "data-image",
-        "data-srcset",
-        "srcset",
         "src",
     ] {
         if let Some(value) = attributes.iter().find_map(|attribute| {
@@ -327,13 +334,36 @@ fn image_source(node: &Handle) -> Option<String> {
     None
 }
 
+/// Picks the highest-resolution candidate from a srcset value (or the plain URL
+/// when the value is not a srcset). Candidates without descriptors count as 1x.
 fn first_srcset_candidate(value: &str) -> Option<String> {
-    value
-        .split(',')
-        .next()
-        .and_then(|candidate| candidate.split_whitespace().next())
-        .filter(|source| !source.is_empty())
-        .map(str::to_string)
+    let mut best: Option<(f64, String)> = None;
+    let mut tokens = value.split_whitespace().peekable();
+
+    while let Some(token) = tokens.next() {
+        let url = token.trim_end_matches(',');
+        if url.is_empty() {
+            continue;
+        }
+        let mut weight = 1.0;
+        if !token.ends_with(',') {
+            if let Some(next) = tokens.peek() {
+                let descriptor = next.trim_end_matches(',');
+                let number = descriptor.trim_end_matches(['w', 'x']);
+                if descriptor.ends_with(['w', 'x']) {
+                    if let Ok(parsed) = number.parse::<f64>() {
+                        weight = parsed;
+                        tokens.next();
+                    }
+                }
+            }
+        }
+        if best.as_ref().is_none_or(|(w, _)| weight > *w) {
+            best = Some((weight, url.to_string()));
+        }
+    }
+
+    best.map(|(_, url)| url)
 }
 
 fn is_placeholder_image(source: &str) -> bool {
@@ -354,7 +384,24 @@ fn resolve_image_url(source: &str, base_url: Option<&Url>) -> Option<String> {
         None => Url::parse(source).ok()?,
     };
 
-    matches!(resolved.scheme(), "http" | "https").then(|| resolved.to_string())
+    if !matches!(resolved.scheme(), "http" | "https") {
+        return None;
+    }
+
+    Some(upscale_image_url(resolved).to_string())
+}
+
+/// Aller Media image servers (`/images/?imageId=...`) return a 100px thumbnail
+/// unless a width is requested.
+fn upscale_image_url(mut url: Url) -> Url {
+    const TARGET_WIDTH: &str = "1200";
+    let is_image_endpoint = url.path().starts_with("/images/")
+        && url.query_pairs().any(|(key, _)| key == "imageId")
+        && !url.query_pairs().any(|(key, _)| key == "width");
+    if is_image_endpoint {
+        url.query_pairs_mut().append_pair("width", TARGET_WIDTH);
+    }
+    url
 }
 
 fn escape_link_text(text: &str) -> String {
@@ -524,30 +571,49 @@ fn sanitize_html(html: &str) -> String {
         .to_string()
 }
 
+/// Fjerner iframe-tagger (åpning og avslutning) som er skrevet som entitetskodet tekst
 fn remove_escaped_iframes(html: &str) -> String {
-    let lower = html.to_ascii_lowercase();
-    let mut result = String::with_capacity(html.len());
+    remove_tag_markup(html, &["&lt;iframe", "&lt;/iframe"], "&gt;")
+}
+
+/// Fjerner iframe-tagger som har havnet som ren tekst i markdown, inkludert
+/// tagger der `<` er escapet med bakslash av html2md (`\</iframe>`)
+fn remove_iframe_markup(text: &str) -> String {
+    remove_tag_markup(text, &["<iframe", "</iframe"], ">")
+}
+
+/// Fjerner hver tag som starter med en av `openers` frem til og med `closer`.
+/// En eventuell bakslash rett før taggen fjernes også.
+fn remove_tag_markup(text: &str, openers: &[&str], closer: &str) -> String {
+    let lower = text.to_ascii_lowercase();
+    let mut result = String::with_capacity(text.len());
     let mut cursor = 0;
 
-    while let Some(relative_start) = lower[cursor..].find("&lt;iframe") {
-        let start = cursor + relative_start;
-        result.push_str(&html[cursor..start]);
-
-        let after_start = start + "&lt;iframe".len();
+    while let Some((start, opener)) = openers
+        .iter()
+        .filter_map(|opener| {
+            lower[cursor..]
+                .find(opener)
+                .map(|pos| (cursor + pos, *opener))
+        })
+        .min_by_key(|(pos, _)| *pos)
+    {
+        let after_start = start + opener.len();
         let end = lower[after_start..]
-            .find("&lt;/iframe&gt;")
-            .map(|relative_end| after_start + relative_end + "&lt;/iframe&gt;".len())
-            .or_else(|| {
-                lower[after_start..]
-                    .find("&gt;")
-                    .map(|relative_end| after_start + relative_end + "&gt;".len())
-            })
-            .unwrap_or(html.len());
+            .find(closer)
+            .map(|relative_end| after_start + relative_end + closer.len())
+            .unwrap_or(text.len());
 
+        let keep_until = if start > cursor && text[..start].ends_with('\\') {
+            start - 1
+        } else {
+            start
+        };
+        result.push_str(&text[cursor..keep_until]);
         cursor = end;
     }
 
-    result.push_str(&html[cursor..]);
+    result.push_str(&text[cursor..]);
     result
 }
 
@@ -734,8 +800,38 @@ mod tests {
             .contains("![Et bilde](https://www.tek.no/images/real-image.webp)"));
         assert!(result
             .markdown
-            .contains("![Et annet bilde](https://www.tek.no/images/small.webp)"));
+            .contains("![Et annet bilde](https://www.tek.no/images/large.webp)"));
         assert!(!result.markdown.contains("placeholder.gif"));
+    }
+
+    #[test]
+    fn test_aller_image_endpoint_requests_larger_width() {
+        let base = Url::parse("https://dinside.dagbladet.no/").unwrap();
+        let url = resolve_image_url("/images/?imageId=1&panow=100", Some(&base)).unwrap();
+        assert!(url.ends_with("&width=1200"));
+        let url = resolve_image_url("/images/?imageId=1&width=300", Some(&base)).unwrap();
+        assert!(!url.contains("1200"));
+        let url = resolve_image_url("/img/a.jpg", Some(&base)).unwrap();
+        assert!(!url.contains("width"));
+    }
+
+    #[test]
+    fn test_srcset_picks_largest_candidate() {
+        assert_eq!(
+            first_srcset_candidate("a.jpg 320w, b.jpg 1200w, c.jpg 800w").as_deref(),
+            Some("b.jpg")
+        );
+        assert_eq!(
+            first_srcset_candidate(
+                "https://x/w_100,h_100/a.jpg 1x, https://x/w_200,h_200/a.jpg 2x"
+            )
+            .as_deref(),
+            Some("https://x/w_200,h_200/a.jpg")
+        );
+        assert_eq!(
+            first_srcset_candidate("only.jpg").as_deref(),
+            Some("only.jpg")
+        );
     }
 
     #[test]
@@ -761,6 +857,29 @@ mod tests {
         assert!(!result
             .markdown
             .contains("\n](https://www.tek.no/nyheter/sak)"));
+    }
+
+    #[test]
+    fn test_block_link_deduplicates_repeated_images() {
+        let html = r#"
+            <a href="https://example.com/story">
+                <div>
+                    <img src="https://example.com/image.jpg" alt="Bilde">
+                    <img src="https://example.com/image.jpg" alt="Bilde">
+                    <h2>En historie</h2>
+                </div>
+            </a>
+        "#;
+
+        let result = html_to_markdown(html, None, false);
+
+        assert_eq!(
+            result
+                .markdown
+                .matches("https://example.com/image.jpg")
+                .count(),
+            1
+        );
     }
 
     #[test]
@@ -812,6 +931,36 @@ mod tests {
         assert!(result.markdown.contains("Innhold"));
         assert!(!result.markdown.contains("iframe"));
         assert!(!result.markdown.contains("googletagmanager"));
+    }
+
+    #[test]
+    fn test_html_to_markdown_removes_entity_decoded_iframe_markup() {
+        let html = r#"<p>Gamer.no &amp;lt;iframe src=&amp;quot;https://www.googletagmanager.com/ns.html?id=GTM-TV2T4RTR&amp;quot; height=&amp;quot;0&amp;quot;&amp;gt;&amp;lt;/iframe&amp;gt;</p><p>Innhold</p>"#;
+        let result = html_to_markdown(html, None, false);
+
+        assert!(result.markdown.contains("Gamer.no"));
+        assert!(result.markdown.contains("Innhold"));
+        assert!(!result.markdown.contains("iframe"));
+        assert!(!result.markdown.contains("googletagmanager"));
+    }
+
+    #[test]
+    fn test_remove_iframe_markup_handles_backslash_escaped_tags() {
+        let text = r#"Gamer.no \<iframe src="https://www.googletagmanager.com/ns.html" height="0"\> \</iframe>"#;
+        let cleaned = remove_iframe_markup(text);
+
+        assert_eq!(cleaned.trim(), "Gamer.no");
+    }
+
+    #[test]
+    fn test_html_to_markdown_removes_stray_iframe_closing_tag() {
+        let html = r#"<p>Gamer.no &lt;/iframe&gt;</p><p>Innhold</p>"#;
+        let result = html_to_markdown(html, None, false);
+
+        assert!(result.markdown.contains("Gamer.no"));
+        assert!(result.markdown.contains("Innhold"));
+        assert!(!result.markdown.contains("iframe"));
+        assert!(!result.markdown.contains('\\'));
     }
 
     #[test]

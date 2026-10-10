@@ -630,6 +630,26 @@ body {
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 var(--shadow-color);
 }
 
+/* Bilder på egen linje, venstrejustert. Lenkede bilder (typisk sakstumbnails
+   på konverterte nettsider) vises som jevne miniatyrer. */
+.markdown-body img {
+    display: block;
+}
+
+.markdown-body a:has(> img:only-child) {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    text-decoration: none;
+}
+
+.markdown-body a > img:only-child {
+    width: 320px;
+    max-width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
 /* ===== Scrollbar ===== */
 .content::-webkit-scrollbar { width: 12px; }
 .content::-webkit-scrollbar-track { background: var(--bg-secondary); border-left: 1px solid var(--border-color); }
